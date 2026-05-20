@@ -18,11 +18,11 @@ namespace app
  * @defgroup params_group All Parameters/Settings
  * @{
  * @brief All input parameter options and structs.
- * 
+ *
  * @details To support settings that accept multiple different types of input,
  * these "option-specific" settings are enclosed in a struct with the following
  * schema:
- * 
+ *
  *    1. An enum `Option` of underlying type `std::uint8_t` with its final
  *       enumerator being `Size`,
  *    2. A string array `kNames` of size `Size`, associating a name with
@@ -32,16 +32,17 @@ namespace app
  *       needed, and
  *    4. A `std::variant` called `ParamsVar` containing a `Params` type for all
  *       `Option`s.
- * 
+ *
  * This schema was carefully crafted to reap the following benefits:
- * 
- *    - Enclosing all relevant information for an option-specific setting into a 
+ *
+ *    - Enclosing all relevant information for an option-specific setting into a
  *      single struct,
- *    - Readability, including explicit input variable names and the ability to 
+ *    - Readability, including explicit input variable names and the ability to
  *      use `using enum ...;` inside each struct, and
  *    - Flexibility to define a `concept` for it if desired in the future.
- * 
- * All other settings that do not have >1 option are defined in standalone structs.
+ *
+ * All other settings that do not have >1 option are defined in standalone
+ * structs.
  */
 
 // ----------------------------------------------------------------------------
@@ -79,9 +80,9 @@ struct InputXY
 
    using enum Option;
 
-   static constexpr std::array<std::string_view, 
-                     static_cast<std::size_t>(Size)>
-   kNames = 
+   static constexpr std::array<std::string_view,
+          static_cast<std::size_t>(Size)>
+          kNames =
    {
       "Here",       // Here
       "FromCSV",    // FromCSV
@@ -132,9 +133,9 @@ struct FunctionType
 
    using enum Option;
 
-   static constexpr std::array<std::string_view, 
-                        static_cast<std::size_t>(Size)>
-   kNames = 
+   static constexpr std::array<std::string_view,
+          static_cast<std::size_t>(Size)>
+          kNames =
    {
       "PiecewiseLinear",    // PiecewiseLinear
       "PiecewiseLogLog",    // PiecewiseLogLog
@@ -159,7 +160,7 @@ struct FunctionType
    };
 
    using ParamsVariant = std::variant<Params<PiecewiseLinear>,
-                                       Params<PiecewiseLogLog>>;
+         Params<PiecewiseLogLog>>;
 
 };
 // ----------------------------------------------------------------------------
@@ -173,9 +174,9 @@ struct IntervalType
 
    using enum Option;
 
-   static constexpr std::array<std::string_view, 
-                        static_cast<std::size_t>(Size)>
-   kNames = 
+   static constexpr std::array<std::string_view,
+          static_cast<std::size_t>(Size)>
+          kNames =
    {
       "Midpoint",      // Interval::Method::Midpoint
       "MidpointLog",   // Interval::Method::MidpointLog10
@@ -215,12 +216,12 @@ struct DiscMethod
       /// Number of DiscMethod options
       Size
    };
-   
+
    using enum Option;
 
-   static constexpr std::array<std::string_view, 
-                        static_cast<std::size_t>(Size)>
-   kNames = 
+   static constexpr std::array<std::string_view,
+          static_cast<std::size_t>(Size)>
+          kNames =
    {
       "Uniform",      // Uniform
       "UniformLog",   // UniformLog
@@ -250,19 +251,21 @@ struct DiscMethod
    };
 
    using ParamsVariant = std::variant<Params<Uniform>,Params<UniformLog>,
-                                       Params<Random>,Params<RandomLog>>;
+         Params<Random>,Params<RandomLog>>;
 };
 
 // ----------------------------------------------------------------------------
 /**
- * @brief All options and parameters associated with direction specification.
+ * @brief All options and parameters associated with wavenumber vector
+ * direction specification for a set of waves as in
+ * \p Source::Params<Source::Option::PSD>.
  */
 struct Direction
 {
    enum class Option : std::uint8_t
    {
-      /// Constant direction.
-      Constant,
+      /// Single direction for all waves.
+      Single,
 
       /// Random angle in XY-plane from x-axis for each wave.
       RandomXYAngle,
@@ -273,11 +276,11 @@ struct Direction
 
    using enum Option;
 
-   static constexpr std::array<std::string_view, 
-                        static_cast<std::size_t>(Size)>
-   kNames = 
+   static constexpr std::array<std::string_view,
+          static_cast<std::size_t>(Size)>
+          kNames =
    {
-      "Constant",         // Constant
+      "Single",           // Single
       "RandomXYAngle",    // RandomXYAngle
    };
 
@@ -285,26 +288,32 @@ struct Direction
    struct Params;
 
    template<>
-   struct Params<Constant>
+   struct Params<Single>
    {
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector direction, can be non-normalized.
       std::vector<double> direction;
    };
 
    template<>
    struct Params<RandomXYAngle>
    {
-      /// Min angle of wave from x-axis, in XY-plane (CCW+, CW-) (in degrees).
+      /**
+       * @brief Min angle of wavenumber vector from x-axis, in XY-plane
+       * (CCW+, CW-) (in degrees).
+       */
       double min_angle;
 
-      /// Max angle of wave from x-axis, in XY-plane (CCW+, CW-) (in degrees).
+      /**
+       * @brief Max angle of wavenumber vector from x-axis, in XY-plane
+       * (CCW+, CW-) (in degrees).
+       */
       double max_angle;
 
       /// Seed to use in randomization.
       int seed;
    };
 
-   using ParamsVariant = std::variant<Params<Constant>, Params<RandomXYAngle>>;
+   using ParamsVariant = std::variant<Params<Single>, Params<RandomXYAngle>>;
 
 };
 
@@ -315,7 +324,7 @@ struct Direction
  */
 struct TransferFunction
 {
-      /// Transfer function options.
+   /// Transfer function options.
    enum class Option : std::uint8_t
    {
       /**
@@ -330,7 +339,7 @@ struct TransferFunction
       /**
        * @brief Extrapolate from an approximate fit of the collapsed/normalized
        * flow-normal transfer function in Chaudhry & Candler, 2017.
-       * 
+       *
        */
       FlowNormalFit,
 
@@ -340,9 +349,9 @@ struct TransferFunction
 
    using enum Option;
 
-   static constexpr std::array<std::string_view, 
-                              static_cast<std::size_t>(Size)>
-   kNames = 
+   static constexpr std::array<std::string_view,
+          static_cast<std::size_t>(Size)>
+          kNames =
    {
       "LowFrequencyLimit",  // LowFrequencyLimit
       "Input",              // Input
@@ -370,7 +379,7 @@ struct TransferFunction
    };
 
    using ParamsVariant = std::variant<Params<LowFrequencyLimit>, Params<Input>,
-                                       Params<FlowNormalFit>>;
+         Params<FlowNormalFit>>;
 };
 
 // ----------------------------------------------------------------------------
@@ -397,12 +406,12 @@ struct Source
       /// Number of SourceOptions.
       Size
    };
-   
+
    using enum Option;
 
-   static constexpr std::array<std::string_view, 
-                              static_cast<std::size_t>(Size)>
-   kNames = 
+   static constexpr std::array<std::string_view,
+          static_cast<std::size_t>(Size)>
+          kNames =
    {
       "SingleWave",      // SingleWave
       "WaveSpectrum",    // WaveSpectrum
@@ -425,7 +434,7 @@ struct Source
       /// Phase, in deg.
       double phase;
 
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector direction, can be non-normalized.
       std::vector<double> direction;
 
       /// Wave speed ('S' or 'F').
@@ -444,7 +453,7 @@ struct Source
       /// Phases, in deg.
       std::vector<double> phases;
 
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector directions, can be non-normalized.
       std::vector<std::vector<double>> directions;
 
       /// Wave speeds ('S' or 'F').
@@ -476,7 +485,7 @@ struct Source
       /// Frequency discretization method parameters.
       DiscMethod::ParamsVariant disc_params;
 
-      /// Wave direction parameters.
+      /// Wavenumber direction parameters.
       Direction::ParamsVariant dir_params;
 
       /// Seed to use for wave phase randomization.
@@ -497,7 +506,7 @@ struct Source
    };
 
    using ParamsVariant = std::variant<Params<SingleWave>,Params<WaveSpectrum>,
-                                       Params<PSD>,Params<WaveCSV>>;
+         Params<PSD>,Params<WaveCSV>>;
 };
 
 
@@ -511,9 +520,9 @@ struct KernelType
 
    using enum Option;
 
-   static constexpr std::array<std::string_view, 
-                  static_cast<std::size_t>(Size)>
-   kNames = 
+   static constexpr std::array<std::string_view,
+          static_cast<std::size_t>(Size)>
+          kNames =
    {
       "GridPoint",      // AcousticField::Kernel::GridPoint
       "Wave",           // AcousticField::Kernel::Wave
@@ -524,7 +533,7 @@ struct KernelType
 // ----------------------------------------------------------------------------
 /// Struct for computation parameters.
 struct CompParams
-{  
+{
    /// Initial time.
    double t0;
 
@@ -548,7 +557,7 @@ struct PreciceParams
    std::string fluid_mesh_name;
 
    /**
-    * @brief Mesh access region, defined according to 
+    * @brief Mesh access region, defined according to
     * precice::Participant::setMeshAccessRegion()
     */
    std::vector<double> mesh_access_region;

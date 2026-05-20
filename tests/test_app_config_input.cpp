@@ -23,18 +23,18 @@ TEST_CASE("TOMLConfigInput::ParseBaseFlow", "[App][TOMLConfigInput]")
    const double kRho = GENERATE(take(1,random(0.1, 1.0)));
    const double kPBar = GENERATE(take(1,random(0.1, 2000.0)));
    const int kDim = GENERATE(1,2,3);
-   const std::vector<double> kUBar = 
-                        GENERATE_REF(take(1,chunk(kDim, random(0.0, 600.0))));
+   const std::vector<double> kUBar =
+      GENERATE_REF(take(1,chunk(kDim, random(0.0, 600.0))));
    const double kGamma = GENERATE(take(1,random(0.1, 1.5)));
 
-   const std::string base_flow_str = 
-   std::format(R"(
+   const std::string base_flow_str =
+      std::format(R"(
                rho={}
                p={}
                U={}
                gamma={}
                )", kRho, kPBar, TOMLWriteValue(kUBar), kGamma);
-   
+
    BaseFlowParams params;
    TOMLConfigInput::ParseBaseFlow(base_flow_str, params);
 
@@ -44,30 +44,36 @@ TEST_CASE("TOMLConfigInput::ParseBaseFlow", "[App][TOMLConfigInput]")
    CHECK(params.gamma == kGamma);
 }
 
-TEMPLATE_TEST_CASE_SIG("TOMLConfigInput Parse Options", 
-   "[App][TOMLConfigInput]",
-   ((typename T,
-      void(*Parser)(std::string, typename T::ParamsVariant&)),
-      T, Parser),
+TEMPLATE_TEST_CASE_SIG("TOMLConfigInput Parse Options",
+                       "[App][TOMLConfigInput]",
+                       ((typename T,
+                         void(*Parser)(std::string,
+                                       typename T::ParamsVariant &)),
+                        T, Parser),
 
-   (InputXY, TOMLConfigInput::ParseInputXY)
-   
-   ,(FunctionType, TOMLConfigInput::ParseFunctionType)
+                       (InputXY,
+                        TOMLConfigInput::ParseInputXY)
 
-   ,(DiscMethod, TOMLConfigInput::ParseDiscMethod)
+                       ,(FunctionType,
+                         TOMLConfigInput::ParseFunctionType)
 
-   ,(Direction, TOMLConfigInput::ParseDirection)
+                       ,(DiscMethod,
+                         TOMLConfigInput::ParseDiscMethod)
 
-   ,(TransferFunction, TOMLConfigInput::ParseTransferFunction)
+                       ,(Direction,
+                         TOMLConfigInput::ParseDirection)
 
-   ,(Source, TOMLConfigInput::ParseSource)
-   )
+                       ,(TransferFunction,
+                         TOMLConfigInput::ParseTransferFunction)
+
+                       ,(Source, TOMLConfigInput::ParseSource)
+                      )
 {
    using Option = typename T::Option;
    using ParamsVariant = typename T::ParamsVariant;
 
    const Option kOption = GENERATE(options<Option>());
-   const ParamsVariant opv = 
+   const ParamsVariant opv =
       GENERATE_REF(take(5, random_params<T>(kOption)));
 
    std::string in_str = TOMLWriteParams<T>(opv);
@@ -82,14 +88,14 @@ TEST_CASE("TOMLConfigInput::ParseComputation", "[App][TOMLConfigInput]")
 {
    const double kT0 = GENERATE(take(1,random(0.0,100.0)));
 
-   const AcousticField::Kernel kKernel = 
-                                 GENERATE(options<AcousticField::Kernel>());
+   const AcousticField::Kernel kKernel =
+      GENERATE(options<AcousticField::Kernel>());
 
-   const std::string comp_str = 
+   const std::string comp_str =
       std::format(R"(
                      t0={}
                      Kernel='{}'
-                  )", kT0, 
+                  )", kT0,
                   KernelType::kNames[static_cast<std::size_t>(kKernel)]);
 
    CompParams params;
@@ -106,15 +112,15 @@ TEST_CASE("TOMLConfigInput::ParsePrecice", "[App][TOMLConfigInput]")
    constexpr std::string_view kFluidMesh = "TestFluidMesh";
    const std::vector<double> kMeshRegion = {-0.01, 1.01, -1.01, 1.01};
 
-   const std::string precice_str = 
+   const std::string precice_str =
       std::format(R"(
                      ParticipantName="{}"
                      ConfigFile="{}"
                      MeshAccessRegion=[{},{},{},{}]
                      FluidMeshName="{}"
                   )", kPartName, kConfigFile, kMeshRegion[0], kMeshRegion[1],
-                     kMeshRegion[2], kMeshRegion[3], kFluidMesh);
-   
+                  kMeshRegion[2], kMeshRegion[3], kFluidMesh);
+
    PreciceParams params;
    TOMLConfigInput::ParsePrecice(precice_str, params);
    CHECK(params.participant_name == kPartName);

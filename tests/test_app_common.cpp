@@ -22,7 +22,7 @@ namespace jabber_test
 {
 
 TEST_CASE("Normalize", "[App][Common]")
-{   
+{
    constexpr std::size_t kDim = 3;
    std::vector<double> vec = GENERATE(take(1,chunk(kDim,random(0.0,1.0))));
    std::vector<double> norm_vec(kDim);
@@ -30,14 +30,14 @@ TEST_CASE("Normalize", "[App][Common]")
    Normalize(vec, norm_vec);
 
    // Check vec dot norm_vec == ||vec||
-   const double vec_mag = std::sqrt(std::inner_product(vec.begin(), 
-                                                      vec.end(), 
-                                                      vec.begin(), 
-                                                      0.0));
-   const double dot_product = std::inner_product(vec.begin(), 
-                                                   vec.end(), 
-                                                   norm_vec.begin(),
-                                                   0.0);
+   const double vec_mag = std::sqrt(std::inner_product(vec.begin(),
+                                                       vec.end(),
+                                                       vec.begin(),
+                                                       0.0));
+   const double dot_product = std::inner_product(vec.begin(),
+                                                 vec.end(),
+                                                 norm_vec.begin(),
+                                                 0.0);
    CAPTURE(vec, norm_vec);
    REQUIRE_THAT(dot_product, WithinRel(vec_mag, 1e-12));
 }
@@ -50,10 +50,10 @@ TEST_CASE("GetRankPartition", "[App][Common]")
    const int kSize = GENERATE_REF(range(1, 2*kN));
 
    CAPTURE(kVDim, kN, kSize);
-   
+
    const std::vector<double> values = take(1,
-                                          chunk(kN*kVDim,random(-10.0,10.0)))
-                                          .get();
+                                           chunk(kN*kVDim,random(-10.0,10.0)))
+                                      .get();
 
    // Test by appending all subspans together + comparing against original
    std::span<const double> r_sub_values;
@@ -62,9 +62,9 @@ TEST_CASE("GetRankPartition", "[App][Common]")
    {
       GetRankPartition<double>(values, kVDim, r, kSize, r_sub_values);
 
-      values_test.insert(values_test.end(), 
-                           r_sub_values.begin(),
-                           r_sub_values.end());
+      values_test.insert(values_test.end(),
+                         r_sub_values.begin(),
+                         r_sub_values.end());
    }
 
    REQUIRE_THAT(values, Equals(values_test));
@@ -81,7 +81,7 @@ TEST_CASE("GetRankPartition", "[App][Common]")
 //    DYNAMIC_SECTION(InputXYNames[idx])
 //    {
 //       InputXYParamsVariant ipv = GenerateRandomInputXY(option, kSeed);
-   
+
 //       std::vector<double> x = GenerateRandomVec<kN>(kSeed, 10, 100e3);
 //       std::vector<double> y = GenerateRandomVec<kN>(kSeed, 1e-9, 1e-12);
 
@@ -97,7 +97,7 @@ TEST_CASE("GetRankPartition", "[App][Common]")
 //       [&](InputXYParams<InputXY::FromCSV> &ip)
 //       {
 //          // Write sample CSV file.
-//          std::string file_name = std::filesystem::temp_directory_path() 
+//          std::string file_name = std::filesystem::temp_directory_path()
 //                                  / "jabber_unit_test_XXXXXX";
 //          mkstemp(file_name.data());
 

@@ -1,4 +1,4 @@
-name: CMake on Linux
+name: Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  unit-tests:
     runs-on: ${{ matrix.os }}
 
     strategy:
