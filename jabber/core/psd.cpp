@@ -8,8 +8,8 @@ namespace jabber
 
 
 Interval Interval::ComputeInterval(std::span<const double> freqs,
-                                    std::size_t i,
-                                    Interval::Method method)
+                                   std::size_t i,
+                                   Interval::Method method)
 {
    const std::size_t N = freqs.size()-1;
 
@@ -29,7 +29,7 @@ Interval Interval::ComputeInterval(std::span<const double> freqs,
       // Right-boundary
       else if (i == N)
       {
-         return Interval{(freqs[N-1] + freqs[N])/2.0, 
+         return Interval{(freqs[N-1] + freqs[N])/2.0,
                          freqs[N]};
       }
       // Interior
@@ -56,7 +56,7 @@ Interval Interval::ComputeInterval(std::span<const double> freqs,
       // Interior
       else
       {
-         return Interval{std::sqrt(freqs[i]*freqs[i-1]), 
+         return Interval{std::sqrt(freqs[i]*freqs[i-1]),
                          std::sqrt(freqs[i]*freqs[i+1])};
       }
    }
@@ -67,8 +67,8 @@ Interval Interval::ComputeInterval(std::span<const double> freqs,
 }
 
 void BasePSD::Discretize(std::span<const double> freqs,
-                           Interval::Method method,
-                           std::span<double> powers) const
+                         Interval::Method method,
+                         std::span<double> powers) const
 {
    for (std::size_t i = 0; i < freqs.size(); i++)
    {
@@ -107,7 +107,7 @@ double PWLinearPSD::Integrate(double f1, double f2) const
    double y0, x1, y1, m;
 
    // Integrate through
-   for(; it != it_stop; it++)
+   for (; it != it_stop; it++)
    {
       y0 = operator()(x0);
       m = it->second.m;
@@ -152,7 +152,7 @@ double PWLogLogPSD::Integrate(double f1, double f2) const
    double y0, x1, y1, m;
 
    // Integrate through
-   for(; it != it_stop; it++)
+   for (; it != it_stop; it++)
    {
       y0 = operator()(x0);
       m = it->second.m;

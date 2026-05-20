@@ -16,28 +16,28 @@ using namespace jabber::app;
 int main(int argc, char *argv[])
 {
    PrintBanner(std::cout);
-   std::cout << "Jabber Spectra Plotter" << std::endl 
-               << LINE << std::endl;
+   std::cout << "Jabber Spectra Plotter" << std::endl
+             << LINE << std::endl;
 
-    // Option parser:
-   cxxopts::Options options("jabber_plot", 
-      "Generate a plot of the final wave spectra from a config file.");
+   // Option parser:
+   cxxopts::Options options("jabber_plot",
+                            "Generate a plot of the final wave spectra from a config file.");
 
    options.add_options()
-      ("c,config", "Config file.", cxxopts::value<std::string>())
-      ("l,log", "Plot on a log-log scale.",
-                    cxxopts::value<bool>()->default_value("false"))
-      ("h,help", "Print usage information.")
-      ("n,nondim", 
-         "Nondimensionalize the pressure wave amplitudes using the "
-         "input base flow pressure.",
-                     cxxopts::value<bool>()->default_value("false"));
+   ("c,config", "Config file.", cxxopts::value<std::string>())
+   ("l,log", "Plot on a log-log scale.",
+    cxxopts::value<bool>()->default_value("false"))
+   ("h,help", "Print usage information.")
+   ("n,nondim",
+    "Nondimensionalize the pressure wave amplitudes using the "
+    "input base flow pressure.",
+    cxxopts::value<bool>()->default_value("false"));
 
    cxxopts::ParseResult result = options.parse(argc, argv);
-   
+
    std::string args_str = result.arguments_string();
-   std::cout << "Command Line Arguments:\n\n" << args_str << std::endl 
-               << LINE << std::endl;
+   std::cout << "Command Line Arguments:\n\n" << args_str << std::endl
+             << LINE << std::endl;
 
    if (result.count("help"))
    {
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
       amps[i] = waves[i].amplitude / (nd ? conf.BaseFlow().p : 1.0);
    }
 
-   std::FILE* gnuplot = popen("gnuplot", "w");
+   std::FILE *gnuplot = popen("gnuplot", "w");
 
    if (loglog)
    {
@@ -79,14 +79,15 @@ int main(int argc, char *argv[])
    }
 
    std::fprintf(gnuplot, "unset key\n");
-   
-   std:fprintf(gnuplot, "set xlabel 'Frequency'\n");
+
+std:
+   fprintf(gnuplot, "set xlabel 'Frequency'\n");
    std::fprintf(gnuplot, "set ylabel 'Wave Amplitude'\n");
    std::fprintf(gnuplot, "plot '-' with points pt 5\n");
    for (std::size_t i = 0; i < freqs.size(); i++)
    {
-      std::fprintf(gnuplot, "%s", std::format("{} {}\n", 
-                                       freqs[i], amps[i]).c_str());
+      std::fprintf(gnuplot, "%s", std::format("{} {}\n",
+                                              freqs[i], amps[i]).c_str());
    }
    std::fprintf(gnuplot, "e\n");
    std::cout << "Enter to close plot...";

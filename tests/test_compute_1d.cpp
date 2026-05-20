@@ -57,26 +57,26 @@ static constexpr std::array<char, 2> kSpeeds = {'S', 'F'};
 
 /**
  * @brief Coordinates data.
- * 
+ *
  * @details Wave 1 spatial period = 2\pi/k_1=7/8. Wave 2 spatial
  * period = 2\pi/k_2=9/10. Thus, choose 2.0 to cover ~2 periods.
- * 
- * 
+ *
+ *
  */
 static constexpr std::pair<double,double> kSpaceExtents{0.0, 2.0};
 
 /**
  * @brief Time data.
- * 
+ *
  * @details Wave 1 temporal period = 1/f_1=0.001. Wave 2 temporal
  * period = 1/f_2=0.0008. Choose 0.002 to cover ~2 periods.
- * 
+ *
  */
 static constexpr std::pair<double,double> kTimeExtents{0.0, 0.002};
 
 /// Hardcoded analytical solution. See README.md.
 template<int NumWaves>
-   requires (NumWaves == 1 || NumWaves == 2)
+requires (NumWaves == 1 || NumWaves == 2)
 struct AnalyticalSolution1D
 {
 private:
@@ -108,7 +108,7 @@ private:
       else
       {
          return 1000.0 + (1.0/(0.1792*125.0))*(-1.0*PPrimeWave1(x,t)
-                                                   + PPrimeWave2(x,t));
+                                               + PPrimeWave2(x,t));
       }
    }
 public:
@@ -123,15 +123,15 @@ public:
    static double RhoE(double x, double t)
    {
       return (2000.0/(1.4-1.0)) + (1.0/(1.4-1.0))*PPrime(x,t)
-               + (1.0/2.0)*Rho(x,t)*U(x,t)*U(x,t);
+             + (1.0/2.0)*Rho(x,t)*U(x,t)*U(x,t);
    }
 };
 
-static void CheckSolution(std::span<const double> coords, 
-                              std::span<const double> rho,
-                              std::span<const double> rhoU, 
-                              std::span<const double> rhoE,
-                              double t, int num_waves)
+static void CheckSolution(std::span<const double> coords,
+                          std::span<const double> rho,
+                          std::span<const double> rhoU,
+                          std::span<const double> rhoE,
+                          double t, int num_waves)
 {
    using function_t = std::function<double(double,double)>;
    function_t rho_exact, rhoU_exact, rhoE_exact;
@@ -163,19 +163,19 @@ static void CheckSolution(std::span<const double> coords,
    }
 }
 
-TEMPLATE_TEST_CASE_SIG("1D flowfield computation via kernel", 
-                        "[1D][Compute][Kernels]",
-                        ((bool TGridInnerLoop), TGridInnerLoop), 
-                        true, false)
+TEMPLATE_TEST_CASE_SIG("1D flowfield computation via kernel",
+                       "[1D][Compute][Kernels]",
+                       ((bool TGridInnerLoop), TGridInnerLoop),
+                       true, false)
 {
-   const std::vector<double> kCoords = 
-            GENERATE_REF(take(1, chunk(kNumPts, 
-                                          random(kSpaceExtents.first, 
-                                                   kSpaceExtents.second))));
+   const std::vector<double> kCoords =
+      GENERATE_REF(take(1, chunk(kNumPts,
+                                 random(kSpaceExtents.first,
+                                        kSpaceExtents.second))));
    const std::vector<double> kTimes =
-            GENERATE_REF(take(1, chunk(kNumTimes, 
-                                          random(kTimeExtents.first,
-                                                   kTimeExtents.second))));
+      GENERATE_REF(take(1, chunk(kNumTimes,
+                                 random(kTimeExtents.first,
+                                        kTimeExtents.second))));
 
 #ifdef JABBER_WITH_OPENMP
    omp_set_dynamic(0);
@@ -206,12 +206,12 @@ TEMPLATE_TEST_CASE_SIG("1D flowfield computation via kernel",
          wave_omegas[w] = 2*M_PI*kFreqs[w];
 
          const double k = (kSpeeds[w] == 'S' ? wave_omegas[w]/(kUBar - kCBar)
-                                             : wave_omegas[w]/(kUBar + kCBar));
-         
+                           : wave_omegas[w]/(kUBar + kCBar));
+
          for (std::size_t i = 0; i < kNumPts; i++)
          {
-            const std::size_t idx = 
-            [&]()
+            const std::size_t idx =
+               [&]()
             {
                if constexpr (TGridInnerLoop)
                {
@@ -221,7 +221,8 @@ TEMPLATE_TEST_CASE_SIG("1D flowfield computation via kernel",
                {
                   return i*kNumWaves + w;
                }
-            }();
+            }
+            ();
             k_dot_x_p_phi[idx] = k*kCoords[i] + kPhases[w];
          }
       }
@@ -235,11 +236,11 @@ TEMPLATE_TEST_CASE_SIG("1D flowfield computation via kernel",
       {
          // Compute
          ComputeKernel<1, TGridInnerLoop>(kNumPts, kRhoBar, kPBar, &kUBar,
-                           kGamma, kNumWaves, time, 
-                           rho_coeffs.data(), rhoV_coeffs.data(), 
-                           rhoE_coeffs.data(), wave_omegas.data(), 
-                           k_dot_x_p_phi.data(), rho.data(), 
-                           rhoU.data(), rhoE.data());
+                                          kGamma, kNumWaves, time,
+                                          rho_coeffs.data(), rhoV_coeffs.data(),
+                                          rhoE_coeffs.data(), wave_omegas.data(),
+                                          k_dot_x_p_phi.data(), rho.data(),
+                                          rhoU.data(), rhoE.data());
 
          // Check solutions
          CheckSolution(kCoords, rho, rhoU, rhoE, time, kNumWaves);
@@ -247,20 +248,20 @@ TEMPLATE_TEST_CASE_SIG("1D flowfield computation via kernel",
    }
 }
 
-TEST_CASE("1D flowfield computation via AcousticField", 
-            "[1D][Compute][AcousticField]")
+TEST_CASE("1D flowfield computation via AcousticField",
+          "[1D][Compute][AcousticField]")
 {
-   const std::vector<double> kCoords = 
-            GENERATE_REF(take(1, chunk(kNumPts, 
-                                          random(kSpaceExtents.first, 
-                                                   kSpaceExtents.second))));
+   const std::vector<double> kCoords =
+      GENERATE_REF(take(1, chunk(kNumPts,
+                                 random(kSpaceExtents.first,
+                                        kSpaceExtents.second))));
    const std::vector<double> kTimes =
-            GENERATE_REF(take(1, chunk(kNumTimes, 
-                                          random(kTimeExtents.first,
-                                                   kTimeExtents.second))));
+      GENERATE_REF(take(1, chunk(kNumTimes,
+                                 random(kTimeExtents.first,
+                                        kTimeExtents.second))));
 
-   const AcousticField::Kernel kernel = 
-                        GENERATE(options<AcousticField::Kernel>());
+   const AcousticField::Kernel kernel =
+      GENERATE(options<AcousticField::Kernel>());
    CAPTURE(kernel);
 
    const int kNumWaves = GENERATE(1,2);
@@ -269,8 +270,8 @@ TEST_CASE("1D flowfield computation via AcousticField",
    {
       // Build AcousticField
       std::vector<double> kUBar_vec = {kUBar};
-      AcousticField field(1, kCoords, kPBar, kRhoBar, kUBar_vec, kGamma, 
-                           kernel);
+      AcousticField field(1, kCoords, kPBar, kRhoBar, kUBar_vec, kGamma,
+                          kernel);
 
       // Add wave(s) + finalize
       std::vector<double> dir_vec = {1.0};
@@ -289,7 +290,7 @@ TEST_CASE("1D flowfield computation via AcousticField",
 
          // Check solutions
          CheckSolution(kCoords, field.Density(), field.Momentum(),
-                        field.Energy(), time, kNumWaves);
+                       field.Energy(), time, kNumWaves);
       }
    }
 }
@@ -298,15 +299,15 @@ TEST_CASE("1D flowfield computation via AcousticField",
 
 TEST_CASE("1D flowfield computation via app library", "[1D][Compute][App]")
 {
-   const std::vector<double> kCoords = 
-            GENERATE_REF(take(1, chunk(kNumPts, 
-                                          random(kSpaceExtents.first, 
-                                                   kSpaceExtents.second))));
+   const std::vector<double> kCoords =
+      GENERATE_REF(take(1, chunk(kNumPts,
+                                 random(kSpaceExtents.first,
+                                        kSpaceExtents.second))));
    const std::vector<double> kTimes =
-            GENERATE_REF(take(1, chunk(kNumTimes, 
-                                          random(kTimeExtents.first,
-                                                   kTimeExtents.second))));
-                                                   
+      GENERATE_REF(take(1, chunk(kNumTimes,
+                                 random(kTimeExtents.first,
+                                        kTimeExtents.second))));
+
    const AcousticField::Kernel kernel = GENERATE(options<AcousticField::Kernel>());
 
    const int kNumWaves = GENERATE(1,2);
@@ -338,7 +339,7 @@ TEST_CASE("1D flowfield computation via app library", "[1D][Compute][App]")
 
       // Set kernel
       config.Comp().kernel = GENERATE(options<AcousticField::Kernel>());
-      
+
       // Initialize AcousticField
       AcousticField field = InitializeAcousticField(config, kCoords, 1);
 
@@ -350,7 +351,7 @@ TEST_CASE("1D flowfield computation via app library", "[1D][Compute][App]")
 
          // Check solutions
          CheckSolution(kCoords, field.Density(), field.Momentum(),
-                        field.Energy(), time, kNumWaves);
+                       field.Energy(), time, kNumWaves);
       }
    }
 }
