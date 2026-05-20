@@ -18,13 +18,24 @@ then
 fi
 
 STYLE_OPTIONS="--suffix=none \
+               --formatted \
+               --max-code-length=80 \
                --indent=spaces=3 \
-               --style=allman"
+               --convert-tabs \
+               --style=allman \
+               --add-braces \
+               --pad-header \
+               --lineend=linux \
+               --preserve-date \
+               --max-continuation-indent=60 \
+               --align-pointer=name \
+               --keep-one-line-blocks \
+               --keep-one-line-statements"
 
-STYLE_COMMAND="astyle ${STYLE_OPTIONS} --recursive --dry-run \
-                  ${SRC_DIR}/jabber/*.cpp,*.hpp \
-                  ${SRC_DIR}/apps/*.cpp,*.hpp \
-                  ${SRC_DIR}/tests/*.cpp,*.hpp"
+STYLE_COMMAND="astyle ${STYLE_OPTIONS} --recursive \
+                  #${SRC_DIR}/jabber/*.cpp,*.hpp \
+                  #${SRC_DIR}/apps/*.cpp,*.hpp \
+                  #${SRC_DIR}/tests/*.cpp,*.hpp"
 
 # Execute astyle.
 OUTPUT="$($STYLE_COMMAND)"
