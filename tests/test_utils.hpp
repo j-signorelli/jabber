@@ -8,7 +8,7 @@ namespace jabber_test
 /// Concept for enums of type std::uint8_t with a ::Size.
 template<typename T>
 concept OptionEnum =
-   std::is_enum_v<T>&&
+   std::is_enum_v<T> &&
    std::same_as<std::underlying_type_t<T>, std::uint8_t> &&
    requires { T::Size; };
 
