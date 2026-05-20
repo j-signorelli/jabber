@@ -52,27 +52,28 @@ static constexpr std::array<double, 2> kPAmps = {10.0, 5.0};
 static constexpr std::array<double, 2> kFreqs = {1000.0, 1250.0};
 static constexpr std::array<double, 2> kPhases = {M_PI/3, M_PI};
 static constexpr std::array<char, 2> kSpeeds = {'S', 'F'};
-static const std::array<std::vector<double>,2> 
-                     kWaveDirs = {std::vector<double>({1.0, 0.0}),
-                                    std::vector<double>({6.0/10.0, 8.0/10.0})};
+static const std::array<std::vector<double>,2>
+kWaveDirs = {std::vector<double>({1.0, 0.0}),
+             std::vector<double>({6.0/10.0, 8.0/10.0})
+            };
 static constexpr std::pair<double,double> kSpaceExtents{0.0, 2.0};
 static constexpr std::pair<double,double> kTimeExtents{0.0, 0.002};
 
 /// Hardcoded analytical solution. See README.md.
 template<int NumWaves>
-   requires (NumWaves == 1 || NumWaves == 2)
+requires (NumWaves == 1 || NumWaves == 2)
 struct AnalyticalSolution2D
 {
 private:
    static double PPrimeWave1(double x, double y, double t)
    {
-      return 10.0*std::cos((80.0*M_PI/19.0)*x + M_PI/3.0 
-                                                      - 2000.0*M_PI*t);
+      return 10.0*std::cos((80.0*M_PI/19.0)*x + M_PI/3.0
+                           - 2000.0*M_PI*t);
    }
    static double PPrimeWave2(double x, double y, double t)
    {
       return 5.0*std::cos((4.0*M_PI/3.0)*x + (16.0*M_PI/9.0)*y + M_PI
-                                                      - 2500.0*M_PI*t);
+                          - 2500.0*M_PI*t);
    }
    static double PPrime(double x, double y, double t)
    {
@@ -94,7 +95,7 @@ private:
       else
       {
          return 600.0 + (1.0/(0.1792*125.0))*(-1.0*PPrimeWave1(x,y,t)
-                                             + (6.0/10.0)*PPrimeWave2(x,y,t));
+                                              + (6.0/10.0)*PPrimeWave2(x,y,t));
       }
    }
    static double Uy(double x, double y, double t)
@@ -124,8 +125,8 @@ public:
    static double RhoE(double x, double y, double t)
    {
       return (2000.0/(1.4-1.0)) + (1.0/(1.4-1.0))*PPrime(x,y,t)
-               + (1.0/2.0)*Rho(x,y,t)*(Ux(x,y,t)*Ux(x,y,t) 
-                                       + Uy(x,y,t)*Uy(x,y,t));
+             + (1.0/2.0)*Rho(x,y,t)*(Ux(x,y,t)*Ux(x,y,t)
+                                     + Uy(x,y,t)*Uy(x,y,t));
    }
 };
 
@@ -134,10 +135,10 @@ public:
  * XY XY ordering, while \p rhoU is in XX YY ordering.
  */
 static void CheckSolution(std::span<const double> coords,
-                           std::span<const double> rho,
-                           std::span<const double> rhoU,
-                           std::span<const double> rhoE,
-                           double t, int num_waves)
+                          std::span<const double> rho,
+                          std::span<const double> rhoU,
+                          std::span<const double> rhoE,
+                          double t, int num_waves)
 {
    using function_t = std::function<double(double,double,double)>;
    function_t rho_exact, rhoUx_exact, rhoUy_exact, rhoE_exact;
@@ -173,19 +174,19 @@ static void CheckSolution(std::span<const double> coords,
    }
 }
 
-TEMPLATE_TEST_CASE_SIG("2D flowfield computation via kernel", 
-                        "[2D][Compute][Kernels]",
-                        ((bool TGridInnerLoop), TGridInnerLoop), 
-                        true, false)
+TEMPLATE_TEST_CASE_SIG("2D flowfield computation via kernel",
+                       "[2D][Compute][Kernels]",
+                       ((bool TGridInnerLoop), TGridInnerLoop),
+                       true, false)
 {
-   const std::vector<double> kCoords = 
-            GENERATE_REF(take(1, chunk(kNumPts*2, 
-                                          random(kSpaceExtents.first, 
-                                                   kSpaceExtents.second))));
+   const std::vector<double> kCoords =
+      GENERATE_REF(take(1, chunk(kNumPts*2,
+                                 random(kSpaceExtents.first,
+                                        kSpaceExtents.second))));
    const std::vector<double> kTimes =
-            GENERATE_REF(take(1, chunk(kNumTimes, 
-                                          random(kTimeExtents.first,
-                                                   kTimeExtents.second))));
+      GENERATE_REF(take(1, chunk(kNumTimes,
+                                 random(kTimeExtents.first,
+                                        kTimeExtents.second))));
 
 #ifdef JABBER_WITH_OPENMP
    omp_set_dynamic(0);
@@ -211,20 +212,22 @@ TEMPLATE_TEST_CASE_SIG("2D flowfield computation via kernel",
          const std::vector<double> k_hat = kWaveDirs[w];
 
          rho_coeffs[w] = kPAmps[w]/(kCBar*kCBar);
-         rhoV_coeffs[w] = speed_encoder*k_hat[0]*kPAmps[w]/(kRhoBar*kCBar);
-         rhoV_coeffs[kNumWaves+w] = speed_encoder*k_hat[1]*kPAmps[w]/(kRhoBar*kCBar);
+         rhoV_coeffs[w] =
+            speed_encoder*k_hat[0]*kPAmps[w]/(kRhoBar*kCBar);
+         rhoV_coeffs[kNumWaves+w] =
+            speed_encoder*k_hat[1]*kPAmps[w]/(kRhoBar*kCBar);
          rhoE_coeffs[w] = kPAmps[w]/(kGamma-1.0);
          wave_omegas[w] = 2*M_PI*kFreqs[w];
 
          const double U_bar_dot_k_hat = kUBar[0]*k_hat[0] + kUBar[1]*k_hat[1];
-         const double k = (kSpeeds[w] == 'S' 
-                                    ? wave_omegas[w]/(U_bar_dot_k_hat - kCBar)
-                                    : wave_omegas[w]/(U_bar_dot_k_hat + kCBar));
-         
+         const double k = (kSpeeds[w] == 'S'
+                           ? wave_omegas[w]/(U_bar_dot_k_hat - kCBar)
+                           : wave_omegas[w]/(U_bar_dot_k_hat + kCBar));
+
          for (std::size_t i = 0; i < kNumPts; i++)
          {
-            const std::size_t idx = 
-            [&]()
+            const std::size_t idx =
+               [&]()
             {
                if constexpr (TGridInnerLoop)
                {
@@ -234,10 +237,11 @@ TEMPLATE_TEST_CASE_SIG("2D flowfield computation via kernel",
                {
                   return i*kNumWaves + w;
                }
-            }();
-            k_dot_x_p_phi[idx] = k*(k_hat[0]*kCoords[i*2] 
-                                              + k_hat[1]*kCoords[i*2+1])
-                                           + kPhases[w];
+            }
+            ();
+            k_dot_x_p_phi[idx] = k*(k_hat[0]*kCoords[i*2]
+                                    + k_hat[1]*kCoords[i*2+1])
+                                 + kPhases[w];
          }
       }
 
@@ -249,11 +253,16 @@ TEMPLATE_TEST_CASE_SIG("2D flowfield computation via kernel",
       for (const double &time : kTimes)
       {
          // Compute
-         ComputeKernel<2, TGridInnerLoop>(kNumPts, kRhoBar, kPBar, kUBar.data(),
-                           kGamma, kNumWaves, time, rho_coeffs.data(), 
-                           rhoV_coeffs.data(), rhoE_coeffs.data(), 
-                           wave_omegas.data(), k_dot_x_p_phi.data(), 
-                           rho.data(), rhoU.data(), rhoE.data());
+         ComputeKernel<2, TGridInnerLoop>(kNumPts, kRhoBar, kPBar,
+                                          kUBar.data(),
+                                          kGamma, kNumWaves, time,
+                                          rho_coeffs.data(),
+                                          rhoV_coeffs.data(),
+                                          rhoE_coeffs.data(),
+                                          wave_omegas.data(),
+                                          k_dot_x_p_phi.data(),
+                                          rho.data(), rhoU.data(),
+                                          rhoE.data());
 
          // Check solutions
          CheckSolution(kCoords, rho, rhoU, rhoE, time, kNumWaves);
@@ -261,20 +270,20 @@ TEMPLATE_TEST_CASE_SIG("2D flowfield computation via kernel",
    }
 }
 
-TEST_CASE("2D flowfield computation via AcousticField", 
-            "[2D][Compute][AcousticField]")
+TEST_CASE("2D flowfield computation via AcousticField",
+          "[2D][Compute][AcousticField]")
 {
-   const std::vector<double> kCoords = 
-            GENERATE_REF(take(1, chunk(kNumPts*2, 
-                                          random(kSpaceExtents.first, 
-                                                   kSpaceExtents.second))));
+   const std::vector<double> kCoords =
+      GENERATE_REF(take(1, chunk(kNumPts*2,
+                                 random(kSpaceExtents.first,
+                                        kSpaceExtents.second))));
    const std::vector<double> kTimes =
-            GENERATE_REF(take(1, chunk(kNumTimes, 
-                                          random(kTimeExtents.first,
-                                                   kTimeExtents.second))));
+      GENERATE_REF(take(1, chunk(kNumTimes,
+                                 random(kTimeExtents.first,
+                                        kTimeExtents.second))));
 
-   const AcousticField::Kernel kernel = 
-                        GENERATE(options<AcousticField::Kernel>());
+   const AcousticField::Kernel kernel =
+      GENERATE(options<AcousticField::Kernel>());
    CAPTURE(kernel);
 
    const int kNumWaves = GENERATE(1,2);
@@ -300,7 +309,7 @@ TEST_CASE("2D flowfield computation via AcousticField",
 
          // Check solutions
          CheckSolution(kCoords, field.Density(), field.Momentum(),
-                        field.Energy(), time, kNumWaves);
+                       field.Energy(), time, kNumWaves);
       }
    }
 }
@@ -309,16 +318,17 @@ TEST_CASE("2D flowfield computation via AcousticField",
 
 TEST_CASE("2D flowfield computation via app library", "[2D][Compute][App]")
 {
-   const std::vector<double> kCoords = 
-            GENERATE_REF(take(1, chunk(kNumPts*2, 
-                                          random(kSpaceExtents.first, 
-                                                   kSpaceExtents.second))));
+   const std::vector<double> kCoords =
+      GENERATE_REF(take(1, chunk(kNumPts*2,
+                                 random(kSpaceExtents.first,
+                                        kSpaceExtents.second))));
    const std::vector<double> kTimes =
-            GENERATE_REF(take(1, chunk(kNumTimes, 
-                                          random(kTimeExtents.first,
-                                                   kTimeExtents.second))));
+      GENERATE_REF(take(1, chunk(kNumTimes,
+                                 random(kTimeExtents.first,
+                                        kTimeExtents.second))));
 
-   const AcousticField::Kernel kernel = GENERATE(options<AcousticField::Kernel>());
+   const AcousticField::Kernel kernel =
+      GENERATE(options<AcousticField::Kernel>());
 
    const int kNumWaves = GENERATE(1,2);
    CAPTURE(kNumWaves);
@@ -361,7 +371,7 @@ TEST_CASE("2D flowfield computation via app library", "[2D][Compute][App]")
 
          // Check solutions
          CheckSolution(kCoords, field.Density(), field.Momentum(),
-                        field.Energy(), time, kNumWaves);
+                       field.Energy(), time, kNumWaves);
       }
    }
 }

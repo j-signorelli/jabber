@@ -18,9 +18,9 @@
 
 /// Simple macro for enclosing code section to occur only for rank 0
 #ifdef JABBER_WITH_MPI
-   #define ROOT if (rank == 0)
+#define ROOT if (rank == 0)
 #else
-   #define ROOT
+#define ROOT
 #endif
 
 using namespace jabber;
@@ -30,14 +30,14 @@ using namespace jabber::app;
 using dur_t = std::chrono::duration<double, std::micro>;
 
 /// Create a dummy grid.
-void CreateGrid(const int dim, const int num_pts_d, const double extent, 
-                  std::vector<double> &coords);
+void CreateGrid(const int dim, const int num_pts_d, const double extent,
+                std::vector<double> &coords);
 
 int main(int argc, char *argv[])
 {
 #ifdef JABBER_WITH_MPI
    MPI_Init(&argc, &argv);
-   
+
    int rank, size;
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
    MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -47,33 +47,33 @@ int main(int argc, char *argv[])
    {
       PrintBanner(std::cout);
       std::cout << "Jabber Profiler Tool" << std::endl
-                  << LINE << std::endl;
+                << LINE << std::endl;
    }
    // Option parser:
-   cxxopts::Options options("jabber_profile", 
-      "Simple profiler tool to obtain execution times of a given config file \
-        and grid.");
+   cxxopts::Options options("jabber_profile",
+                            "Simple profiler tool to obtain execution times "
+                            "of a given config file and grid.");
 
    options.add_options()
-      ("c,config", "Config file.", cxxopts::value<std::string>())
-      ("d,dim", "Grid dimension (1,2,3).", 
-                        cxxopts::value<int>()->default_value("3"))
-      ("n,num_points", "Number grid points in each dimension.",
-                        cxxopts::value<std::size_t>()->default_value("100"))
-      ("e,extent", "Grid extent in each direction (such that domain is "
-                     "[0,extent]^dim).",
-                        cxxopts::value<double>()->default_value("1.0"))
-      ("p,passes", "Number of passes to Compute() to profile, using "
-                   "randomized times.",
-                        cxxopts::value<int>()->default_value("10000"))
-      ("w,warmup", "Number of warmup passes to Compute(), using randomized "
-                   "times.", cxxopts::value<int>()->default_value("1000"))
-      ("h,help", "Print usage information.");
+   ("c,config", "Config file.", cxxopts::value<std::string>())
+   ("d,dim", "Grid dimension (1,2,3).",
+    cxxopts::value<int>()->default_value("3"))
+   ("n,num_points", "Number grid points in each dimension.",
+    cxxopts::value<std::size_t>()->default_value("100"))
+   ("e,extent", "Grid extent in each direction (such that domain is "
+    "[0,extent]^dim).",
+    cxxopts::value<double>()->default_value("1.0"))
+   ("p,passes", "Number of passes to Compute() to profile, using "
+    "randomized times.",
+    cxxopts::value<int>()->default_value("10000"))
+   ("w,warmup", "Number of warmup passes to Compute(), using randomized "
+    "times.", cxxopts::value<int>()->default_value("1000"))
+   ("h,help", "Print usage information.");
 
    cxxopts::ParseResult result = options.parse(argc, argv);
-   
+
    std::string args_str = result.arguments_string();
-   ROOT std::cout << "Command Line Arguments:\n\n" << args_str << std::endl 
+   ROOT std::cout << "Command Line Arguments:\n\n" << args_str << std::endl
                   << LINE << std::endl;
 
    if (result.count("help"))
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 
    ROOT std::cout << std::endl
                   << "Running with MPI enabled! Outputted times are the max "
-                     "across all ranks." << std::endl << std::endl;
+                  "across all ranks." << std::endl << std::endl;
    struct TimeRank
    {
       double t;
@@ -170,11 +170,11 @@ int main(int argc, char *argv[])
    for (int i = 0; i < warmup_passes+passes; i++)
    {
       const std::chrono::time_point<std::chrono::steady_clock> start =
-        std::chrono::steady_clock::now();
+         std::chrono::steady_clock::now();
       field.Compute(time_rand[i]);
       const std::chrono::time_point<std::chrono::steady_clock> end =
-        std::chrono::steady_clock::now();
-      
+         std::chrono::steady_clock::now();
+
 #ifdef JABBER_WITH_MPI
       local_compute_times[i] = end - start;
 
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 
       // Get the max compute time and rank across all ranks
       MPI_Allreduce(MPI_IN_PLACE, &time_rank, 1, MPI_DOUBLE_INT, MPI_MAXLOC,
-                     MPI_COMM_WORLD);
+                    MPI_COMM_WORLD);
 
       ROOT
       {
@@ -199,12 +199,12 @@ int main(int argc, char *argv[])
          if (i < warmup_passes)
          {
             std::cout << "Warmup Pass #" << (i+1) << ": " << compute_times[i]
-                           << std::endl;
+                      << std::endl;
          }
          else
          {
             std::cout << "Pass #" << (i+1-warmup_passes) << ": "
-                           << compute_times[i] << std::endl;;
+                      << compute_times[i] << std::endl;;
          }
       }
    }
@@ -212,23 +212,23 @@ int main(int argc, char *argv[])
    // Compute the average compute time after warmups
    ROOT
    {
-      dur_t total_dur = std::accumulate(std::next(compute_times.begin(), 
-                                                   warmup_passes),
-                                          compute_times.end(), 
-                                          dur_t(0.0));
+      dur_t total_dur = std::accumulate(std::next(compute_times.begin(),
+                                                  warmup_passes),
+                                        compute_times.end(),
+                                        dur_t(0.0));
       dur_t ave_dur = total_dur/passes;
 
-      std::cout << LINE << std::endl 
-                  << "Average Compute() Time: " << ave_dur << std::endl;
+      std::cout << LINE << std::endl
+                << "Average Compute() Time: " << ave_dur << std::endl;
    }
 
 #ifdef JABBER_WITH_MPI
-   
+
    // Have each rank compute their local average duration
-   dur_t local_total_dur = 
-         std::accumulate(std::next(local_compute_times.begin(), warmup_passes),
-                         local_compute_times.end(), 
-                          dur_t(0.0));
+   dur_t local_total_dur =
+      std::accumulate(std::next(local_compute_times.begin(), warmup_passes),
+                      local_compute_times.end(),
+                      dur_t(0.0));
    dur_t local_ave_dur = local_total_dur/passes;
 
    // Gather all mean durations + num coordinates to root
@@ -244,10 +244,10 @@ int main(int argc, char *argv[])
 
    std::vector<RankData> all_rank_data;
    ROOT all_rank_data.resize(size);
-   MPI_Gather(&rank_data, 1, MPI_DOUBLE_INT, all_rank_data.data(), 1, 
-               MPI_DOUBLE_INT, 0, MPI_COMM_WORLD);
+   MPI_Gather(&rank_data, 1, MPI_DOUBLE_INT, all_rank_data.data(), 1,
+              MPI_DOUBLE_INT, 0, MPI_COMM_WORLD);
 
-   ROOT 
+   ROOT
    {
       // Compute histogram of worst-rank counts to determine worst.
       std::vector<std::size_t> rank_counts(size, 0.0);
@@ -255,32 +255,32 @@ int main(int argc, char *argv[])
       {
          rank_counts[max_compute_ranks[warmup_passes+i]]++;
       }
-      const int worst_rank = 
-         std::distance(rank_counts.begin(), 
-                     std::max_element(rank_counts.begin(),rank_counts.end()));
+      const int worst_rank =
+      std::distance(rank_counts.begin(),
+                    std::max_element(rank_counts.begin(),rank_counts.end()));
 
-      std::cout << "Rank " << worst_rank << " was the slowest rank for " << 
-                   rank_counts[worst_rank] << " iterations."
-                   << std::endl << std::endl;
+      std::cout << "Rank " << worst_rank << " was the slowest rank for " <<
+                rank_counts[worst_rank] << " iterations."
+                << std::endl << std::endl;
 
       // Sort indices of rank_ave_dur based on their value
       std::vector<int> r_idxs(size);
       std::iota(r_idxs.begin(), r_idxs.end(), 0);
-      std::sort(r_idxs.begin(), r_idxs.end(), 
-               [&all_rank_data](std::size_t i1, std::size_t i2) 
-               { 
-                  return all_rank_data[i1].local_ave > 
-                              all_rank_data[i2].local_ave;
-               });
-      
+      std::sort(r_idxs.begin(), r_idxs.end(),
+                [&all_rank_data](std::size_t i1, std::size_t i2)
+      {
+         return all_rank_data[i1].local_ave >
+         all_rank_data[i2].local_ave;
+      });
+
       std::cout << "Printing rank mean compute times in order of "
-                     "slowest to fastest..." << std::endl;
+                "slowest to fastest..." << std::endl;
 
       for (const int &r : r_idxs)
       {
-         std::cout << std::format("Rank {:>3}:   {:<10} with {} points", 
-                                    r, dur_t(all_rank_data[r].local_ave),
-                                    all_rank_data[r].num_pts)
+         std::cout << std::format("Rank {:>3}:   {:<10} with {} points",
+                                  r, dur_t(all_rank_data[r].local_ave),
+                                  all_rank_data[r].num_pts)
                    << std::endl;
       }
    }
@@ -288,8 +288,8 @@ int main(int argc, char *argv[])
    return 0;
 }
 
-void CreateGrid(const int dim, const int num_pts_d, const double extent, 
-                  std::vector<double> &coords)
+void CreateGrid(const int dim, const int num_pts_d, const double extent,
+                std::vector<double> &coords)
 {
    const double h = extent/(num_pts_d-1);
    int num_pts_total = 1;
@@ -329,8 +329,8 @@ void CreateGrid(const int dim, const int num_pts_d, const double extent,
             const double y = h*j;
             for (std::size_t k = 0; k < num_pts_d; k++)
             {
-               const std::size_t completed_pts = i*num_pts_d*num_pts_d 
-                                                   + j*num_pts_d + k;
+               const std::size_t completed_pts = i*num_pts_d*num_pts_d
+                                                 + j*num_pts_d + k;
                coords[completed_pts*dim] = x;
                coords[completed_pts*dim+1] = y;
                coords[completed_pts*dim+2] = h*k;

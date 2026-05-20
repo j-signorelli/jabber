@@ -39,7 +39,10 @@ private:
 protected:
 
    /// Get const reference to \ref func_map_.
-   const std::map<double, Line>& Map() const { return func_map_; }
+   const std::map<double, Line> &Map() const
+   {
+      return func_map_;
+   }
 
 public:
    /// Construct piecewise linear interpolant through ( \p x_k , \p y_k ).
@@ -66,7 +69,10 @@ private:
 protected:
 
    /// Get const reference to \ref func_map_.
-   const std::map<double, Line>& Map() const { return func_map_; }
+   const std::map<double, Line> &Map() const
+   {
+      return func_map_;
+   }
 
 public:
    /**
@@ -74,7 +80,7 @@ public:
     * through ( \p x_k , \p y_k ).
     */
    PWLogLog(std::span<const double> x_k, std::span<const double> y_k);
-   
+
    double operator() (const double &x) const override;
 };
 

@@ -12,8 +12,8 @@ namespace jabber
 namespace app
 {
 
-constexpr static std::string_view LINE = 
-"-----------------------------------------------------------------------";
+constexpr static std::string_view LINE =
+   "-----------------------------------------------------------------------";
 
 /// Print Jabber banner.
 void PrintBanner(std::ostream &out);
@@ -24,16 +24,16 @@ void Normalize(std::span<const double> vec, std::span<double> norm_vec);
 /**
  * @defgroup pproc_group Parameter Processing
  * @{
- * 
+ *
  */
 
 /**
- * @brief All visitor options for each InputXY::Params, for initializing 
+ * @brief All visitor options for each InputXY::Params, for initializing
  * \ref x and \ref y vectors.
- * 
+ *
  */
 struct InputXYVisitor
-{  
+{
    using enum InputXY::Option;
 
    /// Reference to x-data vector to set.
@@ -49,7 +49,7 @@ struct InputXYVisitor
 /**
  * @brief All visitor options for each FunctionType::Params, for initializing a
  * \ref Function or \ref BasePSD type.
- * 
+ *
  */
 struct FunctionTypeVisitor
 {
@@ -57,7 +57,7 @@ struct FunctionTypeVisitor
 
    /// Function to initialize
    std::variant<std::unique_ptr<Function>*,
-                std::unique_ptr<BasePSD>*> T_ptr_ptr_var;
+       std::unique_ptr<BasePSD>*> T_ptr_ptr_var;
 
    void operator() (const FunctionType::Params<PiecewiseLinear> &op);
    void operator() (const FunctionType::Params<PiecewiseLogLog> &op);
@@ -66,10 +66,10 @@ struct FunctionTypeVisitor
 /**
  * @brief All visitor options for each DiscMethod::Params, for initializing
  * a discretized frequency range, \p freqs.
- * 
+ *
  */
 struct DiscMethodVisitor
-{  
+{
    using enum DiscMethod::Option;
 
    /// Minimum frequency bound.
@@ -90,7 +90,7 @@ struct DiscMethodVisitor
 /**
  * @brief All visitor options for each Direction::Params, for initializing
  * wavenumber vector directions in \p k_hats.
- * 
+ *
  */
 struct DirectionVisitor
 {
@@ -106,7 +106,7 @@ struct DirectionVisitor
 /**
  * @brief All visitor options for each TransferFunction::Params, for
  * applying a transfer function to given \ref powers.
- * 
+ *
  */
 struct TransferFunctionVisitor
 {
@@ -130,9 +130,9 @@ struct TransferFunctionVisitor
 };
 
 /**
- * @brief All visitor options for each Source::Params, for initializing 
+ * @brief All visitor options for each Source::Params, for initializing
  * \ref Wave's for each type and appending to \p waves.
- * 
+ *
  */
 struct SourceVisitor
 {
@@ -142,7 +142,7 @@ struct SourceVisitor
 
    /// Reference of wave vector to append Wave structs to.
    std::vector<Wave> &waves;
-   
+
    void operator() (const Source::Params<SingleWave> &op);
    void operator() (const Source::Params<WaveSpectrum> &op);
    void operator() (const Source::Params<PSD> &op);
@@ -153,24 +153,24 @@ struct SourceVisitor
 // end of pproc_group
 
 /**
- * @brief Initialize a \ref AcousticField object from user input and 
+ * @brief Initialize a \ref AcousticField object from user input and
  * grid.
- * 
+ *
  * @param conf          Input config object.
  * @param coords        Mesh coordinates vector, in XYZ XYZ ordering.
  * @param dim           Spatial dimension of mesh.
  * @return AcousticField    Finalized acoustic field.
  */
-AcousticField InitializeAcousticField(const ConfigInput &conf, 
-                                                std::span<const double> coords,
-                                                int dim);
+AcousticField InitializeAcousticField(const ConfigInput &conf,
+                                      std::span<const double> coords,
+                                      int dim);
 
 
 /**
- * @brief Extremely simple function to get subspan of data from \p global 
- * to \p local for basic MPI-partitioning. Data must be ordered in a AoS 
+ * @brief Extremely simple function to get subspan of data from \p global
+ * to \p local for basic MPI-partitioning. Data must be ordered in a AoS
  * format.
- * 
+ *
  * @tparam T         Type.
  * @param global     Global data set to get partition of. Note that all
  *                   ranks must have this defined and equal.
@@ -180,21 +180,21 @@ AcousticField InitializeAcousticField(const ConfigInput &conf,
  * @param local      Output rank-local data sub-span to set based on args.
  */
 template<typename T>
-void GetRankPartition(std::span<const T> global, int vdim, int rank, int size, 
-                        std::span<const T> &local)
+void GetRankPartition(std::span<const T> global, int vdim, int rank, int size,
+                      std::span<const T> &local)
 {
    const std::size_t global_num_dat = global.size()/vdim;
    const std::size_t rank_num_dat = vdim*(global_num_dat/size +
-                                          (rank < (global_num_dat % size) 
-                                             ? 1 
-                                             : 0));
+                                          (rank < (global_num_dat % size)
+                                           ? 1
+                                           : 0));
 
    const std::size_t rank_offset = vdim*(rank*(global_num_dat/size) +
-                                          (rank < (global_num_dat % size)
-                                             ? rank 
-                                             : (global_num_dat % size)));
-   
-   
+                                         (rank < (global_num_dat % size)
+                                          ? rank
+                                          : (global_num_dat % size)));
+
+
    local = global.subspan(rank_offset, rank_num_dat);
 }
 
