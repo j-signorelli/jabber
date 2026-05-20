@@ -69,4 +69,5 @@ jobs:
     - name: Run style.sh
       run: |
           cd ${{ github.workspace }}
+          ls
           bash style.sh
