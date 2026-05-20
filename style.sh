@@ -33,9 +33,9 @@ STYLE_OPTIONS="--suffix=none \
                --keep-one-line-statements"
 
 STYLE_COMMAND="astyle ${STYLE_OPTIONS} --recursive \
-                  #${SRC_DIR}/jabber/*.cpp,*.hpp \
-                  #${SRC_DIR}/apps/*.cpp,*.hpp \
-                  #${SRC_DIR}/tests/*.cpp,*.hpp"
+                  ${SRC_DIR}/jabber/*.cpp,*.hpp \
+                  ${SRC_DIR}/apps/*.cpp,*.hpp \
+                  ${SRC_DIR}/tests/*.cpp,*.hpp"
 
 # Execute astyle.
 OUTPUT="$($STYLE_COMMAND)"
