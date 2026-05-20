@@ -65,8 +65,8 @@ jobs:
     - name: Get Artistic Style
       run: sudo apt install astyle
 
-    - name: Debug
-      run: ls -la ${{ github.workspace }}
+    - name: Checkout
+      uses: actions/checkout@v4
 
     - name: Run style.sh
       run: |
