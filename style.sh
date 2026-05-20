@@ -38,14 +38,14 @@ STYLE_COMMAND="astyle ${STYLE_OPTIONS} ${FILES}"
 
 # Execute astyle.
 OUTPUT="$($STYLE_COMMAND)"
-echo "$OUTPUT"
-echo ""
 
 EXIT_STATUS=0
 # Throw error if anything was formatted.
 if [ $(echo "$OUTPUT" | grep -c "Formatted") -gt 0 ];
 then
-   echo "Error: Code has been styled. Please commit all changes."
+   echo "Error: Code has been styled for the following files:"
+   echo "$OUTPUT"
+   echo "Please commit these changes."
    EXIT_STATUS=1
 else
    echo "Code is styled!"
@@ -59,7 +59,6 @@ if [[ ! -z "$BAD_FILES" ]];
 then
    echo "Error: The following files are > 80 chars wide:"
    echo "$BAD_FILES"
-   echo ""
    echo "Please wrap at 80 chars, re-apply styling, and commit all changes."
    EXIT_STATUS=1
 else
