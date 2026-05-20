@@ -19,7 +19,6 @@ fi
 
 STYLE_OPTIONS="--suffix=none \
                --formatted \
-               --max-code-length=80 \
                --indent=spaces=3 \
                --convert-tabs \
                --style=allman \
@@ -29,25 +28,48 @@ STYLE_OPTIONS="--suffix=none \
                --preserve-date \
                --max-continuation-indent=60 \
                --align-pointer=name \
-               --keep-one-line-blocks \
-               --keep-one-line-statements"
+               --max-code-length=80 \
+               --break-after-logical"
 
-STYLE_COMMAND="astyle ${STYLE_OPTIONS} --recursive \
-                  ${SRC_DIR}/jabber/*.cpp,*.hpp \
-                  ${SRC_DIR}/apps/*.cpp,*.hpp \
-                  ${SRC_DIR}/tests/*.cpp,*.hpp"
+
+FILES="$(find jabber/ tests/ apps/ -type f -name "*.cpp" -or -name "*.hpp")"
+
+STYLE_COMMAND="astyle ${STYLE_OPTIONS} ${FILES}"
 
 # Execute astyle.
 OUTPUT="$($STYLE_COMMAND)"
 echo "$OUTPUT"
 echo ""
 
+EXIT_STATUS=0
 # Throw error if anything was formatted.
 if [ $(echo "$OUTPUT" | grep -c "Formatted") -gt 0 ];
 then
-   echo "Applied styling! Be sure to commit changes."
-   exit 1
+   echo "Error: Code has been styled. Please commit all changes."
+   EXIT_STATUS=1
 else
-   echo "Code is styled."
-   exit 0
+   echo "Code is styled!"
 fi
+echo ""
+
+# Check if line widths are all below 80.
+LINE_WIDTH_INFO="$(echo "$FILES" | xargs wc -L --total=never)"
+BAD_FILES=$(echo "$LINE_WIDTH_INFO" | awk '{ if ($1 > 80) print $0 }')
+if [[ ! -z "$BAD_FILES" ]];
+then
+   echo "Error: The following files are > 80 chars wide:"
+   echo "$BAD_FILES"
+   echo ""
+   echo "Please wrap at 80 chars, re-apply styling, and commit all changes."
+   EXIT_STATUS=1
+else
+   echo "All files are <= 80 chars wide!"
+fi
+
+echo ""
+if [[ $EXIT_STATUS -eq 0 ]];
+then
+   echo "Success!"
+fi 
+
+exit $EXIT_STATUS
