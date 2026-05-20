@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Get script directory
 # Source - https://stackoverflow.com/a/246128
