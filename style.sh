@@ -43,8 +43,8 @@ EXIT_STATUS=0
 # Throw error if anything was formatted.
 if [ $(echo "$OUTPUT" | grep -c "Formatted") -gt 0 ];
 then
-   echo "Error: Code has been styled for the following files:"
-   echo "$OUTPUT"
+   echo "Error: The following files have been styled:"
+   echo "$(echo "$OUTPUT" | awk '{ print "       "$2}')"
    echo "Please commit these changes."
    EXIT_STATUS=1
 else
