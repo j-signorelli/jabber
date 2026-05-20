@@ -28,8 +28,9 @@ int main(int argc, char *argv[])
    // Option parser:
    cxxopts::Options options("jabber_psd",
                             "Compute and plot a PSD from a probe of the exact "
-                            "flowfield computed by Jabber using Welch's method. Any "
-                            " PSD source terms are additionally included in the plot.");
+                            "flowfield computed by Jabber using Welch's "
+                            "method. Any PSD source terms are additionally "
+                            "included in the plot.");
 
    options.add_options()
    ("c,config", "Config file.", cxxopts::value<std::string>())
@@ -42,7 +43,8 @@ int main(int argc, char *argv[])
    ("o,noverlap", "Number of point overlap in segments. "
     " Defaults to nperseg/2.",
     cxxopts::value<std::size_t>())
-   ("w,write-psd-file", "Filename to write PSD data to (if included) as a CSV.",
+   ("w,write-psd-file", "Filename to write PSD data to (if included) as a "
+    "CSV.",
     cxxopts::value<std::string>())
    ("r,write-press-file", "Filename to write pressure perturbation data to "
     "(if included).",
@@ -174,7 +176,8 @@ int main(int argc, char *argv[])
    // Write PSD to file:
    if (result.count("write-psd-file") > 0)
    {
-      const std::string file_name = result["write-psd-file"].as<std::string>();
+      const std::string file_name =
+         result["write-psd-file"].as<std::string>();
       std::ofstream psd_file(file_name);
       for (std::size_t i = 0; i < nperseg/2+1; i++)
       {
@@ -236,8 +239,9 @@ std:
          psd_in(input);
          for (std::size_t i = 0; i < in_freqs.size(); i++)
          {
-            std::fprintf(gnuplot, "%s", std::format("{} {}\n",
-                                                    in_freqs[i], in_psd[i]).c_str());
+            std::fprintf(gnuplot, "%s",
+                         std::format("{} {}\n",in_freqs[i],
+                                     in_psd[i]).c_str());
          }
          std::fprintf(gnuplot, "e\n");
 

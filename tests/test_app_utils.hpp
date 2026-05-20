@@ -319,7 +319,8 @@ std::string TOMLWriteParams
       [=,&out_params]<Option V>(const typename T::template Params<V> &op)
    {
       out_params.emplace("Type",
-                         TOMLWriteValue(T::kNames[static_cast<std::size_t>(V)]));
+                         TOMLWriteValue(
+                            T::kNames[static_cast<std::size_t>(V)]));
 
       if constexpr (std::same_as<T,InputXY>)
       {
@@ -373,7 +374,8 @@ std::string TOMLWriteParams
          if constexpr (V == Input)
          {
             out_params.emplace("InputTF",
-                               TOMLWriteParams<FunctionType>(op.input_tf, true));
+                               TOMLWriteParams<FunctionType>(
+                                  op.input_tf, true));
          }
          else if constexpr (V == FlowNormalFit)
          {
@@ -403,7 +405,8 @@ std::string TOMLWriteParams
          else if constexpr (V == PSD)
          {
             out_params.emplace("InputPSD",
-                               TOMLWriteParams<FunctionType>(op.input_psd, true));
+                               TOMLWriteParams<FunctionType>(
+                                  op.input_psd, true));
             if (op.scale_fac)
             {
                out_params.emplace("ScaleFactor",
@@ -422,14 +425,17 @@ std::string TOMLWriteParams
                                   IntervalType::kNames[
                           static_cast<std::size_t>(op.int_method)]));
             out_params.emplace("Discretization.Method",
-                               TOMLWriteParams<DiscMethod>(op.disc_params, true));
+                               TOMLWriteParams<DiscMethod>(
+                                  op.disc_params, true));
             out_params.emplace("Direction",
-                               TOMLWriteParams<Direction>(op.dir_params, true));
+                               TOMLWriteParams<Direction>(
+                                  op.dir_params, true));
 
             if (op.tf_params.has_value())
             {
                out_params.emplace("TransferFunction",
-                                  TOMLWriteParams<TransferFunction>(*op.tf_params, true));
+                                  TOMLWriteParams<TransferFunction>(
+                                     *op.tf_params, true));
             }
          }
          else if constexpr (V == WaveCSV)

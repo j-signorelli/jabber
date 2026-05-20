@@ -60,8 +60,8 @@ private:
    T option_;
 public:
    RandomOptionGenerator()
-      : ri_gen_(Catch::Generators::random<std::uint8_t>(0,
-                                                        static_cast<std::uint8_t>(T::Size)-1))
+      : ri_gen_(Catch::Generators::random<std::uint8_t>(
+                   0,static_cast<std::uint8_t>(T::Size)-1))
    {
       static_cast<void>(next());
    }

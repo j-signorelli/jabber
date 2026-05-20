@@ -47,18 +47,24 @@ TEST_CASE("TOMLConfigInput::ParseBaseFlow", "[App][TOMLConfigInput]")
 TEMPLATE_TEST_CASE_SIG("TOMLConfigInput Parse Options",
                        "[App][TOMLConfigInput]",
                        ((typename T,
-                         void(*Parser)(std::string, typename T::ParamsVariant &)),
+                         void(*Parser)(std::string,
+                                       typename T::ParamsVariant &)),
                         T, Parser),
 
-                       (InputXY, TOMLConfigInput::ParseInputXY)
+                       (InputXY,
+                        TOMLConfigInput::ParseInputXY)
 
-                       ,(FunctionType, TOMLConfigInput::ParseFunctionType)
+                       ,(FunctionType,
+                         TOMLConfigInput::ParseFunctionType)
 
-                       ,(DiscMethod, TOMLConfigInput::ParseDiscMethod)
+                       ,(DiscMethod,
+                         TOMLConfigInput::ParseDiscMethod)
 
-                       ,(Direction, TOMLConfigInput::ParseDirection)
+                       ,(Direction,
+                         TOMLConfigInput::ParseDirection)
 
-                       ,(TransferFunction, TOMLConfigInput::ParseTransferFunction)
+                       ,(TransferFunction,
+                         TOMLConfigInput::ParseTransferFunction)
 
                        ,(Source, TOMLConfigInput::ParseSource)
                       )

@@ -212,8 +212,10 @@ TEMPLATE_TEST_CASE_SIG("2D flowfield computation via kernel",
          const std::vector<double> k_hat = kWaveDirs[w];
 
          rho_coeffs[w] = kPAmps[w]/(kCBar*kCBar);
-         rhoV_coeffs[w] = speed_encoder*k_hat[0]*kPAmps[w]/(kRhoBar*kCBar);
-         rhoV_coeffs[kNumWaves+w] = speed_encoder*k_hat[1]*kPAmps[w]/(kRhoBar*kCBar);
+         rhoV_coeffs[w] =
+            speed_encoder*k_hat[0]*kPAmps[w]/(kRhoBar*kCBar);
+         rhoV_coeffs[kNumWaves+w] =
+            speed_encoder*k_hat[1]*kPAmps[w]/(kRhoBar*kCBar);
          rhoE_coeffs[w] = kPAmps[w]/(kGamma-1.0);
          wave_omegas[w] = 2*M_PI*kFreqs[w];
 
@@ -251,11 +253,16 @@ TEMPLATE_TEST_CASE_SIG("2D flowfield computation via kernel",
       for (const double &time : kTimes)
       {
          // Compute
-         ComputeKernel<2, TGridInnerLoop>(kNumPts, kRhoBar, kPBar, kUBar.data(),
-                                          kGamma, kNumWaves, time, rho_coeffs.data(),
-                                          rhoV_coeffs.data(), rhoE_coeffs.data(),
-                                          wave_omegas.data(), k_dot_x_p_phi.data(),
-                                          rho.data(), rhoU.data(), rhoE.data());
+         ComputeKernel<2, TGridInnerLoop>(kNumPts, kRhoBar, kPBar,
+                                          kUBar.data(),
+                                          kGamma, kNumWaves, time,
+                                          rho_coeffs.data(),
+                                          rhoV_coeffs.data(),
+                                          rhoE_coeffs.data(),
+                                          wave_omegas.data(),
+                                          k_dot_x_p_phi.data(),
+                                          rho.data(), rhoU.data(),
+                                          rhoE.data());
 
          // Check solutions
          CheckSolution(kCoords, rho, rhoU, rhoE, time, kNumWaves);
@@ -320,7 +327,8 @@ TEST_CASE("2D flowfield computation via app library", "[2D][Compute][App]")
                                  random(kTimeExtents.first,
                                         kTimeExtents.second))));
 
-   const AcousticField::Kernel kernel = GENERATE(options<AcousticField::Kernel>());
+   const AcousticField::Kernel kernel =
+      GENERATE(options<AcousticField::Kernel>());
 
    const int kNumWaves = GENERATE(1,2);
    CAPTURE(kNumWaves);

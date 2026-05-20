@@ -5,7 +5,8 @@
  *
  * @details
  *
- * @todo EMPHASIZE IMPORTANCE OF THIS -- computing acoustic forcing every timestep by fluid solver is super expensive
+ * @todo EMPHASIZE IMPORTANCE OF THIS -- computing acoustic forcing every
+ * timestep by fluid solver is super expensive
  */
 
 #include <jabber/jabber.hpp>
@@ -46,8 +47,8 @@ int main(int argc, char *argv[])
    }
    // Option parser:
    cxxopts::Options options("jabber_participant",
-                            "preCICE participant for coupling acoustic forcing with flow "
-                            "simulations.");
+                            "preCICE participant for coupling acoustic "
+                            "forcing with flow simulations.");
    options.add_options()
    ("c,config", "Config file.", cxxopts::value<std::string>())
    ("h,help", "Print usage information.");

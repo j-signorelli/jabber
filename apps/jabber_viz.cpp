@@ -32,7 +32,8 @@ int main(int argc, char *argv[])
 
    // Option parser:
    cxxopts::Options options("jabber_viz",
-                            "Visualizer of acoustic field from config file using MFEM w/ GLVis.");
+                            "Visualizer of acoustic field from config file "
+                            "using MFEM w/ GLVis.");
 
    options.add_options()
    ("c,config", "Config file.", cxxopts::value<std::string>())
@@ -174,18 +175,18 @@ int main(int argc, char *argv[])
       {
          if (field == "rho")
          {
-            VisualizeField(rho_sock, vishost.data(), visport, rho_gf, "Density",
-                           offset, 0, Wx, Wy, keys.data());
+            VisualizeField(rho_sock, vishost.data(), visport, rho_gf,
+                           "Density", offset, 0, Wx, Wy, keys.data());
          }
          else if (field == "rhoV")
          {
-            VisualizeField(rhoV_sock, vishost.data(), visport, rhoV_gf, "Momentum",
-                           offset, 0, Wx, Wy, keys.data(), true);
+            VisualizeField(rhoV_sock, vishost.data(), visport, rhoV_gf,
+                           "Momentum", offset, 0, Wx, Wy, keys.data(), true);
          }
          else if (field == "rhoE")
          {
-            VisualizeField(rhoE_sock, vishost.data(), visport, rhoE_gf, "Energy",
-                           offset, 0, Wx, Wy, keys.data());
+            VisualizeField(rhoE_sock, vishost.data(), visport, rhoE_gf,
+                           "Energy", offset, 0, Wx, Wy, keys.data());
          }
          offset += Wx;
       }

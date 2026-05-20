@@ -49,8 +49,10 @@ void ComputeKernel(const std::size_t num_pts, const double rho_bar,
    {
       const double rho_coeff_w = rho_coeffs[w];
          const double rhoV1_coeff_w = rhoV_coeffs[w];
-         const double rhoV2_coeff_w = TDim > 1 ? rhoV_coeffs[num_waves + w] : 0;
-         const double rhoV3_coeff_w = TDim > 2 ? rhoV_coeffs[2*num_waves + w] : 0;
+         const double rhoV2_coeff_w =
+            TDim > 1 ? rhoV_coeffs[num_waves + w] : 0;
+         const double rhoV3_coeff_w =
+            TDim > 2 ? rhoV_coeffs[2*num_waves + w] : 0;
          const double rhoE_coeff_w = rhoE_coeffs[w];
          const double omt = wave_omegas[w]*t;
 

@@ -21,7 +21,8 @@ int main(int argc, char *argv[])
 
    // Option parser:
    cxxopts::Options options("jabber_plot",
-                            "Generate a plot of the final wave spectra from a config file.");
+                            "Generate a plot of the final wave spectra from "
+                            " a config file.");
 
    options.add_options()
    ("c,config", "Config file.", cxxopts::value<std::string>())

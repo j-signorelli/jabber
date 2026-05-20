@@ -51,8 +51,8 @@ int main(int argc, char *argv[])
    }
    // Option parser:
    cxxopts::Options options("jabber_profile",
-                            "Simple profiler tool to obtain execution times of a given config file \
-        and grid.");
+                            "Simple profiler tool to obtain execution times "
+                            "of a given config file and grid.");
 
    options.add_options()
    ("c,config", "Config file.", cxxopts::value<std::string>())

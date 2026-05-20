@@ -41,7 +41,8 @@ namespace app
  *      use `using enum ...;` inside each struct, and
  *    - Flexibility to define a `concept` for it if desired in the future.
  *
- * All other settings that do not have >1 option are defined in standalone structs.
+ * All other settings that do not have >1 option are defined in standalone
+ * structs.
  */
 
 // ----------------------------------------------------------------------------

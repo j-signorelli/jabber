@@ -237,8 +237,10 @@ TEMPLATE_TEST_CASE_SIG("1D flowfield computation via kernel",
          // Compute
          ComputeKernel<1, TGridInnerLoop>(kNumPts, kRhoBar, kPBar, &kUBar,
                                           kGamma, kNumWaves, time,
-                                          rho_coeffs.data(), rhoV_coeffs.data(),
-                                          rhoE_coeffs.data(), wave_omegas.data(),
+                                          rho_coeffs.data(),
+                                          rhoV_coeffs.data(),
+                                          rhoE_coeffs.data(),
+                                          wave_omegas.data(),
                                           k_dot_x_p_phi.data(), rho.data(),
                                           rhoU.data(), rhoE.data());
 
@@ -308,7 +310,8 @@ TEST_CASE("1D flowfield computation via app library", "[1D][Compute][App]")
                                  random(kTimeExtents.first,
                                         kTimeExtents.second))));
 
-   const AcousticField::Kernel kernel = GENERATE(options<AcousticField::Kernel>());
+   const AcousticField::Kernel kernel =
+      GENERATE(options<AcousticField::Kernel>());
 
    const int kNumWaves = GENERATE(1,2);
    CAPTURE(kNumWaves);

@@ -168,7 +168,8 @@ void AcousticField::Compute(double t)
                                          kernel_args_.rhoE_coeffs.data(),
                                          kernel_args_.wave_omegas.data(),
                                          kernel_args_.k_dot_x_p_phi.data(),
-                                         rho_.data(), rhoV_.data(), rhoE_.data());
+                                         rho_.data(), rhoV_.data(),
+                                         rhoE_.data());
             }
             else if (kernel_ == Kernel::Wave)
             {
@@ -179,7 +180,8 @@ void AcousticField::Compute(double t)
                                           kernel_args_.rhoE_coeffs.data(),
                                           kernel_args_.wave_omegas.data(),
                                           kernel_args_.k_dot_x_p_phi.data(),
-                                          rho_.data(), rhoV_.data(), rhoE_.data());
+                                          rho_.data(), rhoV_.data(),
+                                          rhoE_.data());
             }
             else
             {

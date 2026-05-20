@@ -9,7 +9,9 @@ namespace jabber
  * @defgroup tf_group Transfer Functions
  * @{
  *
- * @details @todo \f$\chi=\frac{\left(\frac{p'_{02}}{p_{02}}\right)^2}{\left(\frac{p'}{\bar{p}}\right)^2}\f$
+ * @details @todo
+ * \f$\chi=\frac{\left(\frac{p'_{02}}{p_{02}}\right)^2}
+ * {\left(\frac{p'}{\bar{p}}\right)^2}\f$
  */
 
 /**
