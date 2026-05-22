@@ -26,35 +26,36 @@ int main(int argc, char *argv[])
              << LINE << std::endl;
 
    // Option parser:
-   cxxopts::Options options("jabber_psd", 
-      "Compute a PSD from a probe of the exact flowfield computed "
-      "by Jabber using Welch's method.");
+   cxxopts::Options options("jabber_psd",
+                            "Compute a PSD from a probe of the exact "
+                            "flowfield computed by Jabber using Welch's "
+                            "method.");
 
    options.add_options()
-      ("c,config", "Config file.", cxxopts::value<std::string>())
-      ("d,dt", "Timestep to use.", 
-         cxxopts::value<double>()->default_value("3.72961861118742e-7"))
-      ("t,timesteps", "Number of timesteps to run to.", 
-         cxxopts::value<std::size_t>()->default_value("1000000"))
-      ("s,nperseg", "Number of points in each segment.",
-         cxxopts::value<std::size_t>()->default_value("256"))
-      ("o,noverlap", "Number of point overlap in segments. "
-                     " Defaults to nperseg/2 (50%)", 
-         cxxopts::value<std::size_t>())
-      ("w,write-psd-file", "Filename to write PSD data to (if included) as a CSV.",
-         cxxopts::value<std::string>())
-      ("r,write-press-file", "Filename to write pressure perturbation data to "
-                             "(if included).",
-         cxxopts::value<std::string>())
-      ("p,plot", "Generate a plot of the computed PSD data.")
-      ("l,log", "Plot on a log-log scale.",
-         cxxopts::value<bool>()->default_value("false"))
-      ("i,input-psd", "Input PSD CSV file to plot computed PSD against",
-         cxxopts::value<std::string>())
-      ("n,nondim", 
-         "Nondimensionalize the PSD using the input base flow pressure.",
-         cxxopts::value<bool>()->default_value("false"))
-      ("h,help", "Print usage information.");
+   ("c,config", "Config file.", cxxopts::value<std::string>())
+   ("d,dt", "Timestep to use.",
+    cxxopts::value<double>()->default_value("3.72961861118742e-7"))
+   ("t,timesteps", "Number of timesteps to run to.",
+    cxxopts::value<std::size_t>()->default_value("1000000"))
+   ("s,nperseg", "Number of points in each segment.",
+    cxxopts::value<std::size_t>()->default_value("256"))
+   ("o,noverlap", "Number of point overlap in segments. "
+    " Defaults to nperseg/2 (50%)",
+    cxxopts::value<std::size_t>())
+   ("w,write-psd-file", "Filename to write PSD data to (if included) as a CSV.",
+    cxxopts::value<std::string>())
+   ("r,write-press-file", "Filename to write pressure perturbation data to "
+    "(if included).",
+    cxxopts::value<std::string>())
+   ("p,plot", "Generate a plot of the computed PSD data.")
+   ("l,log", "Plot on a log-log scale.",
+    cxxopts::value<bool>()->default_value("false"))
+   ("i,input-psd", "Input PSD CSV file to plot computed PSD against",
+    cxxopts::value<std::string>())
+   ("n,nondim",
+    "Nondimensionalize the PSD using the input base flow pressure.",
+    cxxopts::value<bool>()->default_value("false"))
+   ("h,help", "Print usage information.");
 
    cxxopts::ParseResult result = options.parse(argc, argv);
 

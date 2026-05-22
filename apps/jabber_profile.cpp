@@ -51,20 +51,20 @@ int main(int argc, char *argv[])
                             "of a given config file and grid.");
 
    options.add_options()
-      ("c,config", "Config file.", cxxopts::value<std::string>())
-      ("d,dim", "Grid dimension (1,2,3).", 
-                        cxxopts::value<int>()->default_value("3"))
-      ("n,num-points", "Total number of grid points.",
-                        cxxopts::value<std::size_t>()->default_value("100"))
-      ("e,extent", "Grid extent in each direction (such that domain is "
-                     "[0,extent]^dim).",
-                        cxxopts::value<double>()->default_value("1.0"))
-      ("p,passes", "Number of passes to Compute() to profile, using "
-                   "randomized times.",
-                        cxxopts::value<int>()->default_value("10000"))
-      ("w,warmup", "Number of warmup passes to Compute(), using randomized "
-                   "times.", cxxopts::value<int>()->default_value("1000"))
-      ("h,help", "Print usage information.");
+   ("c,config", "Config file.", cxxopts::value<std::string>())
+   ("d,dim", "Grid dimension (1,2,3).",
+    cxxopts::value<int>()->default_value("3"))
+   ("n,num-points", "Total number of grid points.",
+    cxxopts::value<std::size_t>()->default_value("100"))
+   ("e,extent", "Grid extent in each direction (such that domain is "
+    "[0,extent]^dim).",
+    cxxopts::value<double>()->default_value("1.0"))
+   ("p,passes", "Number of passes to Compute() to profile, using "
+    "randomized times.",
+    cxxopts::value<int>()->default_value("10000"))
+   ("w,warmup", "Number of warmup passes to Compute(), using randomized "
+    "times.", cxxopts::value<int>()->default_value("1000"))
+   ("h,help", "Print usage information.");
 
    cxxopts::ParseResult result = options.parse(argc, argv);
 

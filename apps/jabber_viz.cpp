@@ -36,22 +36,22 @@ int main(int argc, char *argv[])
                             "using MFEM w/ GLVis.");
 
    options.add_options()
-      ("c,config", "Config file.", cxxopts::value<std::string>())
-      ("d,dim", "Grid dimension (1,2,3).", 
-                        cxxopts::value<int>()->default_value("2"))
-      ("n,num-points-dim", "Number grid points in each dimension.",
-                        cxxopts::value<std::size_t>()->default_value("100"))
-      ("e,extent", "Grid extent in each direction (such that domain is "
-                     "[0,extent]^dim).",
-                        cxxopts::value<double>()->default_value("1.0"))
-      ("f,fields", "Fields to visualize with GLVis ('rho', 'rhoV', 'rhoE').",
-                        cxxopts::value<std::vector<std::string>>()
-                        ->default_value("rho,rhoV,rhoE"))
-      ("s,dt", "Timestep to use.", 
-                        cxxopts::value<double>()->default_value("0.0"))
-      ("t,timesteps", "Number of timesteps to run to.",
-                        cxxopts::value<int>()->default_value("500"))
-      ("h,help", "Print usage information.");
+   ("c,config", "Config file.", cxxopts::value<std::string>())
+   ("d,dim", "Grid dimension (1,2,3).",
+    cxxopts::value<int>()->default_value("2"))
+   ("n,num-points-dim", "Number grid points in each dimension.",
+    cxxopts::value<std::size_t>()->default_value("100"))
+   ("e,extent", "Grid extent in each direction (such that domain is "
+    "[0,extent]^dim).",
+    cxxopts::value<double>()->default_value("1.0"))
+   ("f,fields", "Fields to visualize with GLVis ('rho', 'rhoV', 'rhoE').",
+    cxxopts::value<std::vector<std::string>>()
+    ->default_value("rho,rhoV,rhoE"))
+   ("s,dt", "Timestep to use.",
+    cxxopts::value<double>()->default_value("0.0"))
+   ("t,timesteps", "Number of timesteps to run to.",
+    cxxopts::value<int>()->default_value("500"))
+   ("h,help", "Print usage information.");
 
    cxxopts::ParseResult result = options.parse(argc, argv);
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
    const std::size_t num_pts_total = std::pow(num_pts_d,dim);
    const double extent = result["extent"].as<double>();
    const std::vector<std::string> fields = result["fields"]
-                                             .as<std::vector<std::string>>();
+                                           .as<std::vector<std::string>>();
    const double timestep = result["dt"].as<double>();
    const int num_timesteps = result["timesteps"].as<int>();
 
