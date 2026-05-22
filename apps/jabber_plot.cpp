@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
    }
    if (result.count("config") == 0)
    {
-      std::cout << "Error: no config file specified." << std::endl;
+      std::cerr << "Error: no config file specified." << std::endl;
       return 1;
    }
 
