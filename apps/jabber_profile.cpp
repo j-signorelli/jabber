@@ -29,10 +29,6 @@ using namespace jabber::app;
 // Define duration type alias
 using dur_t = std::chrono::duration<double, std::micro>;
 
-/// Create a dummy grid.
-void CreateGrid(const int dim, const int num_pts_d, const double extent,
-                std::vector<double> &coords);
-
 int main(int argc, char *argv[])
 {
 #ifdef JABBER_WITH_MPI
@@ -58,7 +54,7 @@ int main(int argc, char *argv[])
    ("c,config", "Config file.", cxxopts::value<std::string>())
    ("d,dim", "Grid dimension (1,2,3).",
     cxxopts::value<int>()->default_value("3"))
-   ("n,num_points", "Number grid points in each dimension.",
+   ("n,num-points", "Total number of grid points.",
     cxxopts::value<std::size_t>()->default_value("100"))
    ("e,extent", "Grid extent in each direction (such that domain is "
     "[0,extent]^dim).",
@@ -83,13 +79,12 @@ int main(int argc, char *argv[])
    }
    if (result.count("config") == 0)
    {
-      ROOT std::cout << "Error: no config file specified." << std::endl;
+      ROOT std::cerr << "Error: no config file specified." << std::endl;
       return 1;
    }
 
    const int dim = result["dim"].as<int>();
-   const std::size_t num_pts_d = result["num_points"].as<std::size_t>();
-   const std::size_t num_pts_total = std::pow(num_pts_d,dim);
+   const std::size_t num_pts_total = result["num-points"].as<std::size_t>();
    const double extent = result["extent"].as<double>();
    const int passes = result["passes"].as<int>();
    const int warmup_passes = result["warmup"].as<int>();
@@ -105,11 +100,6 @@ int main(int argc, char *argv[])
    ROOT
    {
       std::cout << "Grid\n";
-      std::cout << "\tDimension: ";
-      for (int d = 0; d < dim; d++)
-      {
-         std::cout << num_pts_d << (d+1==dim ? "" : "x");
-      }
       std::cout << std::endl;
       std::cout << "\tExtents: ";
       for (int d = 0; d < dim; d++)
@@ -118,12 +108,16 @@ int main(int argc, char *argv[])
       }
       std::cout << std::endl;
       std::cout << "\tNumber of points: " << num_pts_total << std::endl;
-      std::cout << "\tSpacing: " << (extent/(num_pts_d-1.0)) << std::endl;
    }
 
-   // Create a simple [0,1]^dim grid
+   // Create simple grid of random points
+   std::mt19937 gen_pts(0);
+   std::uniform_real_distribution<double> real_dist_pts(0, extent);
    std::vector<double> coords(num_pts_total*dim);
-   CreateGrid(dim, num_pts_d, extent, coords);
+   for (std::size_t i = 0; i < num_pts_total*dim; i++)
+   {
+      coords[i] = real_dist_pts(gen_pts);
+   }
 
 #ifdef JABBER_WITH_MPI
    // Partition the coordinates.
@@ -136,12 +130,12 @@ int main(int argc, char *argv[])
    AcousticField field = InitializeAcousticField(conf, coords, dim);
 
    // Create an array of randomized times
-   std::mt19937 gen(0);
-   std::uniform_real_distribution<double> real_dist(0,1);
+   std::mt19937 gen_t(0);
+   std::uniform_real_distribution<double> real_dist_t(0,1);
    std::vector<double> time_rand(passes+warmup_passes);
    for (int i = 0; i < time_rand.size(); i++)
    {
-      time_rand[i] = real_dist(gen);
+      time_rand[i] = real_dist_t(gen_t);
    }
 
    // When JABBER_WITH_MPI, this holds max compute time for each iteration,
@@ -286,56 +280,4 @@ int main(int argc, char *argv[])
    }
 #endif // JABBER_WITH_MPI
    return 0;
-}
-
-void CreateGrid(const int dim, const int num_pts_d, const double extent,
-                std::vector<double> &coords)
-{
-   const double h = extent/(num_pts_d-1);
-   int num_pts_total = 1;
-   for (int d = 0; d < dim; d++)
-   {
-      num_pts_total *= num_pts_d;
-   }
-   coords.resize(num_pts_total*dim);
-
-   if (dim == 1)
-   {
-      for (std::size_t i = 0; i < num_pts_d; i++)
-      {
-         coords[i] = h*i;
-      }
-   }
-   else if (dim == 2)
-   {
-      for (std::size_t i = 0; i < num_pts_d; i++)
-      {
-         const double x = h*i;
-         for (std::size_t j = 0; j < num_pts_d; j++)
-         {
-            const std::size_t completed_pts = i*num_pts_d + j;
-            coords[completed_pts*dim] = x;
-            coords[completed_pts*dim+1] = h*j;
-         }
-      }
-   }
-   else // dim == 3
-   {
-      for (std::size_t i = 0; i < num_pts_d; i++)
-      {
-         const double x = h*i;
-         for (std::size_t j = 0; j < num_pts_d; j++)
-         {
-            const double y = h*j;
-            for (std::size_t k = 0; k < num_pts_d; k++)
-            {
-               const std::size_t completed_pts = i*num_pts_d*num_pts_d
-                                                 + j*num_pts_d + k;
-               coords[completed_pts*dim] = x;
-               coords[completed_pts*dim+1] = y;
-               coords[completed_pts*dim+2] = h*k;
-            }
-         }
-      }
-   }
 }

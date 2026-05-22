@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
    ("c,config", "Config file.", cxxopts::value<std::string>())
    ("d,dim", "Grid dimension (1,2,3).",
     cxxopts::value<int>()->default_value("2"))
-   ("n,num_points", "Number grid points in each dimension.",
+   ("n,num-points-dim", "Number grid points in each dimension.",
     cxxopts::value<std::size_t>()->default_value("100"))
    ("e,extent", "Grid extent in each direction (such that domain is "
     "[0,extent]^dim).",
@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
    ("f,fields", "Fields to visualize with GLVis ('rho', 'rhoV', 'rhoE').",
     cxxopts::value<std::vector<std::string>>()
     ->default_value("rho,rhoV,rhoE"))
-   ("s,dt,timestep", "Timestep to use.",
+   ("s,dt", "Timestep to use.",
     cxxopts::value<double>()->default_value("0.0"))
-   ("t,nt,num_timesteps", "Number of timesteps to run to.",
+   ("t,timesteps", "Number of timesteps to run to.",
     cxxopts::value<int>()->default_value("500"))
    ("h,help", "Print usage information.");
 
@@ -66,18 +66,18 @@ int main(int argc, char *argv[])
    }
    if (result.count("config") == 0)
    {
-      std::cout << "Error: no config file specified." << std::endl;
+      std::cerr << "Error: no config file specified." << std::endl;
       return 1;
    }
 
    const int dim = result["dim"].as<int>();
-   const std::size_t num_pts_d = result["num_points"].as<std::size_t>();
+   const std::size_t num_pts_d = result["num-points-dim"].as<std::size_t>();
    const std::size_t num_pts_total = std::pow(num_pts_d,dim);
    const double extent = result["extent"].as<double>();
    const std::vector<std::string> fields = result["fields"]
                                            .as<std::vector<std::string>>();
-   const double timestep = result["timestep"].as<double>();
-   const int num_timesteps = result["num_timesteps"].as<int>();
+   const double timestep = result["dt"].as<double>();
+   const int num_timesteps = result["timesteps"].as<int>();
 
    // Parse config file
    std::string config_file = result["config"].as<std::string>();
