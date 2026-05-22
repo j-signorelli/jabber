@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 {
    PrintBanner(std::cout);
    std::cout << "Jabber PSD" << std::endl
-               << LINE << std::endl;
+             << LINE << std::endl;
 
    // Option parser:
    cxxopts::Options options("jabber_psd", 
@@ -57,10 +57,10 @@ int main(int argc, char *argv[])
       ("h,help", "Print usage information.");
 
    cxxopts::ParseResult result = options.parse(argc, argv);
-   
+
    std::string args_str = result.arguments_string();
-   std::cout << "Command Line Arguments:\n\n" << args_str << std::endl 
-               << LINE << std::endl;
+   std::cout << "Command Line Arguments:\n\n" << args_str << std::endl
+             << LINE << std::endl;
 
    if (result.count("help"))
    {
@@ -78,9 +78,9 @@ int main(int argc, char *argv[])
    const std::size_t nt = result["timesteps"].as<std::size_t>();
    const std::size_t nperseg = result["nperseg"].as<std::size_t>();
    const std::size_t noverlap = (result.count("noverlap") == 0) ? nperseg/2
-                                    : result["noverlap"].as<std::size_t>();
+                                : result["noverlap"].as<std::size_t>();
    const bool nd = result["nondim"].as<bool>();
-   
+
    if (nperseg > nt)
    {
       throw std::invalid_argument("nperseg must be less than nt!");
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 
    double time = 0.0;
    const double c_sq = conf.BaseFlow().gamma*
-                           conf.BaseFlow().p/conf.BaseFlow().rho;
+                       conf.BaseFlow().p/conf.BaseFlow().rho;
 
    // Initialize vector of all pressures.
    std::vector<double> p_prime(nt, 0.0);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
    const double fs = 1.0/dt;
    std::vector<double> xw(nperseg);
    std::vector<std::complex<double>> dft(nperseg/2+1);
-   std::vector<double> psd(nperseg/2+1, 0.0);                
+   std::vector<double> psd(nperseg/2+1, 0.0);
    for (std::size_t k = 0; k < num_segs; k++)
    {
       // Compute pressure * window
@@ -142,12 +142,12 @@ int main(int argc, char *argv[])
       }
 
       // Compute DFT of each segment
-      pocketfft::r2c({nperseg}, {sizeof(double)}, 
-                     {sizeof(std::complex<double>)},
-                     0, pocketfft::FORWARD, xw.data(), 
-                     dft.data(), 1.0);
+      pocketfft::r2c({nperseg}, {sizeof(double)},
+      {sizeof(std::complex<double>)},
+      0, pocketfft::FORWARD, xw.data(),
+      dft.data(), 1.0);
 
-      // Compute modified periodogram of DFT + add averaged contribution 
+      // Compute modified periodogram of DFT + add averaged contribution
       // of this segment k to PSD
       for (std::size_t i = 0; i < nperseg/2+1; i++)
       {
@@ -169,11 +169,12 @@ int main(int argc, char *argv[])
    {
       freqs[i] = i*fs/nperseg;
    }
-   
+
    // Write PSD to file:
    if (result.count("write-psd-file") > 0)
    {
-      const std::string file_name = result["write-psd-file"].as<std::string>();
+      const std::string file_name =
+         result["write-psd-file"].as<std::string>();
       std::ofstream psd_file(file_name);
       for (std::size_t i = 0; i < nperseg/2+1; i++)
       {
@@ -185,7 +186,7 @@ int main(int argc, char *argv[])
    if (result.count("write-press-file") > 0)
    {
       const std::string file_name = result["write-press-file"]
-                                                         .as<std::string>();
+                                    .as<std::string>();
       std::ofstream press_file(file_name);
       for (std::size_t i = 0; i < p_prime.size(); i++)
       {
@@ -196,7 +197,7 @@ int main(int argc, char *argv[])
    // Plot
    if (result.count("plot") > 0)
    {
-      std::FILE* gnuplot = popen("gnuplot", "w");
+      std::FILE *gnuplot = popen("gnuplot", "w");
 
       if (result.count("log") > 0)
       {
@@ -207,19 +208,20 @@ int main(int argc, char *argv[])
          psd.erase(psd.begin());
       }
 
-      
-      std:fprintf(gnuplot, "set xlabel 'Frequency'\n");
+
+std:
+      fprintf(gnuplot, "set xlabel 'Frequency'\n");
       std::fprintf(gnuplot, "set ylabel 'PSD'\n");
       std::fprintf(gnuplot, "plot '-' title 'Computed' with points pt 1");
       if (result.count("input-psd") > 0)
       {
-         std::fprintf(gnuplot, ", '-' title 'Input PSD' with line");              
+         std::fprintf(gnuplot, ", '-' title 'Input PSD' with line");
       }
       std::fprintf(gnuplot, "\n");
       for (std::size_t i = 0; i < freqs.size(); i++)
       {
-         std::fprintf(gnuplot, "%s", std::format("{} {}\n", 
-                                          freqs[i], psd[i]).c_str());
+         std::fprintf(gnuplot, "%s", std::format("{} {}\n",
+                                                 freqs[i], psd[i]).c_str());
       }
       std::fprintf(gnuplot, "e\n");
 
@@ -234,11 +236,12 @@ int main(int argc, char *argv[])
          psd_in(input);
          for (std::size_t i = 0; i < in_freqs.size(); i++)
          {
-            std::fprintf(gnuplot, "%s", std::format("{} {}\n", 
-                                             in_freqs[i], in_psd[i]).c_str());
+            std::fprintf(gnuplot, "%s",
+                         std::format("{} {}\n",in_freqs[i],
+                                     in_psd[i]).c_str());
          }
          std::fprintf(gnuplot, "e\n");
-         
+
       }
 
       std::cout << "Enter to close plot...";

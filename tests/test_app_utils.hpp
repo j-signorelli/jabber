@@ -18,16 +18,16 @@ namespace jabber_test
 
 /**
  * @brief Get random parameters, provided an option.
- * 
+ *
  * @details This function relies heavily on Catch2 generator wrapper creators.
  * The Catch2 seed is updated every call to them, so this function can be
- * called more than once on the same option enumerator and will yield a 
- * different output parameter. 
- * 
+ * called more than once on the same option enumerator and will yield a
+ * different output parameter.
+ *
  */
 template<typename T>
 T::ParamsVariant GetRandomParams
-   (const typename T::Option &option=random_option<typename T::Option>().get())
+(const typename T::Option &option=random_option<typename T::Option>().get())
 {
    using namespace jabber::app;
    using namespace Catch::Generators;
@@ -50,8 +50,8 @@ T::ParamsVariant GetRandomParams
       {
          const int file_suffix = random(0,100).get();
          InputXY::Params<FromCSV> op;
-         op.file = "test_file." + std::to_string(file_suffix) 
-                  + ".csv";
+         op.file = "test_file." + std::to_string(file_suffix)
+                   + ".csv";
          opv = op;
       }
    }
@@ -78,11 +78,11 @@ T::ParamsVariant GetRandomParams
 
       if (option == Uniform)
       {
-         opv = DiscMethod::Params<Uniform>{};
+         opv = DiscMethod::Params<Uniform> {};
       }
       else if (option == UniformLog)
       {
-         opv = DiscMethod::Params<UniformLog>{};
+         opv = DiscMethod::Params<UniformLog> {};
       }
       else if (option == Random)
       {
@@ -122,7 +122,7 @@ T::ParamsVariant GetRandomParams
 
       if (option == LowFrequencyLimit)
       {
-         opv = TransferFunction::Params<LowFrequencyLimit>{};
+         opv = TransferFunction::Params<LowFrequencyLimit> {};
       }
       else if (option == Input)
       {
@@ -160,7 +160,7 @@ T::ParamsVariant GetRandomParams
          {
             Source::Params<SingleWave> wave;
             wave = std::get<Source::Params<SingleWave>>
-                        (GetRandomParams<Source>(SingleWave));
+                   (GetRandomParams<Source>(SingleWave));
             op.amps.push_back(wave.amp);
             op.freqs.push_back(wave.freq);
             op.directions.push_back(wave.direction);
@@ -173,9 +173,10 @@ T::ParamsVariant GetRandomParams
       {
          Source::Params<PSD> op;
          op.input_psd = GetRandomParams<FunctionType>();
-         op.scale_fac = random(0,1).get() ? 
-                           std::optional<double>{random(1.0, 10.0).get()}
-                           : std::nullopt;
+         op.scale_fac = random(0,1).get() ?
+                        std::optional<double> {random(1.0, 10.0).get()}
+                        :
+                        std::nullopt;
          op.phase_seed = random(1,100).get();
          op.speed = random(0,1).get() ? 'S' : 'F';
          op.min_disc_freq = random(1e3,10e3).get();
@@ -198,8 +199,8 @@ T::ParamsVariant GetRandomParams
       else if (option == WaveCSV)
       {
          Source::Params<WaveCSV> op;
-         op.file = "test_waves." + std::to_string(random(0,100).get()) 
-                     + ".csv";
+         op.file = "test_waves." + std::to_string(random(0,100).get())
+                   + ".csv";
          opv = op;
       }
    }
@@ -224,12 +225,12 @@ private:
 
 public:
    RandomParamsGenerator(const std::optional<Option> option=std::nullopt)
-   : option_(option)
+      : option_(option)
    {
       static_cast<void>(next());
    }
 
-   const ParamsVariant& get() const override
+   const ParamsVariant &get() const override
    {
       return opv_;
    }
@@ -254,17 +255,17 @@ public:
 };
 
 /**
- * @brief Generator-wrapper creator for random params of 
+ * @brief Generator-wrapper creator for random params of
  * \ref OptionEnum. Use by \c random_params<E>(E::V) or with varying param
  * type by \c random_params<E>().
  */
 template<typename T>
 Catch::Generators::GeneratorWrapper<typename T::ParamsVariant> random_params
-   (std::optional<typename T::Option> V=std::nullopt)
+(std::optional<typename T::Option> V=std::nullopt)
 {
 
    return Catch::Generators::GeneratorWrapper<typename T::ParamsVariant>(
-            Catch::Detail::make_unique<RandomParamsGenerator<T>>(V));
+             Catch::Detail::make_unique<RandomParamsGenerator<T>>(V));
 }
 
 /// Simple type trait for std::vector.
@@ -289,8 +290,8 @@ std::string TOMLWriteValue(const T &val)
          out_str += (w+1==val.size() ? "]" : ",");
       }
    }
-   else if constexpr (std::same_as<T, char> || std::same_as<T, std::string> || 
-                        std::same_as<T, std::string_view>)
+   else if constexpr (std::same_as<T, char> || std::same_as<T, std::string> ||
+                      std::same_as<T, std::string_view>)
    {
       out_str += std::format("'{}'", val);
    }
@@ -306,7 +307,7 @@ std::string TOMLWriteValue(const T &val)
  */
 template<typename T>
 std::string TOMLWriteParams
-   (const typename T::ParamsVariant &opv, bool inline_table=false)
+(const typename T::ParamsVariant &opv, bool inline_table=false)
 {
    using namespace jabber::app;
 
@@ -315,10 +316,11 @@ std::string TOMLWriteParams
    using Option = T::Option;
 
    std::visit(
-   [=,&out_params]<Option V>(const typename T::template Params<V> &op)
+      [=,&out_params]<Option V>(const typename T::template Params<V> &op)
    {
-      out_params.emplace("Type", 
-                  TOMLWriteValue(T::kNames[static_cast<std::size_t>(V)]));
+      out_params.emplace("Type",
+                         TOMLWriteValue(
+                            T::kNames[static_cast<std::size_t>(V)]));
 
       if constexpr (std::same_as<T,InputXY>)
       {
@@ -340,7 +342,7 @@ std::string TOMLWriteParams
          if constexpr (V == PiecewiseLinear || V == PiecewiseLogLog)
          {
             out_params.emplace
-               ("Data", TOMLWriteParams<InputXY>(op.input_xy, true));
+            ("Data", TOMLWriteParams<InputXY>(op.input_xy, true));
          }
       }
       else if constexpr (std::same_as<T,DiscMethod>)
@@ -371,13 +373,14 @@ std::string TOMLWriteParams
 
          if constexpr (V == Input)
          {
-            out_params.emplace("InputTF", 
-                  TOMLWriteParams<FunctionType>(op.input_tf, true));
+            out_params.emplace("InputTF",
+                               TOMLWriteParams<FunctionType>(
+                                  op.input_tf, true));
          }
          else if constexpr (V == FlowNormalFit)
          {
-            out_params.emplace("ShockStandoffDist", 
-                                 TOMLWriteValue(op.shock_standoff_dist));
+            out_params.emplace("ShockStandoffDist",
+                               TOMLWriteValue(op.shock_standoff_dist));
          }
       }
       else if constexpr (std::same_as<T,Source>)
@@ -401,34 +404,38 @@ std::string TOMLWriteParams
          }
          else if constexpr (V == PSD)
          {
-            out_params.emplace("InputPSD", 
-                        TOMLWriteParams<FunctionType>(op.input_psd, true));
+            out_params.emplace("InputPSD",
+                               TOMLWriteParams<FunctionType>(
+                                  op.input_psd, true));
             if (op.scale_fac)
             {
-               out_params.emplace("ScaleFactor", 
-                                    TOMLWriteValue(op.scale_fac.value()));
+               out_params.emplace("ScaleFactor",
+                                  TOMLWriteValue(op.scale_fac.value()));
             }
             out_params.emplace("PhaseSeed", TOMLWriteValue(op.phase_seed));
             out_params.emplace("Speed", TOMLWriteValue(op.speed));
-            out_params.emplace("Discretization.Min", 
-                                 TOMLWriteValue(op.min_disc_freq));
-            out_params.emplace("Discretization.Max", 
-                                 TOMLWriteValue(op.max_disc_freq));
-            out_params.emplace("Discretization.N", 
-                                 TOMLWriteValue(op.num_waves));
-            out_params.emplace("Discretization.Interval", 
-                                 TOMLWriteValue(
-                                    IntervalType::kNames[
-                                       static_cast<std::size_t>(op.int_method)]));
-            out_params.emplace("Discretization.Method", 
-                        TOMLWriteParams<DiscMethod>(op.disc_params, true));
-            out_params.emplace("Direction", 
-                        TOMLWriteParams<Direction>(op.dir_params, true));
-            
+            out_params.emplace("Discretization.Min",
+                               TOMLWriteValue(op.min_disc_freq));
+            out_params.emplace("Discretization.Max",
+                               TOMLWriteValue(op.max_disc_freq));
+            out_params.emplace("Discretization.N",
+                               TOMLWriteValue(op.num_waves));
+            out_params.emplace("Discretization.Interval",
+                               TOMLWriteValue(
+                                  IntervalType::kNames[
+                          static_cast<std::size_t>(op.int_method)]));
+            out_params.emplace("Discretization.Method",
+                               TOMLWriteParams<DiscMethod>(
+                                  op.disc_params, true));
+            out_params.emplace("Direction",
+                               TOMLWriteParams<Direction>(
+                                  op.dir_params, true));
+
             if (op.tf_params.has_value())
             {
-               out_params.emplace("TransferFunction", 
-                        TOMLWriteParams<TransferFunction>(*op.tf_params, true));
+               out_params.emplace("TransferFunction",
+                                  TOMLWriteParams<TransferFunction>(
+                                     *op.tf_params, true));
             }
          }
          else if constexpr (V == WaveCSV)
@@ -470,8 +477,8 @@ std::string TOMLWriteParams
 
 template<typename T>
 void TestParamsEqual
-   (const typename T::ParamsVariant &opv1,
-      const typename T::ParamsVariant &opv2)
+(const typename T::ParamsVariant &opv1,
+ const typename T::ParamsVariant &opv2)
 {
    using namespace jabber::app;
    using namespace Catch::Matchers;
@@ -479,14 +486,14 @@ void TestParamsEqual
    using Option = typename T::Option;
 
    std::visit(
-   []<Option V1, Option V2>(const typename T::template Params<V1> &op1, 
-                              const typename T::template Params<V2> &op2)
+      []<Option V1, Option V2>(const typename T::template Params<V1> &op1,
+                               const typename T::template Params<V2> &op2)
    {
       // First make sure these are indeed the same types
       if constexpr (V1 != V2)
       {
-         CAPTURE(T::kNames[static_cast<std::size_t>(V1)], 
-                  T::kNames[static_cast<std::size_t>(V2)]);
+         CAPTURE(T::kNames[static_cast<std::size_t>(V1)],
+                 T::kNames[static_cast<std::size_t>(V2)]);
          FAIL("Non-matching types!");
       }
       else // else the types match!
@@ -583,12 +590,12 @@ void TestParamsEqual
                TestParamsEqual<FunctionType>(op1.input_psd, op2.input_psd);
                TestParamsEqual<DiscMethod>(op1.disc_params, op2.disc_params);
                TestParamsEqual<Direction>(op1.dir_params, op2.dir_params);
-                                                
+
                REQUIRE(op1.tf_params.has_value() == op2.tf_params.has_value());
                if (op1.tf_params.has_value())
                {
                   TestParamsEqual<TransferFunction>
-                     (*op1.tf_params, *op2.tf_params);
+                  (*op1.tf_params, *op2.tf_params);
                }
 
             }
