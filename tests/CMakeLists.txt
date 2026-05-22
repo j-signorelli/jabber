@@ -9,10 +9,7 @@ add_executable(unit-tests
                         test_wave.cpp
                         test_transfer_functions.cpp)
 
-set(dependencies Catch2::Catch2WithMain libjabber)
-if(JABBER_BUILD_APP_LIB)
-    list(APPEND dependencies libjabber_app)
-endif()
+set(dependencies Catch2::Catch2WithMain jabber)
 
 target_link_libraries(unit-tests PRIVATE ${dependencies})
 

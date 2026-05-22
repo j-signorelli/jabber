@@ -1,3 +1,5 @@
+set(JABBER_APP_TARGETS "")
+
 # Build participant app
 if (JABBER_BUILD_PARTICIPANT)
    # Find preCICE
@@ -5,15 +7,11 @@ if (JABBER_BUILD_PARTICIPANT)
    message(STATUS "Found preCICE config: TRUE")
 
    add_executable(jabber_participant jabber_participant.cpp)
-   set_property(GLOBAL APPEND PROPERTY JABBER_TARGETS_PROPERTY 
-                                                   jabber_participant)
-
    target_link_libraries(jabber_participant PRIVATE 
-                                 compiler_flag_requirements
-                                 libjabber
-                                 libjabber_app
+                                 jabber
                                  cxxopts::cxxopts
                                  precice::precice)
+   list(APPEND JABBER_APP_TARGETS jabber_participant)
 endif()
 
 # Build Jabber acoustic field visualizer app
@@ -24,16 +22,11 @@ if (JABBER_BUILD_VIZ)
    message(STATUS "Found MFEM config: TRUE")
 
    add_executable(jabber_viz jabber_viz.cpp)
-   set_property(GLOBAL APPEND PROPERTY JABBER_TARGETS_PROPERTY 
-                                                   jabber_viz)
-
    target_link_libraries(jabber_viz PRIVATE 
-                                 compiler_flag_requirements
-                                 libjabber
-                                 libjabber_app
+                                 jabber
                                  cxxopts::cxxopts
                                  mfem)
-
+   list(APPEND JABBER_APP_TARGETS jabber_viz)
 endif()
 
 
@@ -41,15 +34,10 @@ endif()
 if (JABBER_BUILD_PROFILER)
 
    add_executable(jabber_profile jabber_profile.cpp)
-   set_property(GLOBAL APPEND PROPERTY JABBER_TARGETS_PROPERTY 
-                                                   jabber_profile)
-
    target_link_libraries(jabber_profile PRIVATE 
-                                       compiler_flag_requirements
-                                       libjabber
-                                       libjabber_app
-                                       cxxopts::cxxopts)
-
+                                       jabber
+                                       cxxopts::cxxopts)   
+   list(APPEND JABBER_APP_TARGETS jabber_profile)
 endif()
 
 
@@ -57,41 +45,32 @@ endif()
 if (JABBER_BUILD_OUT)
 
    add_executable(jabber_out jabber_out.cpp)
-   set_property(GLOBAL APPEND PROPERTY JABBER_TARGETS_PROPERTY 
-                                                   jabber_out)
-
    target_link_libraries(jabber_out PRIVATE 
-                                       compiler_flag_requirements
-                                       libjabber
-                                       libjabber_app
+                                       jabber
                                        cxxopts::cxxopts)
+   list(APPEND JABBER_APP_TARGETS jabber_out)
 endif()
 
 # Build Jabber plot app
 if (JABBER_BUILD_PLOT)
 
    add_executable(jabber_plot jabber_plot.cpp)
-   set_property(GLOBAL APPEND PROPERTY JABBER_TARGETS_PROPERTY 
-                                                   jabber_plot)
-
    target_link_libraries(jabber_plot PRIVATE 
-                                       compiler_flag_requirements
-                                       libjabber
-                                       libjabber_app
+                                       jabber
                                        cxxopts::cxxopts)
+   list(APPEND JABBER_APP_TARGETS jabber_plot)                                       
 endif()
 
 # Build Jabber PSD app
 if (JABBER_BUILD_PSD)
    add_executable(jabber_psd jabber_psd.cpp)
-   set_property(GLOBAL APPEND PROPERTY JABBER_TARGETS_PROPERTY 
-                                                   jabber_psd)
-
    target_link_libraries(jabber_psd PRIVATE 
-                                       compiler_flag_requirements
-                                       libjabber
-                                       libjabber_app
+                                       jabber
                                        cxxopts::cxxopts)
    target_include_directories(jabber_psd PRIVATE
                      ${CMAKE_SOURCE_DIR}/externals/pocketfft)
+   list(APPEND JABBER_APP_TARGETS jabber_psd)
 endif()
+
+install(TARGETS ${JABBER_APP_TARGETS}
+   DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -7,7 +7,9 @@
 #include <format>
 #include <sstream>
 
-namespace jabber_app
+namespace jabber
+{
+namespace app
 {
 
 /**
@@ -23,39 +25,6 @@ namespace jabber_app
 /// Complete input configuration.
 class ConfigInput
 {
-private:
-   /// Get string of double \p f.
-   static std::string OutReal(double f)
-   {
-      return std::format("{}", f);
-   }
-
-   /// Get string of double vector \p vec.
-   static std::string OutRealVec(const std::vector<double> &vec, 
-                                    const std::string_view delim=", ")
-   {
-      std::stringstream ss;
-      ss << "[";
-      for (int i = 0; i < vec.size(); i++)
-      {
-         ss << OutReal(vec[i]) 
-               << ((i+1 == vec.size()) ? "]" : delim);
-      }
-      return ss.str();
-   }
-
-   /**
-    * @brief Convenient string generator for writing parameter information to 
-    * console.
-    */
-   static std::string WriteParam(const std::string_view param_name, 
-                                    const std::string_view value,
-                                    int param_width, int left_margin=8)
-   {
-      return std::format("{:<{}}{:<{}}= {}\n", "", left_margin, param_name,
-                                                   param_width, value);
-   }
-
 protected:
 
    /// Input base flow parameters.
@@ -201,6 +170,8 @@ public:
 /// @}
 // end of config_group
 
-} // namespace jabber_app
+} // namespace app
+
+} // namespace jabber
 
 #endif // JABBER_APP_CONFIG

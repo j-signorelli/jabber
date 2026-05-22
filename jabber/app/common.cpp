@@ -8,15 +8,15 @@
 #include <algorithm>
 #include <type_traits>
 
-using namespace jabber;
-
 // Helper type for the std::visit
 // (https://en.cppreference.com/w/cpp/utility/variant/visit)
 template<class... Ts>
 struct overloads : Ts... { using Ts::operator()...; };
 
 
-namespace jabber_app
+namespace jabber
+{
+namespace app
 {
 
 void PrintBanner(std::ostream &out)
@@ -170,7 +170,7 @@ void DiscMethodVisitor::operator()
 }
 
 void DirectionVisitor::operator()
-   (const Direction::Params<Constant> &op)
+   (const Direction::Params<Single> &op)
 {
    for (std::size_t i = 0; i < k_hats.size(); i++)
    {
@@ -200,9 +200,24 @@ void TransferFunctionVisitor::operator()
    const double &p_bar = base_flow_params.p;
    const double &rho_bar = base_flow_params.rho;
    const double &gamma = base_flow_params.gamma;
-   const double mach_bar = std::sqrt(gamma*p_bar/rho_bar);
+   const double c_bar = std::sqrt(gamma*p_bar/rho_bar);
+
+   const double vel_bar = 
+   [&]()
+   {
+      double mag_sq = 0.0;
+      for (int d = 0; d < base_flow_params.U.size(); d++)
+      {
+         const double &v = base_flow_params.U[d];
+         mag_sq += v*v;
+      }
+      return std::sqrt(mag_sq);
+   }();
+
+   const double mach_bar = vel_bar/c_bar;
 
    const double chi_star = LowFrequencyLimitTF(mach_bar, gamma, speed);
+
    for (std::size_t i = 0; i < freqs.size(); i++)
    {
       powers[i] /= chi_star;
@@ -227,18 +242,33 @@ void TransferFunctionVisitor::operator()
    const double &p_bar = base_flow_params.p;
    const double &rho_bar = base_flow_params.rho;
    const double &gamma = base_flow_params.gamma;
-   const double mach_bar = std::sqrt(gamma*p_bar/rho_bar);
+   const double c_bar = std::sqrt(gamma*p_bar/rho_bar);
+
+   const double vel_bar = 
+   [&]()
+   {
+      double mag_sq = 0.0;
+      for (int d = 0; d < base_flow_params.U.size(); d++)
+      {
+         const double &v = base_flow_params.U[d];
+         mag_sq += v*v;
+      }
+      return std::sqrt(mag_sq);
+   }();
+
+   const double mach_bar = vel_bar/c_bar;
 
    const double chi_star = LowFrequencyLimitTF(mach_bar, gamma, speed);
+
    const double f_s = 
    [&]()
    {
       const double RT = p_bar/rho_bar;
       const double RT_0 = RT*(1 + ((gamma-1.0)/2)*mach_bar*mach_bar);
 
-      const double c0 = std::sqrt(gamma*RT_0);
+      const double c_0 = std::sqrt(gamma*RT_0);
 
-      return c0/(2*op.shock_standoff_dist);
+      return c_0/(2*op.shock_standoff_dist);
    }();
 
    for (std::size_t i = 0; i < freqs.size(); i++)
@@ -360,4 +390,5 @@ AcousticField InitializeAcousticField(const ConfigInput &conf,
 
 }                                        
 
-} // namespace jabber_app
+} // namespace app
+} // namespace jabber

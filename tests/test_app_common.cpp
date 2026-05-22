@@ -7,14 +7,14 @@
 #include <catch2/matchers/catch_matchers_vector.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
 
-#include <jabber_app.hpp>
+#include <jabber/jabber.hpp>
 
 #include <filesystem>
 #include <fstream>
 #include <numeric>
 #include <vector>
 
-using namespace jabber_app;
+using namespace jabber::app;
 using namespace Catch::Matchers;
 using namespace Catch::Generators;
 

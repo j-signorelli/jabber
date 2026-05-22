@@ -1,6 +1,8 @@
 #ifndef JABBER_APP_PARAMS
 #define JABBER_APP_PARAMS
 
+#include "../core/core.hpp"
+
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -8,9 +10,9 @@
 #include <array>
 #include <optional>
 
-#include <jabber.hpp>
-
-namespace jabber_app
+namespace jabber
+{
+namespace app
 {
 /**
  * @defgroup params_group All Parameters/Settings
@@ -167,7 +169,7 @@ struct FunctionType
  */
 struct IntervalType
 {
-   using Option = jabber::Interval::Method;
+   using Option = Interval::Method;
 
    using enum Option;
 
@@ -175,8 +177,8 @@ struct IntervalType
                         static_cast<std::size_t>(Size)>
    kNames = 
    {
-      "Midpoint",      // jabber::Interval::Method::Midpoint
-      "MidpointLog",   // jabber::Interval::Method::MidpointLog10
+      "Midpoint",      // Interval::Method::Midpoint
+      "MidpointLog",   // Interval::Method::MidpointLog10
    };
 
 };
@@ -253,14 +255,16 @@ struct DiscMethod
 
 // ----------------------------------------------------------------------------
 /**
- * @brief All options and parameters associated with direction specification.
+ * @brief All options and parameters associated with wavenumber vector 
+ * direction specification for a set of waves as in 
+ * \p Source::Params<Source::Option::PSD>.
  */
 struct Direction
 {
    enum class Option : std::uint8_t
    {
-      /// Constant direction.
-      Constant,
+      /// Single direction for all waves.
+      Single,
 
       /// Random angle in XY-plane from x-axis for each wave.
       RandomXYAngle,
@@ -275,7 +279,7 @@ struct Direction
                         static_cast<std::size_t>(Size)>
    kNames = 
    {
-      "Constant",         // Constant
+      "Single",           // Single
       "RandomXYAngle",    // RandomXYAngle
    };
 
@@ -283,26 +287,32 @@ struct Direction
    struct Params;
 
    template<>
-   struct Params<Constant>
+   struct Params<Single>
    {
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector direction, can be non-normalized.
       std::vector<double> direction;
    };
 
    template<>
    struct Params<RandomXYAngle>
    {
-      /// Min angle of wave from x-axis, in XY-plane (CCW+, CW-) (in degrees).
+      /**
+       * @brief Min angle of wavenumber vector from x-axis, in XY-plane
+       * (CCW+, CW-) (in degrees).
+       */
       double min_angle;
 
-      /// Max angle of wave from x-axis, in XY-plane (CCW+, CW-) (in degrees).
+      /**
+       * @brief Max angle of wavenumber vector from x-axis, in XY-plane 
+       * (CCW+, CW-) (in degrees).
+       */
       double max_angle;
 
       /// Seed to use in randomization.
       int seed;
    };
 
-   using ParamsVariant = std::variant<Params<Constant>, Params<RandomXYAngle>>;
+   using ParamsVariant = std::variant<Params<Single>, Params<RandomXYAngle>>;
 
 };
 
@@ -389,7 +399,7 @@ struct Source
       /// Power spectral density (PSD).
       PSD,
 
-      /// Read in CSV file of Wave data (output from \ref jabber::WriteWaves()).
+      /// Read in CSV file of Wave data (output from \ref WriteWaves()).
       WaveCSV,
 
       /// Number of SourceOptions.
@@ -423,7 +433,7 @@ struct Source
       /// Phase, in deg.
       double phase;
 
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector direction, can be non-normalized.
       std::vector<double> direction;
 
       /// Wave speed ('S' or 'F').
@@ -442,7 +452,7 @@ struct Source
       /// Phases, in deg.
       std::vector<double> phases;
 
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector directions, can be non-normalized.
       std::vector<std::vector<double>> directions;
 
       /// Wave speeds ('S' or 'F').
@@ -469,12 +479,12 @@ struct Source
       std::size_t num_waves;
 
       /// Interval method to use for frequency bins.
-      jabber::Interval::Method int_method;
+      Interval::Method int_method;
 
       /// Frequency discretization method parameters.
       DiscMethod::ParamsVariant disc_params;
 
-      /// Wave direction parameters.
+      /// Wavenumber direction parameters.
       Direction::ParamsVariant dir_params;
 
       /// Seed to use for wave phase randomization.
@@ -490,7 +500,7 @@ struct Source
    template<>
    struct Params<WaveCSV>
    {
-      /// Wave CSV file (output from \ref jabber::WriteWaves()).
+      /// Wave CSV file (output from \ref WriteWaves()).
       std::string file;
    };
 
@@ -505,7 +515,7 @@ struct Source
  */
 struct KernelType
 {
-   using Option = jabber::AcousticField::Kernel;
+   using Option = AcousticField::Kernel;
 
    using enum Option;
 
@@ -513,8 +523,8 @@ struct KernelType
                   static_cast<std::size_t>(Size)>
    kNames = 
    {
-      "GridPoint",      // jabber::AcousticField::Kernel::GridPoint
-      "Wave",           // jabber::AcousticField::Kernel::Wave
+      "GridPoint",      // AcousticField::Kernel::GridPoint
+      "Wave",           // AcousticField::Kernel::Wave
    };
 
 };
@@ -527,7 +537,7 @@ struct CompParams
    double t0;
 
    /// Kernel type.
-   jabber::AcousticField::Kernel kernel;
+   AcousticField::Kernel kernel;
 };
 
 // ----------------------------------------------------------------------------
@@ -556,6 +566,8 @@ struct PreciceParams
 /// @}
 // end of params_group
 
-} // namespace jabber_app
+} // namespace app
+
+} // namespace jabber
 
 #endif // JABBER_APP_PARAMS

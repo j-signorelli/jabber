@@ -9,7 +9,7 @@
 #include <catch2/matchers/catch_matchers_vector.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
 
-#include <jabber_app.hpp>
+#include <jabber/jabber.hpp>
 
 #include <optional>
 
@@ -29,7 +29,7 @@ template<typename T>
 T::ParamsVariant GetRandomParams
    (const typename T::Option &option=random_option<typename T::Option>().get())
 {
-   using namespace jabber_app;
+   using namespace jabber::app;
    using namespace Catch::Generators;
 
    using ParamsVariant = typename T::ParamsVariant;
@@ -100,9 +100,9 @@ T::ParamsVariant GetRandomParams
    else if constexpr (std::same_as<T,Direction>)
    {
       using enum Direction::Option;
-      if (option == Constant)
+      if (option == Single)
       {
-         Direction::Params<Constant> op;
+         Direction::Params<Single> op;
          const int dim = random(1,3).get();
          op.direction = chunk(dim, random(0.0,1.0)).get();
          opv = op;
@@ -308,7 +308,7 @@ template<typename T>
 std::string TOMLWriteParams
    (const typename T::ParamsVariant &opv, bool inline_table=false)
 {
-   using namespace jabber_app;
+   using namespace jabber::app;
 
    std::map<std::string, std::string> out_params;
 
@@ -354,7 +354,7 @@ std::string TOMLWriteParams
       else if constexpr (std::same_as<T,Direction>)
       {
          using enum Direction::Option;
-         if constexpr (V == Constant)
+         if constexpr (V == Single)
          {
             out_params.emplace("Vector", TOMLWriteValue(op.direction));
          }
@@ -473,7 +473,7 @@ void TestParamsEqual
    (const typename T::ParamsVariant &opv1,
       const typename T::ParamsVariant &opv2)
 {
-   using namespace jabber_app;
+   using namespace jabber::app;
    using namespace Catch::Matchers;
 
    using Option = typename T::Option;
@@ -525,7 +525,7 @@ void TestParamsEqual
          {
             using enum Direction::Option;
 
-            if constexpr (V1 == Constant)
+            if constexpr (V1 == Single)
             {
                CHECK_THAT(op1.direction, Equals(op2.direction));
             }

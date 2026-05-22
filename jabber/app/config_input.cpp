@@ -4,6 +4,7 @@
 
 #include <iomanip>
 #include <format>
+#include <sstream>
 #include <algorithm>
 
 // Helper type for the std::visit
@@ -11,19 +12,365 @@
 template<class... Ts>
 struct overloads : Ts... { using Ts::operator()...; };
 
-namespace jabber_app
+namespace jabber
 {
+namespace app
+{
+
+/// Tab size used.
+static const int kTabSize = 3;
+
+/// Simple type trait for std::vector.
+template<typename T>
+struct is_std_vector : std::false_type {};
+
+template<typename... VArgs>
+struct is_std_vector<std::vector<VArgs...>> : std::true_type {};
+
+/// Get string form of \p val.
+template<typename T>
+std::string ToString(T val)
+{
+   std::string out_str;
+
+   // If it's a vector... 
+   if constexpr (is_std_vector<T>::value)
+   {
+      out_str += "[";
+
+      constexpr int kMaxSize = 4;
+      static_assert(kMaxSize > 2);
+
+      if (val.size() > kMaxSize)
+      {
+         // Print first and last elements only if size > kMaxSize
+         out_str += ToString(val.front()) + ",...," + ToString(val.back());
+      }
+      else
+      {
+         for (int w = 0; w < val.size(); w++)
+         {
+            out_str += ToString(val[w]);
+            out_str += (w+1==val.size() ? "" : ",");
+         }
+      }
+      out_str += "]";
+   }
+   else
+   {
+      out_str += std::format("{}", val);
+   }
+
+   return out_str;
+}
+
+/// Print \p str tabbed at level \p tab_level.
+std::string PrintTabbed(const std::string &str, int tab_level)
+{
+   return std::format("{:<{}}- {}", "", tab_level*kTabSize, str);
+}
+
+/// Simple param-value struct for printing.
+struct PV
+{
+   std::string param;
+   std::string value;
+};
+
+/// Helper for printing parameter information.
+std::string PrintParams
+   (const std::vector<PV> &params,
+      int tab_level=1)
+{
+   // Get the size of the largest key
+   int max_width = 0;
+   for (const PV &pv : params)
+   {
+      const int width = pv.param.size();
+      if (width > max_width)
+      {
+         max_width = width;
+      }
+   }
+   max_width++;
+
+   // Print all params
+   std::stringstream out_ss;
+   for (const PV &pv : params)
+   {  
+      out_ss << PrintTabbed(std::format("{:<{}}= {}", pv.param,
+                                       max_width, pv.value),  tab_level)
+               << std::endl;
+   }
+
+   return out_ss.str();
+}
 
 void ConfigInput::PrintBaseFlowParams(std::ostream &out) const
 {
    out << "Base Flow" << std::endl;
-   constexpr int label_width = 7;
-   out << WriteParam("rho", OutReal(base_flow_.rho), label_width);
-   out << WriteParam("p", OutReal(base_flow_.p), label_width);
-   out << WriteParam("U", OutRealVec(base_flow_.U), label_width);
-   out << WriteParam("gamma", OutReal(base_flow_.gamma), label_width);
-   out << std::endl;
+   const std::vector<PV> params
+   ({  
+      {"rho",     ToString(base_flow_.rho)},
+      {"p",       ToString(base_flow_.p)},
+      {"U",       ToString(base_flow_.U)},
+      {"gamma",   ToString(base_flow_.gamma)}
+   });
+
+
+   out << PrintParams(params) << std::endl;
 }
+
+/// Helper name-getter for variant-parameter types.
+template<typename T>
+std::string GetName(const typename T::Option &option)
+{
+   return std::string(T::kNames[static_cast<std::size_t>(option)]);
+}
+
+/// Print InputXY params visitor.
+struct PrintInputXYVisitor
+{
+   using enum InputXY::Option;
+
+   const int &tab_level;
+
+   std::string operator()(const InputXY::Params<Here> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type", GetName<InputXY>(Here)},
+         {"X",    ToString(op.x)},
+         {"Y",    ToString(op.y)},
+      });
+      return PrintParams(params, tab_level);
+   }
+
+   std::string operator()(const InputXY::Params<FromCSV> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type", GetName<InputXY>(FromCSV)},
+         {"File", ToString(op.file)},
+      });
+      return PrintParams(params, tab_level);
+   }
+};
+
+/// Print FunctionType params visitor.
+struct PrintFunctionTypeVisitor
+{
+   using enum FunctionType::Option;
+
+   const int &tab_level;
+
+   template<FunctionType::Option O>
+   std::string operator()(const FunctionType::Params<O> &op)
+   {
+      std::string out_str;
+
+      const std::vector<PV> params
+      ({
+         {"Type", GetName<FunctionType>(O)}
+      });
+      out_str += PrintParams(params, tab_level);
+      out_str += PrintTabbed("Input XY\n", tab_level);
+      out_str += std::visit(PrintInputXYVisitor{tab_level+1}, 
+                                    op.input_xy);
+      return out_str;
+   }
+};
+
+/// Print DiscMethod params visitor.
+struct PrintDiscMethodVisitor
+{
+  using enum DiscMethod::Option;
+  
+  const int &tab_level;
+
+  template<DiscMethod::Option O>
+  std::string operator()(const DiscMethod::Params<O> &op)
+  {
+      if constexpr (O == Uniform || O == UniformLog)
+      {
+         const std::vector<PV> params
+         ({
+            {"Type", GetName<DiscMethod>(O)}
+         });
+         return PrintParams(params, tab_level);
+      }
+      else // else Random or RandomLog
+      {
+         const std::vector<PV> params
+         ({
+            {"Type", GetName<DiscMethod>(O)},
+            {"Seed", ToString(op.seed)}
+         });
+         return PrintParams(params, tab_level);
+      }
+  }
+};
+
+/// Print Direction params visitor.
+struct PrintDirectionVisitor
+{
+   using enum Direction::Option;
+
+   const int &tab_level;
+
+   std::string operator()(const Direction::Params<Single> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type", GetName<Direction>(Single)},
+         {"Vector", ToString(op.direction)}
+      });
+      return PrintParams(params, tab_level);
+   }
+
+   std::string operator()(const Direction::Params<RandomXYAngle> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type", GetName<Direction>(RandomXYAngle)},
+         {"Min Angle", ToString(op.min_angle)},
+         {"Max Angle", ToString(op.max_angle)},
+         {"Seed", ToString(op.seed)},
+      });
+      return PrintParams(params, tab_level);
+   }
+};
+
+/// Print TransferFunction params visitor.
+struct PrintTransferFunctionVisitor
+{
+   using enum TransferFunction::Option;
+
+   const int &tab_level;
+
+   std::string operator()(const TransferFunction::Params<LowFrequencyLimit> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type", GetName<TransferFunction>(LowFrequencyLimit)}
+      });
+      return PrintParams(params, tab_level);
+   }
+
+   std::string operator()(const TransferFunction::Params<Input> &op)
+   {
+      std::string out_str;
+
+      const std::vector<PV> params
+      ({
+         {"Type", GetName<TransferFunction>(Input)}
+      });
+      out_str += PrintParams(params, tab_level);
+      out_str += PrintTabbed("Input TF\n", tab_level);
+      out_str += std::visit(PrintFunctionTypeVisitor{tab_level+1},
+                              op.input_tf);
+      return out_str;
+   }
+
+   std::string operator()(const TransferFunction::Params<FlowNormalFit> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type", GetName<TransferFunction>(FlowNormalFit)},
+         {"Shock Standoff Distance", ToString(op.shock_standoff_dist)}
+      });
+
+      return PrintParams(params, tab_level);
+   }
+};
+
+/// Print Source params visitor.
+struct PrintSourceVisitor
+{
+   using enum Source::Option;
+   
+   const int tab_level = 1;
+
+   std::string operator()(const Source::Params<SingleWave> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type",       GetName<Source>(SingleWave)},
+         {"Amplitude",  ToString(op.amp)},
+         {"Frequency",  ToString(op.freq)},
+         {"Direction",  ToString(op.direction)},
+         {"Phase",      ToString(op.phase)},
+         {"Speed",      ToString(op.speed)}
+      });
+      return PrintParams(params, tab_level);
+   }
+
+   std::string operator()(const Source::Params<WaveSpectrum> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type",        GetName<Source>(WaveSpectrum)},
+         {"Amplitudes",  ToString(op.amps)},
+         {"Frequencies", ToString(op.freqs)},
+         {"Directions",  ToString(op.directions)},
+         {"Phases",      ToString(op.phases)},
+         {"Speeds",      ToString(op.speeds)}
+      });
+      return PrintParams(params, tab_level);
+   }
+
+   std::string operator()(const Source::Params<PSD> &op)
+   {
+      std::string out_str;
+
+      const std::vector<PV> params
+      ({
+         {"Type",          GetName<Source>(PSD)},
+         {"Scale Factor",  ToString(op.scale_fac.value_or(1.0))},
+         {"Phase Seed",    ToString(op.phase_seed)},
+         {"Speed",         ToString(op.speed)}
+      });
+      out_str += PrintParams(params, tab_level);
+      out_str += PrintTabbed("Discretization\n", tab_level);
+
+      const std::vector<PV> disc_params
+      ({
+         {"Min",        ToString(op.min_disc_freq)},
+         {"Max",        ToString(op.max_disc_freq)},
+         {"N",          ToString(op.num_waves)},
+         {"Interval",   GetName<IntervalType>(op.int_method)},
+      });
+      out_str += PrintParams(disc_params, tab_level+1);
+      out_str += PrintTabbed("Method\n", tab_level+1);
+      out_str += std::visit(PrintDiscMethodVisitor{tab_level+2},
+                              op.disc_params);
+      out_str += PrintTabbed("Input PSD\n", tab_level);
+      out_str += std::visit(PrintFunctionTypeVisitor{tab_level+1},
+                              op.input_psd);
+      out_str += PrintTabbed("Direction\n", tab_level);
+      out_str += std::visit(PrintDirectionVisitor{tab_level+1}, 
+                              op.dir_params);
+      if (op.tf_params.has_value())
+      {
+         out_str += PrintTabbed("Transfer Function\n", tab_level);
+         out_str += std::visit(PrintTransferFunctionVisitor{tab_level+1},
+                                 op.tf_params.value());
+      }
+
+      return out_str;
+   }
+
+   std::string operator()(const Source::Params<WaveCSV> &op)
+   {
+      const std::vector<PV> params
+      ({
+         {"Type",       GetName<Source>(WaveSpectrum)},
+         {"File",       op.file}
+      });
+      
+      return PrintParams(params, tab_level);
+   }
+};
 
 void ConfigInput::PrintSourceParams(std::ostream &out) const
 {
@@ -31,92 +378,9 @@ void ConfigInput::PrintSourceParams(std::ostream &out) const
    using enum Source::Option;
 
    out << "Sources" << std::endl;
-
    for (const Source::ParamsVariant &source : sources_)
    {
-      std::visit(
-      overloads
-      {
-      [&out](const Source::Params<SingleWave> &wave)
-      {
-         std::size_t name_i 
-                        = static_cast<std::size_t>(SingleWave);
-                        
-         constexpr int label_width = 11;
-
-         out << WriteParam("Type", Source::kNames[name_i], label_width);
-         out << WriteParam("Amplitude", OutReal(wave.amp), label_width);
-         out << WriteParam("Frequency", OutReal(wave.freq), label_width);
-         out << WriteParam("Direction", OutRealVec(wave.direction), 
-                                                            label_width);
-         out << WriteParam("Phase", OutReal(wave.phase), label_width);
-         out << WriteParam("Speed", std::string(&wave.speed), label_width);
-         out << std::endl;
-      },
-      [&out](const Source::Params<WaveSpectrum> &waves)
-      {
-         std::size_t name_i = 
-                        static_cast<std::size_t>(WaveSpectrum);
-         
-         constexpr int label_width = 13;
-
-         // Assemble data such that each wave is on newline
-         std::string amplitudes_str = OutRealVec(waves.amps, 
-                                             std::format(",\n\t{:<{}}", 
-                                                         "", 
-                                                         label_width+3));
-
-         std::string freqs_str = OutRealVec(waves.freqs, 
-                                             std::format(",\n\t{:<{}}", 
-                                                         "", 
-                                                         label_width+3));
-
-         std::string phases_str = OutRealVec(waves.phases, 
-                                             std::format(",\n\t{:<{}}", 
-                                                         "", 
-                                                         label_width+3));
-
-         std::string dirs_str = "[";
-         for (int i = 0; i < waves.directions.size(); i++)
-         {
-            dirs_str += OutRealVec(waves.directions[i]) + 
-                        (i+1 == waves.directions.size() ? "]" :
-                           std::format("\n\t{:<{}}", "", label_width+3));
-
-         }
-         std::string speeds_str = "[";
-         for (int i = 0; i < waves.speeds.size(); i++)
-         {
-            speeds_str += waves.speeds[i] + 
-                           ((i+1 == waves.speeds.size()) ? "]\n" :
-                              std::format(",\n\t{:<{}}", "", label_width+3));
-         }
-         out << WriteParam("Type", Source::kNames[name_i], label_width);
-         out << WriteParam("Amplitudes", amplitudes_str, label_width);
-         out << WriteParam("Frequencies", freqs_str, label_width);
-         out << WriteParam("Directions", dirs_str, label_width);
-         out << WriteParam("Phases", phases_str, label_width);
-         out << WriteParam("Speeds", speeds_str, label_width);
-         out << std::endl;
-      },
-      [&out](const Source::Params<PSD> &waves)
-      {
-         constexpr int label_width = 13;
-
-         /// @todo: Finish this
-         out << "Unimplemented verbose output for source type" << std::endl;
-      },
-      [&out](const Source::Params<WaveCSV> &waves)
-      {
-         constexpr int label_width = 7;
-
-         std::size_t name_i = 
-                        static_cast<std::size_t>(WaveSpectrum);
-         out << WriteParam("Type", Source::kNames[name_i], label_width);
-         out << WriteParam("File", waves.file, label_width);
-         out << std::endl;
-      }
-      }, source);
+      out << std::visit(PrintSourceVisitor{}, source) << std::endl;
    }
 }
 
@@ -124,30 +388,30 @@ void ConfigInput::PrintCompParams(std::ostream &out) const
 {
    out << "Computation" << std::endl;
 
-   constexpr int label_width = 7;
-   out << WriteParam("t0", OutReal(comp_.t0), label_width);
-   out << WriteParam("Kernel", 
-                  KernelType::kNames[static_cast<std::size_t>(comp_.kernel)],
-                  label_width);
-   out << std::endl;
+   const std::vector<PV> params
+   ({  
+      {"t0",      ToString(comp_.t0)},
+      {"Kernel",  GetName<KernelType>(comp_.kernel)}
+   });
+
+   out << PrintParams(params) << std::endl;
 }
 
 void ConfigInput::PrintPreciceParams(std::ostream &out) const
 {
    if (precice_.has_value())
    {
-      constexpr int label_width = 20;
       out << "preCICE" << std::endl;
-      out << WriteParam("Participant Name", precice_->participant_name, 
-                        label_width);
-      out << WriteParam("Configuration File", precice_->config_file,
-                        label_width);
-      out << WriteParam("Fluid Mesh Name", precice_->fluid_mesh_name, 
-                        label_width);
-      out << WriteParam("Mesh Access Region", 
-                        OutRealVec(precice_->mesh_access_region),
-                        label_width);
-      out << std::endl;
+
+      const std::vector<PV> params
+      ({  
+         {"Participant Name",   precice_->participant_name},
+         {"Config File",        precice_->config_file},
+         {"Fluid Mesh Name",    precice_->fluid_mesh_name},
+         {"Mesh Access Region", ToString(precice_->mesh_access_region)}
+      });
+      
+      out << PrintParams(params) << std::endl;
    }
 }
 
@@ -272,9 +536,9 @@ void TOMLConfigInput::ParseDirection
    Direction::Option option = 
                      GetOption<Direction>(in_val.at("Type").as_string());
 
-   if (option == Constant)
+   if (option == Single)
    {
-      Direction::Params<Constant> op;
+      Direction::Params<Single> op;
       op.direction = toml::get<std::vector<double>>(in_val.at("Vector"));
       opv = op;
    }
@@ -471,4 +735,5 @@ TOMLConfigInput::TOMLConfigInput(std::string config_file, std::ostream *out)
    }
 }
 
+} // namespace app
 } // namespace jabber

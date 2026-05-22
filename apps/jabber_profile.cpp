@@ -4,8 +4,7 @@
  * and grid.
  */
 
-#include <jabber.hpp>
-#include <jabber_app.hpp>
+#include <jabber/jabber.hpp>
 #include <cxxopts.hpp>
 
 #ifdef JABBER_WITH_MPI
@@ -14,7 +13,6 @@
 
 #include <iostream>
 #include <cmath>
-#include <regex>
 #include <chrono>
 #include <random>
 
@@ -26,7 +24,7 @@
 #endif
 
 using namespace jabber;
-using namespace jabber_app;
+using namespace jabber::app;
 
 // Define duration type alias
 using dur_t = std::chrono::duration<double, std::micro>;
@@ -71,8 +69,7 @@ int main(int argc, char *argv[])
    cxxopts::ParseResult result = options.parse(argc, argv);
    
    std::string args_str = result.arguments_string();
-   args_str = std::regex_replace(args_str, std::regex("\n"), "\n\t");
-   ROOT std::cout << "Command Line Arguments\n\t" << args_str << std::endl 
+   ROOT std::cout << "Command Line Arguments:\n\n" << args_str << std::endl 
                   << LINE << std::endl;
 
    if (result.count("help"))

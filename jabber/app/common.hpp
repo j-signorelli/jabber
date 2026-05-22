@@ -3,11 +3,13 @@
 
 #include "config_input.hpp"
 
-#include <jabber.hpp>
+#include "../core/core.hpp"
 #include <iostream>
 #include <memory>
 
-namespace jabber_app
+namespace jabber
+{
+namespace app
 {
 
 constexpr static std::string_view LINE = 
@@ -46,7 +48,7 @@ struct InputXYVisitor
 
 /**
  * @brief All visitor options for each FunctionType::Params, for initializing a
- * \ref jabber::Function or \ref jabber::BasePSD type.
+ * \ref Function or \ref BasePSD type.
  * 
  */
 struct FunctionTypeVisitor
@@ -54,8 +56,8 @@ struct FunctionTypeVisitor
    using enum FunctionType::Option;
 
    /// Function to initialize
-   std::variant<std::unique_ptr<jabber::Function>*,
-                std::unique_ptr<jabber::BasePSD>*> T_ptr_ptr_var;
+   std::variant<std::unique_ptr<Function>*,
+                std::unique_ptr<BasePSD>*> T_ptr_ptr_var;
 
    void operator() (const FunctionType::Params<PiecewiseLinear> &op);
    void operator() (const FunctionType::Params<PiecewiseLogLog> &op);
@@ -87,7 +89,7 @@ struct DiscMethodVisitor
 
 /**
  * @brief All visitor options for each Direction::Params, for initializing
- * wave directional vectors in \p k_hats.
+ * wavenumber vector directions in \p k_hats.
  * 
  */
 struct DirectionVisitor
@@ -97,7 +99,7 @@ struct DirectionVisitor
    /// **Sized** vector of direction vectors for each wave.
    std::vector<std::vector<double>> &k_hats;
 
-   void operator() (const Direction::Params<Constant> &op);
+   void operator() (const Direction::Params<Single> &op);
    void operator() (const Direction::Params<RandomXYAngle> &op);
 };
 
@@ -129,7 +131,7 @@ struct TransferFunctionVisitor
 
 /**
  * @brief All visitor options for each Source::Params, for initializing 
- * \ref jabber::Wave's for each type and appending to \p waves.
+ * \ref Wave's for each type and appending to \p waves.
  * 
  */
 struct SourceVisitor
@@ -138,8 +140,8 @@ struct SourceVisitor
 
    const BaseFlowParams &base_flow_params;
 
-   /// Reference of wave vector to append jabber::Wave structs to.
-   std::vector<jabber::Wave> &waves;
+   /// Reference of wave vector to append Wave structs to.
+   std::vector<Wave> &waves;
    
    void operator() (const Source::Params<SingleWave> &op);
    void operator() (const Source::Params<WaveSpectrum> &op);
@@ -151,15 +153,15 @@ struct SourceVisitor
 // end of pproc_group
 
 /**
- * @brief Initialize a \ref jabber::AcousticField object from user input and 
+ * @brief Initialize a \ref AcousticField object from user input and 
  * grid.
  * 
  * @param conf          Input config object.
  * @param coords        Mesh coordinates vector, in XYZ XYZ ordering.
  * @param dim           Spatial dimension of mesh.
- * @return jabber::AcousticField    Finalized acoustic field.
+ * @return AcousticField    Finalized acoustic field.
  */
-jabber::AcousticField InitializeAcousticField(const ConfigInput &conf, 
+AcousticField InitializeAcousticField(const ConfigInput &conf, 
                                                 std::span<const double> coords,
                                                 int dim);
 
@@ -196,6 +198,7 @@ void GetRankPartition(std::span<const T> global, int vdim, int rank, int size,
    local = global.subspan(rank_offset, rank_num_dat);
 }
 
-} // namespace jabber_app
+} // namespace app
+} // namespace jabber
 
 #endif // JABBER_APP_COMMON

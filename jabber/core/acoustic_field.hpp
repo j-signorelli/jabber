@@ -30,7 +30,7 @@ struct Wave
    /// Wave speed ('S' or 'F').
    char speed;
 
-   /// **Normalized** wave directional vector.
+   /// **Normalized** wavenumber vector direction.
    std::vector<double> k_hat;
 };
 

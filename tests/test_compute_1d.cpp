@@ -5,10 +5,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <catch2/generators/catch_generators_all.hpp>
 
-#include <jabber.hpp>
-#ifdef JABBER_WITH_APP
-#include <jabber_app.hpp>
-#endif // JABBER_WITH_APP
+#include <jabber/jabber.hpp>
 
 #ifdef JABBER_WITH_OPENMP
 #include <omp.h>
@@ -22,7 +19,7 @@ using namespace Catch::Matchers;
 using namespace Catch::Generators;
 
 #ifdef JABBER_WITH_APP
-using namespace jabber_app;
+using namespace jabber::app;
 #endif // JABBER_WITH_APP
 
 namespace jabber_test

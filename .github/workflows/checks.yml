@@ -1,0 +1,53 @@
+name: Checks
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  documentation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+    
+    - name: Get Doxygen + GraphViz
+      run: sudo apt install doxygen graphviz
+
+
+    - name: Checkout w/ submodules
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive   # or: true (non-recursive)
+        fetch-depth: 0          # optional, but often nicer for versioning
+    
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_BUILD_TYPE=Release
+        -DJABBER_BUILD_PARTICIPANT=OFF
+        -DJABBER_BUILD_VIZ=OFF
+        -DJABBER_BUILD_PROFILER=OFF
+        -DJABBER_BUILD_OUT=OFF
+        -DJABBER_BUILD_PLOT=OFF
+        -DJABBER_BUILD_PSD=OFF
+        -DJABBER_BUILD_APP_LIB=ON
+        -DJABBER_BUILD_TESTS=OFF
+        -DJABBER_ENABLE_OPENMP=OFF
+        -DJABBER_BUILD_DOCS=ON
+        -S ${{ github.workspace }}
+
+    - name: Build docs
+      run: |
+          cd ${{ steps.strings.outputs.build-output-dir }}
+          make docs
