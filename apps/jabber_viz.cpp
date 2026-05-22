@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
       ("c,config", "Config file.", cxxopts::value<std::string>())
       ("d,dim", "Grid dimension (1,2,3).", 
                         cxxopts::value<int>()->default_value("2"))
-      ("n,num-points", "Number grid points in each dimension.",
+      ("n,num-points-dim", "Number grid points in each dimension.",
                         cxxopts::value<std::size_t>()->default_value("100"))
       ("e,extent", "Grid extent in each direction (such that domain is "
                      "[0,extent]^dim).",
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
    }
 
    const int dim = result["dim"].as<int>();
-   const std::size_t num_pts_d = result["num_points"].as<std::size_t>();
+   const std::size_t num_pts_d = result["num-points-dim"].as<std::size_t>();
    const std::size_t num_pts_total = std::pow(num_pts_d,dim);
    const double extent = result["extent"].as<double>();
    const std::vector<std::string> fields = result["fields"]
