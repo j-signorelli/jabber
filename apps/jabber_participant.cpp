@@ -80,17 +80,34 @@ int main(int argc, char *argv[])
    // Get the preCICE input
    const PreciceParams &precice_conf = *(conf.Precice());
 
+   // Use the dim based on the base flow freestream velocity
+   const int dim = conf.BaseFlow().U.size();
+
    // Initialize preCICE participant
    precice::Participant participant(precice_conf.participant_name,
                                     precice_conf.config_file, rank, size);
+
+   // Set mesh access region [-inf,inf]
+   const std::vector<double> mesh_access_region =
+      [&]()
+   {
+      std::vector<double> acc(2*dim);
+      for (int i = 0; i < acc.size(); i++)
+      {
+         acc[i] = (i % 2 == 0)
+                  ?  std::numeric_limits<double>::lowest()
+                  :  std::numeric_limits<double>::max();
+      }
+      return acc;
+   }
+   ();
    participant.setMeshAccessRegion(precice_conf.fluid_mesh_name,
-                                   precice_conf.mesh_access_region);
+                                   mesh_access_region);
    participant.initialize();
 
    // Get mesh information from fluid participant
-   int dim = participant.getMeshDimensions(precice_conf.fluid_mesh_name);
-   int vertex_size = participant.getMeshVertexSize(
-                        precice_conf.fluid_mesh_name);
+   const int vertex_size =
+      participant.getMeshVertexSize(precice_conf.fluid_mesh_name);
    std::vector<double> coords(dim*vertex_size);
    std::vector<int> vertex_ids(vertex_size);
    participant.getMeshVertexIDsAndCoordinates(precice_conf.fluid_mesh_name,
