@@ -89,7 +89,7 @@ struct DiscMethodVisitor
 
 /**
  * @brief All visitor options for each Direction::Params, for initializing
- * wave directional vectors in \p k_hats.
+ * wavenumber vector directions in \p k_hats.
  * 
  */
 struct DirectionVisitor
@@ -99,7 +99,7 @@ struct DirectionVisitor
    /// **Sized** vector of direction vectors for each wave.
    std::vector<std::vector<double>> &k_hats;
 
-   void operator() (const Direction::Params<Constant> &op);
+   void operator() (const Direction::Params<Single> &op);
    void operator() (const Direction::Params<RandomXYAngle> &op);
 };
 

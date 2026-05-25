@@ -13,7 +13,6 @@
 
 #include <iostream>
 #include <cmath>
-#include <regex>
 #include <chrono>
 #include <random>
 
@@ -73,8 +72,7 @@ int main(int argc, char *argv[])
    cxxopts::ParseResult result = options.parse(argc, argv);
    
    std::string args_str = result.arguments_string();
-   args_str = std::regex_replace(args_str, std::regex("\n"), "\n\t");
-   ROOT std::cout << "Command Line Arguments\n\t" << args_str << std::endl 
+   ROOT std::cout << "Command Line Arguments:\n\n" << args_str << std::endl 
                   << LINE << std::endl;
 
    if (result.count("help"))

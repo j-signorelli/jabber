@@ -100,9 +100,9 @@ T::ParamsVariant GetRandomParams
    else if constexpr (std::same_as<T,Direction>)
    {
       using enum Direction::Option;
-      if (option == Constant)
+      if (option == Single)
       {
-         Direction::Params<Constant> op;
+         Direction::Params<Single> op;
          const int dim = random(1,3).get();
          op.direction = chunk(dim, random(0.0,1.0)).get();
          opv = op;
@@ -354,7 +354,7 @@ std::string TOMLWriteParams
       else if constexpr (std::same_as<T,Direction>)
       {
          using enum Direction::Option;
-         if constexpr (V == Constant)
+         if constexpr (V == Single)
          {
             out_params.emplace("Vector", TOMLWriteValue(op.direction));
          }
@@ -525,7 +525,7 @@ void TestParamsEqual
          {
             using enum Direction::Option;
 
-            if constexpr (V1 == Constant)
+            if constexpr (V1 == Single)
             {
                CHECK_THAT(op1.direction, Equals(op2.direction));
             }

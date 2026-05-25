@@ -25,22 +25,6 @@ namespace app
 /// Complete input configuration.
 class ConfigInput
 {
-private:
-   /// Get string of double \p f.
-   static std::string OutReal(double f);
-
-   /// Get string of double vector \p vec.
-   static std::string OutRealVec(const std::vector<double> &vec, 
-                                    const std::string_view delim=", ");
-
-   /**
-    * @brief Convenient string generator for writing parameter information to 
-    * console.
-    */
-   static std::string WriteParam(const std::string_view param_name, 
-                                    const std::string_view value,
-                                    int param_width, int left_margin=8);
-
 protected:
 
    /// Input base flow parameters.

@@ -255,14 +255,16 @@ struct DiscMethod
 
 // ----------------------------------------------------------------------------
 /**
- * @brief All options and parameters associated with direction specification.
+ * @brief All options and parameters associated with wavenumber vector 
+ * direction specification for a set of waves as in 
+ * \p Source::Params<Source::Option::PSD>.
  */
 struct Direction
 {
    enum class Option : std::uint8_t
    {
-      /// Constant direction.
-      Constant,
+      /// Single direction for all waves.
+      Single,
 
       /// Random angle in XY-plane from x-axis for each wave.
       RandomXYAngle,
@@ -277,7 +279,7 @@ struct Direction
                         static_cast<std::size_t>(Size)>
    kNames = 
    {
-      "Constant",         // Constant
+      "Single",           // Single
       "RandomXYAngle",    // RandomXYAngle
    };
 
@@ -285,26 +287,32 @@ struct Direction
    struct Params;
 
    template<>
-   struct Params<Constant>
+   struct Params<Single>
    {
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector direction, can be non-normalized.
       std::vector<double> direction;
    };
 
    template<>
    struct Params<RandomXYAngle>
    {
-      /// Min angle of wave from x-axis, in XY-plane (CCW+, CW-) (in degrees).
+      /**
+       * @brief Min angle of wavenumber vector from x-axis, in XY-plane
+       * (CCW+, CW-) (in degrees).
+       */
       double min_angle;
 
-      /// Max angle of wave from x-axis, in XY-plane (CCW+, CW-) (in degrees).
+      /**
+       * @brief Max angle of wavenumber vector from x-axis, in XY-plane 
+       * (CCW+, CW-) (in degrees).
+       */
       double max_angle;
 
       /// Seed to use in randomization.
       int seed;
    };
 
-   using ParamsVariant = std::variant<Params<Constant>, Params<RandomXYAngle>>;
+   using ParamsVariant = std::variant<Params<Single>, Params<RandomXYAngle>>;
 
 };
 
@@ -425,7 +433,7 @@ struct Source
       /// Phase, in deg.
       double phase;
 
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector direction, can be non-normalized.
       std::vector<double> direction;
 
       /// Wave speed ('S' or 'F').
@@ -444,7 +452,7 @@ struct Source
       /// Phases, in deg.
       std::vector<double> phases;
 
-      /// Planar wave directional vector, can be non-normalized.
+      /// Wavenumber vector directions, can be non-normalized.
       std::vector<std::vector<double>> directions;
 
       /// Wave speeds ('S' or 'F').
@@ -476,7 +484,7 @@ struct Source
       /// Frequency discretization method parameters.
       DiscMethod::ParamsVariant disc_params;
 
-      /// Wave direction parameters.
+      /// Wavenumber direction parameters.
       Direction::ParamsVariant dir_params;
 
       /// Seed to use for wave phase randomization.
