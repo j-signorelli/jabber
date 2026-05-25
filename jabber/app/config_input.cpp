@@ -11,7 +11,10 @@
 // Helper type for the std::visit
 // (https://en.cppreference.com/w/cpp/utility/variant/visit)
 template<class... Ts>
-struct overloads : Ts... { using Ts::operator()...; };
+struct overloads : Ts...
+{
+   using Ts::operator()...;
+};
 
 #if __cpp_deduction_guides < 201907L
 template<class... Ts>
@@ -39,7 +42,7 @@ std::string ToString(T val)
 {
    std::string out_str;
 
-   // If it's a vector... 
+   // If it's a vector...
    if constexpr (is_std_vector<T>::value)
    {
       out_str += "[";
@@ -85,8 +88,8 @@ struct PV
 
 /// Helper for printing parameter information.
 std::string PrintParams
-   (const std::vector<PV> &params,
-      int tab_level=1)
+(const std::vector<PV> &params,
+ int tab_level=1)
 {
    // Get the size of the largest key
    int max_width = 0;
@@ -103,10 +106,10 @@ std::string PrintParams
    // Print all params
    std::stringstream out_ss;
    for (const PV &pv : params)
-   {  
+   {
       out_ss << PrintTabbed(fmt::format("{:<{}}= {}", pv.param,
-                                       max_width, pv.value),  tab_level)
-               << std::endl;
+                                        max_width, pv.value),  tab_level)
+             << std::endl;
    }
 
    return out_ss.str();
@@ -116,7 +119,8 @@ void ConfigInput::PrintBaseFlowParams(std::ostream &out) const
 {
    out << "Base Flow" << std::endl;
    const std::vector<PV> params
-   ({  
+   (
+   {
       {"rho",     ToString(base_flow_.rho)},
       {"p",       ToString(base_flow_.p)},
       {"U",       ToString(base_flow_.U)},
@@ -144,7 +148,8 @@ struct PrintInputXYVisitor
    std::string operator()(const InputXY::Params<Here> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type", GetName<InputXY>(Here)},
          {"X",    ToString(op.x)},
          {"Y",    ToString(op.y)},
@@ -155,7 +160,8 @@ struct PrintInputXYVisitor
    std::string operator()(const InputXY::Params<FromCSV> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type", GetName<InputXY>(FromCSV)},
          {"File", ToString(op.file)},
       });
@@ -176,13 +182,14 @@ struct PrintFunctionTypeVisitor
       std::string out_str;
 
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type", GetName<FunctionType>(O)}
       });
       out_str += PrintParams(params, tab_level);
       out_str += PrintTabbed("Input XY\n", tab_level);
-      out_str += std::visit(PrintInputXYVisitor{tab_level+1}, 
-                                    op.input_xy);
+      out_str += std::visit(PrintInputXYVisitor{tab_level+1},
+                            op.input_xy);
       return out_str;
    }
 };
@@ -190,17 +197,18 @@ struct PrintFunctionTypeVisitor
 /// Print DiscMethod params visitor.
 struct PrintDiscMethodVisitor
 {
-  using enum DiscMethod::Option;
-  
-  const int &tab_level;
+   using enum DiscMethod::Option;
 
-  template<DiscMethod::Option O>
-  std::string operator()(const DiscMethod::Params<O> &op)
-  {
+   const int &tab_level;
+
+   template<DiscMethod::Option O>
+   std::string operator()(const DiscMethod::Params<O> &op)
+   {
       if constexpr (O == Uniform || O == UniformLog)
       {
          const std::vector<PV> params
-         ({
+         (
+         {
             {"Type", GetName<DiscMethod>(O)}
          });
          return PrintParams(params, tab_level);
@@ -208,13 +216,14 @@ struct PrintDiscMethodVisitor
       else // else Random or RandomLog
       {
          const std::vector<PV> params
-         ({
+         (
+         {
             {"Type", GetName<DiscMethod>(O)},
             {"Seed", ToString(op.seed)}
          });
          return PrintParams(params, tab_level);
       }
-  }
+   }
 };
 
 /// Print Direction params visitor.
@@ -227,7 +236,8 @@ struct PrintDirectionVisitor
    std::string operator()(const Direction::Params<Single> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type", GetName<Direction>(Single)},
          {"Vector", ToString(op.direction)}
       });
@@ -237,7 +247,8 @@ struct PrintDirectionVisitor
    std::string operator()(const Direction::Params<RandomXYAngle> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type", GetName<Direction>(RandomXYAngle)},
          {"Min Angle", ToString(op.min_angle)},
          {"Max Angle", ToString(op.max_angle)},
@@ -257,7 +268,8 @@ struct PrintTransferFunctionVisitor
    std::string operator()(const TransferFunction::Params<LowFrequencyLimit> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type", GetName<TransferFunction>(LowFrequencyLimit)}
       });
       return PrintParams(params, tab_level);
@@ -268,20 +280,22 @@ struct PrintTransferFunctionVisitor
       std::string out_str;
 
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type", GetName<TransferFunction>(Input)}
       });
       out_str += PrintParams(params, tab_level);
       out_str += PrintTabbed("Input TF\n", tab_level);
       out_str += std::visit(PrintFunctionTypeVisitor{tab_level+1},
-                              op.input_tf);
+                            op.input_tf);
       return out_str;
    }
 
    std::string operator()(const TransferFunction::Params<FlowNormalFit> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type", GetName<TransferFunction>(FlowNormalFit)},
          {"Shock Standoff Distance", ToString(op.shock_standoff_dist)}
       });
@@ -294,13 +308,14 @@ struct PrintTransferFunctionVisitor
 struct PrintSourceVisitor
 {
    using enum Source::Option;
-   
+
    const int tab_level = 1;
 
    std::string operator()(const Source::Params<SingleWave> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type",       GetName<Source>(SingleWave)},
          {"Amplitude",  ToString(op.amp)},
          {"Frequency",  ToString(op.freq)},
@@ -314,7 +329,8 @@ struct PrintSourceVisitor
    std::string operator()(const Source::Params<WaveSpectrum> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type",        GetName<Source>(WaveSpectrum)},
          {"Amplitudes",  ToString(op.amps)},
          {"Frequencies", ToString(op.freqs)},
@@ -330,7 +346,8 @@ struct PrintSourceVisitor
       std::string out_str;
 
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type",          GetName<Source>(PSD)},
          {"Scale Factor",  ToString(op.scale_fac.value_or(1.0))},
          {"Phase Seed",    ToString(op.phase_seed)},
@@ -340,7 +357,8 @@ struct PrintSourceVisitor
       out_str += PrintTabbed("Discretization\n", tab_level);
 
       const std::vector<PV> disc_params
-      ({
+      (
+      {
          {"Min",        ToString(op.min_disc_freq)},
          {"Max",        ToString(op.max_disc_freq)},
          {"N",          ToString(op.num_waves)},
@@ -349,18 +367,18 @@ struct PrintSourceVisitor
       out_str += PrintParams(disc_params, tab_level+1);
       out_str += PrintTabbed("Method\n", tab_level+1);
       out_str += std::visit(PrintDiscMethodVisitor{tab_level+2},
-                              op.disc_params);
+                            op.disc_params);
       out_str += PrintTabbed("Input PSD\n", tab_level);
       out_str += std::visit(PrintFunctionTypeVisitor{tab_level+1},
-                              op.input_psd);
+                            op.input_psd);
       out_str += PrintTabbed("Direction\n", tab_level);
-      out_str += std::visit(PrintDirectionVisitor{tab_level+1}, 
-                              op.dir_params);
+      out_str += std::visit(PrintDirectionVisitor{tab_level+1},
+                            op.dir_params);
       if (op.tf_params.has_value())
       {
          out_str += PrintTabbed("Transfer Function\n", tab_level);
          out_str += std::visit(PrintTransferFunctionVisitor{tab_level+1},
-                                 op.tf_params.value());
+                               op.tf_params.value());
       }
 
       return out_str;
@@ -369,11 +387,12 @@ struct PrintSourceVisitor
    std::string operator()(const Source::Params<WaveCSV> &op)
    {
       const std::vector<PV> params
-      ({
+      (
+      {
          {"Type",       GetName<Source>(WaveSpectrum)},
          {"File",       op.file}
       });
-      
+
       return PrintParams(params, tab_level);
    }
 };
@@ -395,7 +414,8 @@ void ConfigInput::PrintCompParams(std::ostream &out) const
    out << "Computation" << std::endl;
 
    const std::vector<PV> params
-   ({  
+   (
+   {
       {"t0",      ToString(comp_.t0)},
       {"Kernel",  GetName<KernelType>(comp_.kernel)}
    });
@@ -410,19 +430,20 @@ void ConfigInput::PrintPreciceParams(std::ostream &out) const
       out << "preCICE" << std::endl;
 
       const std::vector<PV> params
-      ({  
+      (
+      {
          {"Participant Name",   precice_->participant_name},
          {"Config File",        precice_->config_file},
          {"Fluid Mesh Name",    precice_->fluid_mesh_name},
          {"Mesh Access Region", ToString(precice_->mesh_access_region)}
       });
-      
+
       out << PrintParams(params) << std::endl;
    }
 }
 
 void TOMLConfigInput::ParseBaseFlow
-   (std::string toml_string, BaseFlowParams &op)
+(std::string toml_string, BaseFlowParams &op)
 {
    toml::value in_val = toml::parse_str(toml_string);
 
@@ -455,7 +476,7 @@ T::Option GetOption(const std::string &name)
 }
 
 void TOMLConfigInput::ParseInputXY
-   (std::string toml_string, InputXY::ParamsVariant &opv)
+(std::string toml_string, InputXY::ParamsVariant &opv)
 {
    using enum InputXY::Option;
 
@@ -478,13 +499,13 @@ void TOMLConfigInput::ParseInputXY
 }
 
 void TOMLConfigInput::ParseFunctionType
-   (std::string toml_string, FunctionType::ParamsVariant &opv)
+(std::string toml_string, FunctionType::ParamsVariant &opv)
 {
    using enum FunctionType::Option;
 
    toml::value in_val = toml::parse_str(toml_string);
-   FunctionType::Option option = 
-            GetOption<FunctionType>(in_val.at("Type").as_string());
+   FunctionType::Option option =
+      GetOption<FunctionType>(in_val.at("Type").as_string());
 
    if (option == PiecewiseLinear)
    {
@@ -503,21 +524,21 @@ void TOMLConfigInput::ParseFunctionType
 }
 
 void TOMLConfigInput::ParseDiscMethod
-   (std::string toml_string, DiscMethod::ParamsVariant &opv)
+(std::string toml_string, DiscMethod::ParamsVariant &opv)
 {
    using enum DiscMethod::Option;
 
    toml::value in_val = toml::parse_str(toml_string);
-   DiscMethod::Option option = 
-               GetOption<DiscMethod>(in_val.at("Type").as_string());
+   DiscMethod::Option option =
+      GetOption<DiscMethod>(in_val.at("Type").as_string());
 
    if (option == Uniform)
    {
-      opv = DiscMethod::Params<Uniform>{};
+      opv = DiscMethod::Params<Uniform> {};
    }
    else if (option == UniformLog)
    {
-      opv = DiscMethod::Params<UniformLog>{};
+      opv = DiscMethod::Params<UniformLog> {};
    }
    else if (option == Random)
    {
@@ -534,13 +555,13 @@ void TOMLConfigInput::ParseDiscMethod
 }
 
 void TOMLConfigInput::ParseDirection
-   (std::string toml_string, Direction::ParamsVariant &opv)
+(std::string toml_string, Direction::ParamsVariant &opv)
 {
    using enum Direction::Option;
 
    toml::value in_val = toml::parse_str(toml_string);
-   Direction::Option option = 
-                     GetOption<Direction>(in_val.at("Type").as_string());
+   Direction::Option option =
+      GetOption<Direction>(in_val.at("Type").as_string());
 
    if (option == Single)
    {
@@ -559,18 +580,18 @@ void TOMLConfigInput::ParseDirection
 }
 
 void TOMLConfigInput::ParseTransferFunction
-   (std::string toml_string, TransferFunction::ParamsVariant &opv)
+(std::string toml_string, TransferFunction::ParamsVariant &opv)
 {
    using enum TransferFunction::Option;
 
    toml::value in_val = toml::parse_str(toml_string);
 
-   TransferFunction::Option option = 
-            GetOption<TransferFunction>(in_val.at("Type").as_string());
+   TransferFunction::Option option =
+      GetOption<TransferFunction>(in_val.at("Type").as_string());
 
    if (option == LowFrequencyLimit)
    {
-      opv = TransferFunction::Params<LowFrequencyLimit>{};
+      opv = TransferFunction::Params<LowFrequencyLimit> {};
    }
    else if (option == Input)
    {
@@ -588,7 +609,7 @@ void TOMLConfigInput::ParseTransferFunction
 }
 
 void TOMLConfigInput::ParseSource
-   (std::string toml_string, Source::ParamsVariant &opv)
+(std::string toml_string, Source::ParamsVariant &opv)
 {
    using enum Source::Option;
 
@@ -603,7 +624,7 @@ void TOMLConfigInput::ParseSource
       op.amp = in_val.at("Amplitude").as_floating();
       op.freq = in_val.at("Frequency").as_floating();
       op.direction = toml::get<std::vector<double>>(
-                                       in_val.at("DirVector"));
+                        in_val.at("DirVector"));
       op.phase = in_val.at("Phase").as_floating();
       op.speed = *(in_val.at("Speed").as_string().data());
 
@@ -612,21 +633,21 @@ void TOMLConfigInput::ParseSource
    else if (option == WaveSpectrum)
    {
       Source::Params<WaveSpectrum> op;
-      
+
       op.amps = toml::get<std::vector<double>>(
-                                          in_val.at("Amplitudes"));
+                   in_val.at("Amplitudes"));
       op.freqs = toml::get<std::vector<double>>(
-                                          in_val.at("Frequencies"));
+                    in_val.at("Frequencies"));
       op.directions = toml::get<std::vector<std::vector<double>>>(
-                                          in_val.at("DirVectors"));
+                         in_val.at("DirVectors"));
       op.phases = toml::get<std::vector<double>>(
-                                             in_val.at("Phases"));
-      std::vector<std::string> speed_strs = 
-                  toml::get<std::vector<std::string>>(in_val.at("Speeds"));
+                     in_val.at("Phases"));
+      std::vector<std::string> speed_strs =
+         toml::get<std::vector<std::string>>(in_val.at("Speeds"));
       op.speeds.resize(speed_strs.size());
       std::transform(speed_strs.begin(), speed_strs.end(), op.speeds.begin(),
                      [](std::string &s) -> char { return *(s.data()); });
-      
+
       opv = op;
    }
    else if (option == PSD)
@@ -639,32 +660,32 @@ void TOMLConfigInput::ParseSource
       }
       op.phase_seed = in_val.at("PhaseSeed").as_integer();
       op.speed = *(in_val.at("Speed").as_string().data());
-      
+
       in_val.at("InputPSD").as_table_fmt().fmt = toml::table_format::multiline;
       ParseFunctionType(toml::format(in_val.at("InputPSD")), op.input_psd);
-      
+
       toml::value in_disc_val = in_val.at("Discretization");
       op.min_disc_freq = in_disc_val.at("Min").as_floating();
       op.max_disc_freq = in_disc_val.at("Max").as_floating();
       op.num_waves = in_disc_val.at("N").as_integer();
-      op.int_method = 
+      op.int_method =
          GetOption<IntervalType>(in_disc_val.at("Interval").as_string());
-      
-      in_disc_val.at("Method").as_table_fmt().fmt = 
-                                                toml::table_format::multiline;
+
+      in_disc_val.at("Method").as_table_fmt().fmt =
+         toml::table_format::multiline;
       ParseDiscMethod(toml::format(in_disc_val.at("Method")), op.disc_params);
 
-      in_val.at("Direction").as_table_fmt().fmt = 
-                                                toml::table_format::multiline;
+      in_val.at("Direction").as_table_fmt().fmt =
+         toml::table_format::multiline;
       ParseDirection(toml::format(in_val.at("Direction")), op.dir_params);
 
       if (in_val.contains("TransferFunction"))
       {
          op.tf_params = TransferFunction::ParamsVariant{};
-         in_val.at("TransferFunction").as_table_fmt().fmt = 
-                                                toml::table_format::multiline;
-         ParseTransferFunction(toml::format(in_val.at("TransferFunction")), 
-                                 *op.tf_params);
+         in_val.at("TransferFunction").as_table_fmt().fmt =
+            toml::table_format::multiline;
+         ParseTransferFunction(toml::format(in_val.at("TransferFunction")),
+                               *op.tf_params);
       }
       opv = op;
    }
@@ -677,7 +698,7 @@ void TOMLConfigInput::ParseSource
 }
 
 void TOMLConfigInput::ParseComputation
-   (std::string toml_string, CompParams &op)
+(std::string toml_string, CompParams &op)
 {
    toml::value in_val = toml::parse_str(toml_string);
    op.t0 = in_val.at("t0").as_floating();
@@ -685,16 +706,16 @@ void TOMLConfigInput::ParseComputation
 }
 
 void TOMLConfigInput::ParsePrecice
-   (std::string toml_string, PreciceParams &op)
+(std::string toml_string, PreciceParams &op)
 {
    toml::value in_val = toml::parse_str(toml_string);
-   
+
    op.participant_name = in_val.at("ParticipantName")
-                                             .as_string();
+                         .as_string();
    op.config_file = in_val.at("ConfigFile").as_string();
    op.fluid_mesh_name = in_val.at("FluidMeshName").as_string();
-   op.mesh_access_region = 
-         toml::get<std::vector<double>>(in_val.at("MeshAccessRegion"));
+   op.mesh_access_region =
+      toml::get<std::vector<double>>(in_val.at("MeshAccessRegion"));
 }
 
 TOMLConfigInput::TOMLConfigInput(std::string config_file, std::ostream *out)
