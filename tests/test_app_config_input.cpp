@@ -111,23 +111,19 @@ TEST_CASE("TOMLConfigInput::ParsePrecice", "[App][TOMLConfigInput]")
    constexpr std::string_view kPartName = "TestParticipant";
    constexpr std::string_view kConfigFile = "TestConfig.xml";
    constexpr std::string_view kFluidMesh = "TestFluidMesh";
-   const std::vector<double> kMeshRegion = {-0.01, 1.01, -1.01, 1.01};
 
    const std::string precice_str =
       fmt::format(R"(
                      ParticipantName="{}"
                      ConfigFile="{}"
-                     MeshAccessRegion=[{},{},{},{}]
                      FluidMeshName="{}"
-                  )", kPartName, kConfigFile, kMeshRegion[0], kMeshRegion[1],
-                  kMeshRegion[2], kMeshRegion[3], kFluidMesh);
+                  )", kPartName, kConfigFile, kFluidMesh);
 
    PreciceParams params;
    TOMLConfigInput::ParsePrecice(precice_str, params);
    CHECK(params.participant_name == kPartName);
    CHECK(params.config_file == kConfigFile);
    CHECK(params.fluid_mesh_name == kFluidMesh);
-   CHECK_THAT(params.mesh_access_region, Equals(kMeshRegion));
 }
 
 } // jabber_test

@@ -555,12 +555,6 @@ struct PreciceParams
 
    /// Name of mesh to get coordinates from for computation onto.
    std::string fluid_mesh_name;
-
-   /**
-    * @brief Mesh access region, defined according to
-    * precice::Participant::setMeshAccessRegion()
-    */
-   std::vector<double> mesh_access_region;
 };
 
 // ----------------------------------------------------------------------------

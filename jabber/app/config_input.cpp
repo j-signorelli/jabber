@@ -434,8 +434,7 @@ void ConfigInput::PrintPreciceParams(std::ostream &out) const
       {
          {"Participant Name",   precice_->participant_name},
          {"Config File",        precice_->config_file},
-         {"Fluid Mesh Name",    precice_->fluid_mesh_name},
-         {"Mesh Access Region", ToString(precice_->mesh_access_region)}
+         {"Fluid Mesh Name",    precice_->fluid_mesh_name}
       });
 
       out << PrintParams(params) << std::endl;
@@ -714,8 +713,6 @@ void TOMLConfigInput::ParsePrecice
                          .as_string();
    op.config_file = in_val.at("ConfigFile").as_string();
    op.fluid_mesh_name = in_val.at("FluidMeshName").as_string();
-   op.mesh_access_region =
-      toml::get<std::vector<double>>(in_val.at("MeshAccessRegion"));
 }
 
 TOMLConfigInput::TOMLConfigInput(std::string config_file, std::ostream *out)
