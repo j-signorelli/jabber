@@ -19,6 +19,8 @@
 
 #include <iostream>
 
+#include <fmt/core.h>
+
 /// Simple macro for enclosing code section to occur only for rank 0
 #ifdef JABBER_WITH_MPI
 #define ROOT if (rank == 0)
@@ -103,6 +105,11 @@ int main(int argc, char *argv[])
    ();
    participant.setMeshAccessRegion(precice_conf.fluid_mesh_name,
                                    mesh_access_region);
+
+   // Set access region for PC2 time data
+   const std::string kTimeDataName = "PC2TimeData";
+   participant.setMeshAccessRegion(kTimeDataName,
+                                   mesh_access_region);
    participant.initialize();
 
    // Get mesh information from fluid participant
@@ -130,14 +137,24 @@ int main(int argc, char *argv[])
    AcousticField field = InitializeAcousticField(conf, coords, dim);
    ROOT std::cout << "Done!" << std::endl;
 
-   double time = conf.Comp().t0;
-   double dt;
+   // Get the time and timestep from PC2
+   std::vector<double> time_data(dim);
+   std::vector<int> time_data_vertex_ids(1);
+   participant.getMeshVertexIDsAndCoordinates(kTimeDataName, 
+                                              time_data_vertex_ids,
+                                              time_data);
+
+   double time = time_data[0];
+   const double dt = time_data[1];
+   
+   ROOT std::cout << fmt::format("Received PC2 time: {}", time)
+                  << std::endl;
+   ROOT std::cout << fmt::format("Received PC2 dt:   {}", dt) 
+                  << std::endl;
 
    // Compute acoustic forcing
    while (participant.isCouplingOngoing())
    {
-      dt = participant.getMaxTimeStepSize();
-
       // Compute acoustic forcing
       field.Compute(time);
 

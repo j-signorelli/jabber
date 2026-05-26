@@ -10,7 +10,8 @@ if (JABBER_BUILD_PARTICIPANT)
    target_link_libraries(jabber_participant PRIVATE 
                                  jabber
                                  cxxopts::cxxopts
-                                 precice::precice)
+                                 precice::precice
+                                 fmt::fmt)
    list(APPEND JABBER_APP_TARGETS jabber_participant)
 endif()
 
