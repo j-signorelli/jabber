@@ -25,39 +25,6 @@ namespace app
 /// Complete input configuration.
 class ConfigInput
 {
-private:
-   /// Get string of double \p f.
-   static std::string OutReal(double f)
-   {
-      return std::format("{}", f);
-   }
-
-   /// Get string of double vector \p vec.
-   static std::string OutRealVec(const std::vector<double> &vec, 
-                                    const std::string_view delim=", ")
-   {
-      std::stringstream ss;
-      ss << "[";
-      for (int i = 0; i < vec.size(); i++)
-      {
-         ss << OutReal(vec[i]) 
-               << ((i+1 == vec.size()) ? "]" : delim);
-      }
-      return ss.str();
-   }
-
-   /**
-    * @brief Convenient string generator for writing parameter information to 
-    * console.
-    */
-   static std::string WriteParam(const std::string_view param_name, 
-                                    const std::string_view value,
-                                    int param_width, int left_margin=8)
-   {
-      return std::format("{:<{}}{:<{}}= {}\n", "", left_margin, param_name,
-                                                   param_width, value);
-   }
-
 protected:
 
    /// Input base flow parameters.
@@ -75,28 +42,52 @@ protected:
 public:
 
    /// Get reference to base flow parameters.
-   BaseFlowParams& BaseFlow() { return base_flow_; }
+   BaseFlowParams &BaseFlow()
+   {
+      return base_flow_;
+   }
 
    /// Get const reference to base flow parameters.
-   const BaseFlowParams& BaseFlow() const { return base_flow_; }
+   const BaseFlowParams &BaseFlow() const
+   {
+      return base_flow_;
+   }
 
    /// Get reference to source parameters.
-   std::vector<Source::ParamsVariant>& Sources() { return sources_; }
+   std::vector<Source::ParamsVariant> &Sources()
+   {
+      return sources_;
+   }
 
    /// Get const reference to source parameters.
-   const std::vector<Source::ParamsVariant>& Sources() const { return sources_; }
+   const std::vector<Source::ParamsVariant> &Sources() const
+   {
+      return sources_;
+   }
 
    /// Get reference to computation parameters.
-   CompParams& Comp() { return comp_; }
+   CompParams &Comp()
+   {
+      return comp_;
+   }
 
    /// Get const reference to computation parameters.
-   const CompParams& Comp() const { return comp_; }
+   const CompParams &Comp() const
+   {
+      return comp_;
+   }
 
    /// Get reference to preCICE parameters.
-   std::optional<PreciceParams>& Precice() { return precice_; }
+   std::optional<PreciceParams> &Precice()
+   {
+      return precice_;
+   }
 
    /// Get const reference to preCICE parameters.
-   const std::optional<PreciceParams>& Precice() const { return precice_; }
+   const std::optional<PreciceParams> &Precice() const
+   {
+      return precice_;
+   }
 
    /// Print the configured base flow parameters.
    void PrintBaseFlowParams(std::ostream &out) const;
@@ -113,7 +104,7 @@ public:
 
 /**
  * @brief TOML config file input.
- * 
+ *
  * @details This class accepts a TOML config file and parses it appropriately.
  * Separate static parsing functions are defined which accept a TOML-formatted
  * string for flexibility and simpler unit testing.
@@ -126,30 +117,30 @@ public:
     * @brief Parse BaseFlowParams from a serialized TOML string of that
     * section.
     */
-   static void ParseBaseFlow(std::string toml_string, 
-                              BaseFlowParams &op);
+   static void ParseBaseFlow(std::string toml_string,
+                             BaseFlowParams &op);
 
    /**
     * @brief Parse InputXY parameters from a serialized TOML string of that
     * section.
     */
    static void ParseInputXY(std::string toml_string,
-                              InputXY::ParamsVariant &opv);
+                            InputXY::ParamsVariant &opv);
 
    /**
     * @brief Parse FunctionType parameters from a serialized TOML string of that
     * section.
     */
    static void ParseFunctionType(std::string toml_string,
-                              FunctionType::ParamsVariant &opv);
+                                 FunctionType::ParamsVariant &opv);
 
    /**
     * @brief Parse DiscMethod parameters from a serialized TOML string of
     * that section.
     */
    static void ParseDiscMethod(std::string toml_string,
-                                 DiscMethod::ParamsVariant &opv);
-   
+                               DiscMethod::ParamsVariant &opv);
+
    /**
     * @brief Parse Direction parameters from a serialized TOML string of that
     * section.
@@ -162,7 +153,7 @@ public:
     * that section.
     */
    static void ParseTransferFunction(std::string toml_string,
-                              TransferFunction::ParamsVariant &opv);
+                                     TransferFunction::ParamsVariant &opv);
 
    /**
     * @brief Parse Source parameters from a serialized TOML string of that
@@ -176,14 +167,14 @@ public:
     * section.
     */
    static void ParseComputation(std::string toml_string,
-                                 CompParams &op);
+                                CompParams &op);
 
    /**
     * @brief Parse PreciceParams from a serialized TOML string of that
     * section.
     */
    static void ParsePrecice(std::string toml_string,
-                              PreciceParams &op);
+                            PreciceParams &op);
 
 
    /// Construct an uninitialized TOMLConfigInput object.
@@ -191,7 +182,7 @@ public:
 
    /**
     * @brief Construct a new TOMLConfigInput object.
-    * 
+    *
     * @param config_file      TOML config file address to parse.
     * @param out              [Optional] ostream to write parsed config file
     *                         to (verbose processing).

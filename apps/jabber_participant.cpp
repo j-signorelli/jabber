@@ -1,11 +1,12 @@
 /**
  * @file jabber_participant.cpp
- * @brief preCICE participant for coupling acoustic forcing with flow 
+ * @brief preCICE participant for coupling acoustic forcing with flow
  * simulations.
- * 
- * @details 
- * 
- * @todo EMPHASIZE IMPORTANCE OF THIS -- computing acoustic forcing every timestep by fluid solver is super expensive
+ *
+ * @details
+ *
+ * @todo EMPHASIZE IMPORTANCE OF THIS -- computing acoustic forcing every
+ * timestep by fluid solver is super expensive
  */
 
 #include <jabber/jabber.hpp>
@@ -17,13 +18,12 @@
 #endif // JABBER_WITH_MPI
 
 #include <iostream>
-#include <regex>
 
 /// Simple macro for enclosing code section to occur only for rank 0
 #ifdef JABBER_WITH_MPI
-   #define ROOT if (rank == 0)
+#define ROOT if (rank == 0)
 #else
-   #define ROOT
+#define ROOT
 #endif
 
 using namespace jabber;
@@ -43,21 +43,19 @@ int main(int argc, char *argv[])
    {
       PrintBanner(std::cout);
       std::cout << "Jabber preCICE Participant" << std::endl
-                  << LINE << std::endl;
+                << LINE << std::endl;
    }
    // Option parser:
-   cxxopts::Options options("jabber_participant", 
-      "preCICE participant for coupling acoustic forcing with flow "
-      "simulations.");
+   cxxopts::Options options("jabber_participant",
+                            "preCICE participant for coupling acoustic "
+                            "forcing with flow simulations.");
    options.add_options()
-      ("c,config", "Config file.", cxxopts::value<std::string>())
-      ("h,help", "Print usage information.");
+   ("c,config", "Config file.", cxxopts::value<std::string>())
+   ("h,help", "Print usage information.");
    cxxopts::ParseResult result = options.parse(argc, argv);
 
    std::string args_str = result.arguments_string();
-   args_str = std::regex_replace(args_str, std::regex("\n"), "\n\t");
-
-   ROOT std::cout << "Command Line Arguments\n\t" << args_str << std::endl
+   ROOT std::cout << "Command Line Arguments:\n\n" << args_str << std::endl
                   << LINE << std::endl;
 
    if (result.count("help"))
@@ -68,10 +66,10 @@ int main(int argc, char *argv[])
    }
    if (result.count("config") == 0)
    {
-      ROOT std::cout << "Error: no config file specified." << std::endl;
+      ROOT std::cerr << "Error: no config file specified." << std::endl;
       return 1;
    }
-   
+
    // Parse config file
    std::string config_file = result["config"].as<std::string>();
    std::ostream *os = nullptr;
@@ -82,17 +80,34 @@ int main(int argc, char *argv[])
    // Get the preCICE input
    const PreciceParams &precice_conf = *(conf.Precice());
 
+   // Use the dim based on the base flow freestream velocity
+   const int dim = conf.BaseFlow().U.size();
+
    // Initialize preCICE participant
    precice::Participant participant(precice_conf.participant_name,
                                     precice_conf.config_file, rank, size);
+
+   // Set mesh access region [-inf,inf]
+   const std::vector<double> mesh_access_region =
+      [&]()
+   {
+      std::vector<double> acc(2*dim);
+      for (int i = 0; i < acc.size(); i++)
+      {
+         acc[i] = (i % 2 == 0)
+                  ?  std::numeric_limits<double>::lowest()
+                  :  std::numeric_limits<double>::max();
+      }
+      return acc;
+   }
+   ();
    participant.setMeshAccessRegion(precice_conf.fluid_mesh_name,
-                                    precice_conf.mesh_access_region);
+                                   mesh_access_region);
    participant.initialize();
 
    // Get mesh information from fluid participant
-   int dim = participant.getMeshDimensions(precice_conf.fluid_mesh_name);
-   int vertex_size = participant.getMeshVertexSize(
-                                          precice_conf.fluid_mesh_name);
+   const int vertex_size =
+      participant.getMeshVertexSize(precice_conf.fluid_mesh_name);
    std::vector<double> coords(dim*vertex_size);
    std::vector<int> vertex_ids(vertex_size);
    participant.getMeshVertexIDsAndCoordinates(precice_conf.fluid_mesh_name,
@@ -106,7 +121,7 @@ int main(int argc, char *argv[])
    coords = std::vector<double>(rank_coords.begin(), rank_coords.end());
 
    GetRankPartition<int>(vertex_ids, 1, rank, size, rank_vertex_ids);
-   vertex_ids = std::vector<int>(rank_vertex_ids.begin(), 
+   vertex_ids = std::vector<int>(rank_vertex_ids.begin(),
                                  rank_vertex_ids.end());
 #endif // JABBER_WITH_MPI
 
@@ -128,19 +143,19 @@ int main(int argc, char *argv[])
 
       // Send data
       participant.writeData(precice_conf.fluid_mesh_name, "rho",
-                             vertex_ids, field.Density());
+                            vertex_ids, field.Density());
       for (int d = 0; d < dim; d++)
       {
-         participant.writeData(precice_conf.fluid_mesh_name, 
-                              "rhoV" + std::to_string(d+1),
-                             vertex_ids, field.Momentum(d));
+         participant.writeData(precice_conf.fluid_mesh_name,
+                               "rhoV" + std::to_string(d+1),
+                               vertex_ids, field.Momentum(d));
       }
       participant.writeData(precice_conf.fluid_mesh_name, "rhoE",
-                             vertex_ids, field.Energy());       
+                            vertex_ids, field.Energy());
       participant.advance(dt);
       time += dt;
    }
-   
+
    participant.finalize();
 
    return 0;

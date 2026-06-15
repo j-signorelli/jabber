@@ -9,16 +9,15 @@
 
 #include <iostream>
 #include <algorithm>
-#include <regex>
 
 using namespace jabber;
 using namespace jabber::app;
 using namespace mfem;
 
 /**
- * @brief Simple field visualizer, copied directly from 
+ * @brief Simple field visualizer, copied directly from
  * mfem/miniapps/common/fem_extras.cpp/.hpp
- * 
+ *
  */
 void VisualizeField(socketstream &sock, const char *vishost, int visport,
                     GridFunction &gf, const char *title,
@@ -28,37 +27,37 @@ void VisualizeField(socketstream &sock, const char *vishost, int visport,
 int main(int argc, char *argv[])
 {
    PrintBanner(std::cout);
-   std::cout << "Jabber Acoustic Field Visualizer" << std::endl 
-               << LINE << std::endl;
+   std::cout << "Jabber Acoustic Field Visualizer" << std::endl
+             << LINE << std::endl;
 
-    // Option parser:
-   cxxopts::Options options("jabber_viz", 
-      "Visualizer of acoustic field from config file using MFEM w/ GLVis.");
+   // Option parser:
+   cxxopts::Options options("jabber_viz",
+                            "Visualizer of acoustic field from config file "
+                            "using MFEM w/ GLVis.");
 
    options.add_options()
-      ("c,config", "Config file.", cxxopts::value<std::string>())
-      ("d,dim", "Grid dimension (1,2,3).", 
-                        cxxopts::value<int>()->default_value("2"))
-      ("n,num_points", "Number grid points in each dimension.",
-                        cxxopts::value<std::size_t>()->default_value("100"))
-      ("e,extent", "Grid extent in each direction (such that domain is "
-                     "[0,extent]^dim).",
-                        cxxopts::value<double>()->default_value("1.0"))
-      ("f,fields", "Fields to visualize with GLVis ('rho', 'rhoV', 'rhoE').",
-                        cxxopts::value<std::vector<std::string>>()
-                        ->default_value("rho,rhoV,rhoE"))
-      ("s,dt,timestep", "Timestep to use.", 
-                        cxxopts::value<double>()->default_value("0.0"))
-      ("t,nt,num_timesteps", "Number of timesteps to run to.",
-                        cxxopts::value<int>()->default_value("500"))
-      ("h,help", "Print usage information.");
+   ("c,config", "Config file.", cxxopts::value<std::string>())
+   ("d,dim", "Grid dimension (1,2,3).",
+    cxxopts::value<int>()->default_value("2"))
+   ("n,num-points-dim", "Number grid points in each dimension.",
+    cxxopts::value<std::size_t>()->default_value("100"))
+   ("e,extent", "Grid extent in each direction (such that domain is "
+    "[0,extent]^dim).",
+    cxxopts::value<double>()->default_value("1.0"))
+   ("f,fields", "Fields to visualize with GLVis ('rho', 'rhoV', 'rhoE').",
+    cxxopts::value<std::vector<std::string>>()
+    ->default_value("rho,rhoV,rhoE"))
+   ("s,dt", "Timestep to use.",
+    cxxopts::value<double>()->default_value("0.0"))
+   ("t,timesteps", "Number of timesteps to run to.",
+    cxxopts::value<int>()->default_value("500"))
+   ("h,help", "Print usage information.");
 
    cxxopts::ParseResult result = options.parse(argc, argv);
-   
+
    std::string args_str = result.arguments_string();
-   args_str = std::regex_replace(args_str, std::regex("\n"), "\n\t");
-   std::cout << "Command Line Arguments\n\t" << args_str << std::endl 
-               << LINE << std::endl;
+   std::cout << "Command Line Arguments:\n\n" << args_str << std::endl
+             << LINE << std::endl;
 
    if (result.count("help"))
    {
@@ -67,18 +66,18 @@ int main(int argc, char *argv[])
    }
    if (result.count("config") == 0)
    {
-      std::cout << "Error: no config file specified." << std::endl;
+      std::cerr << "Error: no config file specified." << std::endl;
       return 1;
    }
 
    const int dim = result["dim"].as<int>();
-   const std::size_t num_pts_d = result["num_points"].as<std::size_t>();
+   const std::size_t num_pts_d = result["num-points-dim"].as<std::size_t>();
    const std::size_t num_pts_total = std::pow(num_pts_d,dim);
    const double extent = result["extent"].as<double>();
    const std::vector<std::string> fields = result["fields"]
-                                             .as<std::vector<std::string>>();
-   const double timestep = result["timestep"].as<double>();
-   const int num_timesteps = result["num_timesteps"].as<int>();
+                                           .as<std::vector<std::string>>();
+   const double timestep = result["dt"].as<double>();
+   const int num_timesteps = result["timesteps"].as<int>();
 
    // Parse config file
    std::string config_file = result["config"].as<std::string>();
@@ -110,15 +109,15 @@ int main(int argc, char *argv[])
    }
    else if (dim == 2)
    {
-      mesh = Mesh::MakeCartesian2D(num_pts_d, num_pts_d, 
-                                    Element::Type::QUADRILATERAL, true,
-                                    extent, extent);
+      mesh = Mesh::MakeCartesian2D(num_pts_d, num_pts_d,
+                                   Element::Type::QUADRILATERAL, true,
+                                   extent, extent);
    }
    else
    {
       mesh = Mesh::MakeCartesian3D(num_pts_d, num_pts_d, num_pts_d,
-                                    Element::Type::HEXAHEDRON, extent,
-                                    extent, extent);
+                                   Element::Type::HEXAHEDRON, extent,
+                                   extent, extent);
    }
 
    // Get mesh coordinates ordered as XYZ XYZ
@@ -142,8 +141,8 @@ int main(int argc, char *argv[])
    FiniteElementSpace s_fespace(&mesh, &fec, 1);
    FiniteElementSpace v_fespace(&mesh, &fec, 1, Ordering::byNODES);
    GridFunction rho_gf(&s_fespace, field.Density().data()),
-               rhoV_gf(&v_fespace, field.Momentum().data()),
-               rhoE_gf(&s_fespace, field.Energy().data());
+                rhoV_gf(&v_fespace, field.Momentum().data()),
+                rhoE_gf(&s_fespace, field.Energy().data());
 
    const int visport = 19916;
    constexpr std::string_view vishost = "localhost";
@@ -176,18 +175,18 @@ int main(int argc, char *argv[])
       {
          if (field == "rho")
          {
-            VisualizeField(rho_sock, vishost.data(), visport, rho_gf, "Density",
-                           offset, 0, Wx, Wy, keys.data());
+            VisualizeField(rho_sock, vishost.data(), visport, rho_gf,
+                           "Density", offset, 0, Wx, Wy, keys.data());
          }
          else if (field == "rhoV")
          {
-            VisualizeField(rhoV_sock, vishost.data(), visport, rhoV_gf, "Momentum",
-                           offset, 0, Wx, Wy, keys.data(), true);
+            VisualizeField(rhoV_sock, vishost.data(), visport, rhoV_gf,
+                           "Momentum", offset, 0, Wx, Wy, keys.data(), true);
          }
          else if (field == "rhoE")
          {
-            VisualizeField(rhoE_sock, vishost.data(), visport, rhoE_gf, "Energy",
-                           offset, 0, Wx, Wy, keys.data());
+            VisualizeField(rhoE_sock, vishost.data(), visport, rhoE_gf,
+                           "Energy", offset, 0, Wx, Wy, keys.data());
          }
          offset += Wx;
       }
@@ -197,7 +196,7 @@ int main(int argc, char *argv[])
 
 void VisualizeField(socketstream &sock, const char *vishost, int visport,
                     GridFunction &gf, const char *title,
-                    int x, int y, int w, int h, const char * keys, bool vec)
+                    int x, int y, int w, int h, const char *keys, bool vec)
 {
    Mesh &mesh = *gf.FESpace()->GetMesh();
 
@@ -222,9 +221,18 @@ void VisualizeField(socketstream &sock, const char *vishost, int visport,
          sock << "window_title '" << title << "'\n"
               << "window_geometry "
               << x << " " << y << " " << w << " " << h << "\n";
-         if ( keys ) { sock << "keys " << keys << "\n"; }
-         else { sock << "keys maaAc\n"; }
-         if ( vec ) { sock << "vvv"; }
+         if ( keys )
+         {
+            sock << "keys " << keys << "\n";
+         }
+         else
+         {
+            sock << "keys maaAc\n";
+         }
+         if ( vec )
+         {
+            sock << "vvv";
+         }
          sock << std::endl;
       }
 

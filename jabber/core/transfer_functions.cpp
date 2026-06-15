@@ -22,8 +22,11 @@ struct FlowNormalBezierFit
 
    /// Control points for frequencies for the flow-normal TF Bezier curve fit.
    static constexpr std::array<double, kN> kControlFreqs
-   {{0.0, 0.16204, 0.36886, 0.27954, 0.47948, 0.36266, 0.50724, 0.63124, 
-      0.80111}};
+   {
+      {
+         0.0, 0.16204, 0.36886, 0.27954, 0.47948, 0.36266, 0.50724, 0.63124,
+         0.80111
+      }};
 
    /**
     * @brief Control points for transfer functions for the flow-normal TF
@@ -49,10 +52,10 @@ struct FlowNormalBezierFit
       else
       {
          return (1-t)*B<IMin,IMax-1>(controlPts, t)
-                  + t*B<IMin+1,IMax>(controlPts, t);
+                + t*B<IMin+1,IMax>(controlPts, t);
       }
    }
-   
+
    /// Evaluate the flow normal TF curve-fit frequency at a given t.
    static double EvalFreq(double t)
    {
@@ -75,13 +78,13 @@ struct FlowNormalBezierFit
 double FlowNormalFitTF(double chi_star, double f_s, double freq)
 {
    const double &f_norm = freq/f_s;
-   if (f_norm < FlowNormalBezierFit::kfMin || 
+   if (f_norm < FlowNormalBezierFit::kfMin ||
          f_norm > FlowNormalBezierFit::kfMax)
    {
-      std::string err_string = 
+      std::string err_string =
          std::format("Normalized frequency {} (non-normalized frequency {})"
                      " must be within range [{},{}].",
-                     f_norm, freq, FlowNormalBezierFit::kfMin, 
+                     f_norm, freq, FlowNormalBezierFit::kfMin,
                      FlowNormalBezierFit::kfMax);
 
       throw std::invalid_argument(err_string);
@@ -97,7 +100,7 @@ double FlowNormalFitTF(double chi_star, double f_s, double freq)
    for (std::size_t n = 0; n < kNumNewtonIt; n++)
    {
       tnp1 = tn - (FlowNormalBezierFit::EvalFreq(tn) - f_norm)
-                     / FlowNormalBezierFit::DEvalFreq(tn);
+             / FlowNormalBezierFit::DEvalFreq(tn);
       if (tnp1 < 0)
       {
          tnp1 = 0.0;
@@ -114,9 +117,9 @@ double FlowNormalFitTF(double chi_star, double f_s, double freq)
       }
       else if (n + 1 == kNumNewtonIt)
       {
-         std::string err_string = 
+         std::string err_string =
             std::format("Unable to converge to Bezier parameter t for "
-                        "frequency {} (normalized frequency {})", 
+                        "frequency {} (normalized frequency {})",
                         freq, f_norm);
          throw std::logic_error(err_string);
       }
