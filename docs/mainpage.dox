@@ -1,7 +1,7 @@
 /** 
- * @mainpage Jabber
+ * @mainpage jabber
  * 
- * @details Jabber is a library and app-suite to support the modeling of 
+ * @details jabber is a library and app-suite to support the modeling of 
  * freestream disturbances in high-speed wind tunnels for fluid dynamics 
  * simulations. For more details, please refer to the following list of 
  * features:
