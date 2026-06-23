@@ -10,43 +10,43 @@ namespace jabber
  * @{
  * @brief Transfer functions \f$\chi=S_0/S_\infty\f$ to recover the freestream
  * PSD from a pitot-measured PSD.
- * 
- * 
- * 
+ *
+ *
+ *
  * \image html jabber_pitot_tf.png width=400px
- * 
+ *
  * @details Ideally, one has the pressure PSD of the tunnel freestream, such
  * as from DNS of the tunnel walls. However in general, experimentally-measured
  * pressure PSDs from pitot probes placed in the freestream are more readily
- * available at relevant high-frequencies. A number of different 
- * phenomena may alter the measured PSD \f$S_0(f)\f$ from the freestream PSD 
+ * available at relevant high-frequencies. A number of different
+ * phenomena may alter the measured PSD \f$S_0(f)\f$ from the freestream PSD
  * \f$S_\infty(f)\f$.
- * 
+ *
  * To this end, a transfer function \f$\chi=S_0(f)/S_\infty(f)\f$ can be used
- * to recover the freestream PSD from the experimental one. More details can 
+ * to recover the freestream PSD from the experimental one. More details can
  * be found in \cite duan2019, \cite chaudhry2017, and \cite chaudhry2019.
- * 
- * 
+ *
+ *
  * @note Transfer functions in literature (see above) have been defined such
- * that \f$S_0(f)\f$ is the PSD taken of the nondimensional pressure 
+ * that \f$S_0(f)\f$ is the PSD taken of the nondimensional pressure
  * \f$p'_{02}/p_{02}\f$ and \f$S_\infty(f)\f$ is the PSD taken of the
  * nondimensional pressure \f$p'/p_\infty\f$.
  */
 
 /**
  * @brief Compute the transfer function \f$\chi^*\f$, the analytical
- * low-frequency limit for flow-parallel disturbances given in 
+ * low-frequency limit for flow-parallel disturbances given in
  * Equation 15 \cite chaudhry2017,
- * 
+ *
  * \f[
- * 
+ *
  * \chi^*_\pm=\left(\frac{M_\infty^2\pm 2M_\infty \mp1/M_\infty}
  *          {\gamma M_\infty^2-(\gamma-1)/2}\right)^2,
  * \f]
  *
  * where the subscript \f$\pm\f$ corresponds to the slow and fast
  * acoustic wave transfer function respectively.
- * 
+ *
  * @param mach_bar      Freestream Mach number.
  * @param gamma         Specific heat ratio.
  * @param speed         Wave speed, 'S' for slow, 'F' for fast.
@@ -60,7 +60,7 @@ double LowFrequencyLimitTF(double mach_bar, double gamma, char speed);
  * re-dimensionalization of a fit of the curve in Figure 14b of
  * \cite chaudhry2017, the collapsed flow-normal disturbance
  * transfer function.
- * 
+ *
  * @details This function uses a Bezier curve fit of the collapsed
  * transfer function, which requires Newton's method to determine
  * the curve's parameter t associated with the input frequency

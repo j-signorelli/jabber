@@ -19,7 +19,7 @@ namespace jabber
  * @details
  * ## Theory
  * The power \f$V^2\f$ within generic frequency range \f$[f_1, f_2]\f$ of a
- * continuous, one-sided freestream pressure PSD \f$S_{\infty}(f)\f$ with 
+ * continuous, one-sided freestream pressure PSD \f$S_{\infty}(f)\f$ with
  * units \f$(p^\prime/\bar{p})^2/\text{Hz}\f$ is given by
  *
  * \f[
@@ -29,9 +29,9 @@ namespace jabber
  * As outlined in Appendix B of \cite tam2010, a broadband
  * spectrum of acoustic waves can be formulated by discretizing the PSD
  * into a set of wave frequencies \f$\{f_j\}\f$ as shown below.
- * 
+ *
  * \image html jabber_psd_disc.png width=400px
- * 
+ *
  * The cosine wave amplitude is then be computed for each frequency by
  *
  * \f[
@@ -83,7 +83,7 @@ public:
     * in \p freqs using \p method.
     *
     * @details Let \f$N=N_w-1\f$.
-    * 
+    *
     * For \ref Method::Midpoint :
     * \f[
     * \left[f^-_j, f^+_j\right] =
