@@ -82,28 +82,29 @@ public:
     * @brief Compute Interval Δf for given discrete frequency at index \p i
     * in \p freqs using \p method.
     *
-    * @details
+    * @details Let \f$N=N_w-1\f$.
+    * 
     * For \ref Method::Midpoint :
     * \f[
-    * \Delta f_j =
+    * \left[f^-_j, f^+_j\right] =
     * \begin{cases}
-    * (f_{j+1}-f_{j-1})/2 & 0<j<N, \\
-    * f_1 - f_0 & k=0, \\
-    * (f_N-f_{N-1})/2 &k=N.
+    * \left[f_{j-1}, f_{j+1}\right] & 0<j<N, \\
+    * \left[f_{0}, f_{0} + (f_{1}-f_{0})/2\right]& j=0, \\
+    * \left[f_{N-1} + (f_{N}-f_{N-1})/2, f_{N}\right] &j=N.
     * \end{cases}
     * \f]
     *
     * For \ref Method::MidpointLog10 :
     * \f[
-    * \Delta f_k =
+    * \left[f^-_j, f^+_j\right] =
     * \begin{cases}
-    * \sqrt{f_kf_{k+1}}-\sqrt{f_kf_{k-1}} & 0<k<N, \\
-    * \sqrt{f_0f_1}-f_0 & k=0, \\
-    * f_N-\sqrt{f_Nf_{N-1}} &k=N.
+    * \left[\sqrt{f_jf_{j-1}}, \sqrt{f_jf_{j+1}}\right] & 0<j<N, \\
+    * \left[f_0, \sqrt{f_0f_1}\right] & j=0, \\
+    * \left[\sqrt{f_{N-1}f_N} , f_N \right] & j=N.
     * \end{cases}
     * \f]
     *
-    * @param freqs        Span of all discrete frequencies, of size \f$N+1\f$.
+    * @param freqs        Span of all discrete frequencies, of size \f$N_w\f$.
     * @param i            Index of frequency to compute interval Δf for.
     * @param method       Method to use for interval computation.
     */
@@ -176,7 +177,7 @@ public:
    /**
     * @brief Construct a new PWLinearPSD object
     *
-    * @param freq     Set of discrete frequencies to fit lines in log space
+    * @param freq     Set of discrete frequencies to fit lines in log10 space
     *                 to. PSD bounds \ref Min() and \ref Max() are defined by
     *                 the minimum and maximum discrete frequencies provided.
     * @param psd      PSD associated with each frequency in \p freq.
