@@ -10,8 +10,115 @@ namespace jabber
 {
 
 /**
- * @defgroup env_group Disturbance Environment Definition & Evaluation
+ * @defgroup env_group Disturbance Environment Definition
  * @{
+ *
+ * @brief Acoustically-disturbed freestream modeling
+ *
+ * @details
+ *
+ * ## Mathematical Formulation
+ * Acoustic waves within tunnel freestreams are governed by
+ * the linearized acoustic wave equation in a moving media,
+ *
+ * \f[
+ * \frac{1}{c_\infty^2}\frac{D^2p'}{Dt^2} - \nabla^2p'
+ * =\frac{1}{c_\infty^2}\left(\frac{\partial}{\partial t}
+ *     + \vec{U}_\infty\cdot\nabla\right)^2p' - \nabla^2p'=0,
+ * \f]
+ *
+ * where \f$p'\f$ is the pressure perturbation, \f$\vec{U}_\infty\f$
+ * is the freestream velocity, and \f$c_\infty\f$ is the freestream
+ * speed-of-sound.
+ *
+ * We assume **planar pressure waves** by the ansatz
+ *
+ * \f[
+ * p'(\vec{x},t)=\sum_{j=1}^{N_w}p'_j\cos\left(\vec{k}_j\cdot\vec{x}
+ *                - \omega_jt + \psi_j\right),
+ * \f]
+ *
+ * where \f$p'_j\f$ is the provided pressure wave amplitude,
+ * \f$\vec{k}_j\f$ is the wavenumber vector whose direction
+ * \f$\hat{k}_j\f$ is provided, \f$\omega_j=2\pi f_j\f$ is
+ * the provided angular frequency, \f$\psi_j\f$ is the provided
+ * random phase, and \f$N_w\f$ are the number of planar pressure waves.
+ * Plugging this into the linearized acoustic wave
+ * equation, one can solve for the magnitude of the wavenumber
+ * vector that satisfies the equation to be
+ *
+ * \f[
+ * ||\vec{k}_j||=\frac{\omega_j}
+ *                {\vec{U}_\infty\cdot\hat{k}_j \pm c_\infty},
+ * \f]
+ *
+ * where \f$\pm\f$ corresponds to either a fast or slove acoustic wave
+ * respectively.
+ *
+ * We can then derive the conserved variables from here. It can be shown that
+ * the linearized isentropic equation of state is
+ * \f$\rho'=(1/c_\infty^2)p'\f$. This allows us to compute freestream density
+ * as
+ *
+ * \f[
+ * \rho(\vec{x},t)=\rho_\infty + \rho'=
+ * \rho_\infty+\frac{1}{c_\infty^2}
+ *    \sum_{j=1}^{N_w}p'_j\cos\left(\vec{k}\cdot\vec{x} +
+ *                                     \psi_j-\omega_jt\right).
+ * \f]
+ *
+ * For momentum, we start with the linearized isentropic Euler equation,
+ * \f[
+ * \rho_\infty\frac{D\vec{u}'}{Dt}=
+ * \rho_\infty\left(\frac{\partial \vec{u}}{\partial t}
+ *                   +\vec{U}_\infty\cdot\nabla\right)\vec{u}'=-\nabla p'.
+ * \f]
+ *
+ * The same traveling wave ansatz velocity perturbations can be written
+ * as for pressure,
+ *
+ * \f[
+ * \vec{u}'(\vec{x},t)=\sum_{j=1}^{N_w}\vec{u}'_j\cos\left(\vec{k}\cdot\vec{x}
+ *                                              + \psi_j-\omega_jt\right).
+ * \f]
+ *
+ * Plugging the pressure and velocity perturbation ansatz into the linearized
+ * isentropic Euler equation, the velocity perturbation coefficients
+ * \f$\vec{u}_j\f$ can be derived and the momentum written as
+ * \f[
+ * \rho\vec{u}=(\rho_\infty+\rho')(\vec{U}_\infty+\vec{u}')=
+ * (\rho_\infty+\rho')\left(\vec{U}_\infty + \frac{(\pm1)}{\rho_\infty c_\infty}
+ * \sum_{j=0}^{N_w}\hat{k}_jp'_j\cos\left(\vec{k}\cdot\vec{x} +
+ *                                           \psi_j-\omega_jt\right)\right),
+ * \f]
+ * where the \f$\pm\f$ again corresponds to either a fast or slow acoustic wave
+ * respectively. Lastly, energy can simply computed by
+ * \f[
+ * \rho E=\frac{p}{\gamma-1}+\frac{1}{2}\rho||\vec{u}||^2.
+ * \f]
+ *
+ *
+ * ## Wave Definition
+ * From the previous section, we see that a single wave is fully defined by:
+ *
+ *    - \f$p'_j\f$: the planar wave amplitude,
+ *    - \f$\hat{k}_j\f$: the normalized wavenumber vector
+ *                         orientation/direction,
+ *    - \f$f_j\f$: the wave temporal frequency,
+ *    - \f$\psi_j\f$: the random phase, and
+ *    - \f$\pm\f$: the wave speed (\f$+\f$ for fast, \f$-\f$ for slow).
+ *
+ * In jabber, this is represented by the \ref Wave struct.
+ *
+ * ## Acoustic Environment Definition & Evaluation
+ * For a large \f$N_w\f$, the computation of the acoustically-perturbed
+ * freestream at every gridpoint, every timestep can be computationally
+ * expensive. For this, jabber provides high-performance \ref kernels_group
+ * to accomplish this. The kernels require the data to be formatted a
+ * particular way  (depending on which is used). To simplify the
+ * translation from a set of acoustic waves defined by \ref Wave the data
+ * required by the kernels structures, the class \ref AcousticField was
+ * created.
  *
  */
 
@@ -52,8 +159,9 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves);
  * @brief Class for specifying and computing a broadband-spectrum acoustic
  * field onto a provided grid and base flow.
  *
- * @details All acoustic wave data is stored in a Struct-of-Arrays style in
- * this class.
+ * @details This class serves to simplify + streamline the preparation
+ * of kernel argument data structures from a provided set of \ref Wave
+ * structs.
  *
  */
 class AcousticField
@@ -63,7 +171,7 @@ public:
    /**
     * @brief Kernel type to use in \ref Compute "Compute()".
     *
-    * @details See file kernels.hpp for more information.
+    * @details See \ref kernels_group for more information.
     */
    enum class Kernel : std::uint8_t
    {
