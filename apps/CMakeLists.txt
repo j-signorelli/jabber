@@ -31,7 +31,7 @@ endif()
 
 
 # Build Jabber profiler app
-if (JABBER_BUILD_PROFILER)
+if (JABBER_BUILD_PROFILE)
 
    add_executable(jabber_profile jabber_profile.cpp)
    target_link_libraries(jabber_profile PRIVATE 
