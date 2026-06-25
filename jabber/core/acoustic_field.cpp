@@ -60,17 +60,17 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves)
 }
 
 AcousticField::AcousticField(int dim, std::span<const double> coords,
-                             double p_bar, double rho_bar,
-                             const std::vector<double> U_bar, double gamma,
+                             double p_infty, double rho_infty,
+                             const std::vector<double> U_infty, double gamma,
                              Kernel kernel)
    : kernel_(kernel),
      dim_(dim),
      num_pts_(coords.size()/dim_),
-     p_bar_(p_bar),
-     rho_bar_(rho_bar),
-     U_bar_(U_bar),
+     p_infty_(p_infty),
+     rho_infty_(rho_infty),
+     U_infty_(U_infty),
      gamma_(gamma),
-     c_bar_(std::sqrt(gamma_*p_bar_/rho_bar_)),
+     c_infty_(std::sqrt(gamma_*p_infty_/rho_infty_)),
      coords_(dim_)
 {
 
@@ -99,18 +99,18 @@ void AcousticField::Finalize()
    {
       const Wave &wave = Waves()[w];
 
-      kernel_args_.rho_coeffs[w] = wave.amplitude/(c_bar_*c_bar_);
+      kernel_args_.rho_coeffs[w] = wave.amplitude/(c_infty_*c_infty_);
       kernel_args_.rhoE_coeffs[w] = wave.amplitude/(gamma_ - 1.0);
       kernel_args_.wave_omegas[w] = 2*M_PI*wave.frequency;
 
       // Compute denom = U·k_hat±c and set rhoV_coeffs
-      double denom = (wave.speed == 'S' ? -c_bar_ : c_bar_);
+      double denom = (wave.speed == 'S' ? -c_infty_ : c_infty_);
       const int speed_encoder = (wave.speed == 'S' ? -1 : 1);
       for (int d = 0; d < Dim(); d++)
       {
-         denom += U_bar_[d]*wave.k_hat[d];
+         denom += U_infty_[d]*wave.k_hat[d];
          kernel_args_.rhoV_coeffs[d*NumWaves() + w] =
-            speed_encoder*wave.k_hat[d]*wave.amplitude/(rho_bar_*c_bar_);
+            speed_encoder*wave.k_hat[d]*wave.amplitude/(rho_infty_*c_infty_);
       }
 
       // Compute magnitude of wavelength vector k
@@ -161,8 +161,8 @@ void AcousticField::Compute(double t)
          {
             if (kernel_ == Kernel::GridPoint)
             {
-               ComputeKernel<Dims, true>(NumPoints(), rho_bar_, p_bar_,
-                                         U_bar_.data(), gamma_, NumWaves(), t,
+               ComputeKernel<Dims, true>(NumPoints(), rho_infty_, p_infty_,
+                                         U_infty_.data(), gamma_, NumWaves(), t,
                                          kernel_args_.rho_coeffs.data(),
                                          kernel_args_.rhoV_coeffs.data(),
                                          kernel_args_.rhoE_coeffs.data(),
@@ -173,8 +173,8 @@ void AcousticField::Compute(double t)
             }
             else if (kernel_ == Kernel::Wave)
             {
-               ComputeKernel<Dims, false>(NumPoints(), rho_bar_, p_bar_,
-                                          U_bar_.data(), gamma_, NumWaves(), t,
+               ComputeKernel<Dims, false>(NumPoints(), rho_infty_, p_infty_,
+                                          U_infty_.data(), gamma_, NumWaves(), t,
                                           kernel_args_.rho_coeffs.data(),
                                           kernel_args_.rhoV_coeffs.data(),
                                           kernel_args_.rhoE_coeffs.data(),

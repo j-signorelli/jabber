@@ -13,7 +13,7 @@ namespace jabber
  * @defgroup env_group Disturbance Environment Definition
  * @{
  *
- * @brief Acoustically-disturbed freestream modeling
+ * @brief Modeling of an acoustically-disturbed freestream.
  *
  * @details
  *
@@ -194,19 +194,19 @@ private:
    const std::size_t num_pts_;
 
    /// Base flow pressure.
-   const double p_bar_;
+   const double p_infty_;
 
    /// Base flow density.
-   const double rho_bar_;
+   const double rho_infty_;
 
    /// Base flow velocity vector, of size \ref Dim().
-   const std::vector<double> U_bar_;
+   const std::vector<double> U_infty_;
 
    /// Base flow specific heat ratio, γ.
    const double gamma_;
 
    /// Base flow speed of sound
-   const double c_bar_;
+   const double c_infty_;
 
    /// Kernel type to use.
    const Kernel kernel_;
@@ -226,7 +226,7 @@ private:
    struct
    {
       /**
-       * @brief Density series coefficients, \f$\frac{1}{\bar{c}^2}p'_j\f$.
+       * @brief Density series coefficients, \f$\frac{1}{c^2_\infty}p'_j\f$.
        *
        * @details Size is \ref NumWaves().
        */
@@ -234,7 +234,7 @@ private:
 
       /**
        * @brief Momentum series coefficients,
-       * \f$\frac{1}{\bar{\rho}\bar{c}}(\pm 1)\hat{k_j}\f$.
+       * \f$\frac{1}{\rho_\infty c_\infty}(\pm 1)\hat{k_j}\f$.
        *
        * @details Size is \ref Dim() x \ref NumWaves(). Ordered as [dim][wave].
        */
@@ -294,15 +294,15 @@ public:
     * @param dim        Spatial dimension of mesh.
     * @param coords     Mesh coordinates to compute acoustic forcing on, in
     *                   XYZ XYZ ordering.
-    * @param p_bar      Base flow pressure.
-    * @param rho_bar    Base flow density.
-    * @param U_bar      Base flow velocity vector, of size \p dim.
+    * @param p_infty    Base flow pressure.
+    * @param rho_infty  Base flow density.
+    * @param U_infty    Base flow velocity vector, of size \p dim.
     * @param gamma      Base flow specific heat ratio, γ.
     * @param kernel     Kernel type to use.
     */
    AcousticField(int dim, std::span<const double> coords,
-                 double p_bar, double rho_bar,
-                 const std::vector<double> U_bar, double gamma,
+                 double p_infty, double rho_infty,
+                 const std::vector<double> U_infty, double gamma,
                  Kernel kernel=Kernel::GridPoint);
 
    /// Get the spatial dimension.
@@ -320,19 +320,19 @@ public:
    /// Get the base flow velocity vector.
    const std::vector<double> &BaseVelocity() const
    {
-      return U_bar_;
+      return U_infty_;
    }
 
    /// Get the base flow pressure
    double BasePressure() const
    {
-      return p_bar_;
+      return p_infty_;
    }
 
    /// Get the base flow density
    double BaseDensity() const
    {
-      return rho_bar_;
+      return rho_infty_;
    }
 
    /// Get the base flow specific heat ratio, γ.
