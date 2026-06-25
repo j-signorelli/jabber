@@ -24,7 +24,7 @@ void Normalize(std::span<const double> vec, std::span<double> norm_vec);
 /**
  * @defgroup pproc_group Parameter Processing
  * @{
- *
+ * @brief Visitors for processing different parameter structs.
  */
 
 /**
