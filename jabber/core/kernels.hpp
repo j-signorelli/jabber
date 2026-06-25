@@ -9,7 +9,38 @@ namespace jabber
 /**
  * @defgroup kernels_group Compute Kernels
  * @{
+ * 
+ * @brief Kernels for high-performance evaluation of an acoustically-disturbed
+ * freestream.
  *
+ * @details In order to optimize the computation of an acoustically-perturbed
+ * freestream with a "large" number of waves \f$N_w\f$ on a grid every
+ * timestep, the kernels provided require that maximal evaluations that can 
+ * be pre-computed are to reduce repetitive inner-loop FLOPs. Consider the
+ * conserved variable equations again derived in \ref env_group to evaluate:
+ * \f[
+ * \rho=\rho_\infty + \rho'=
+ * \rho_\infty+\frac{1}{c_\infty^2}
+ *    \sum_{j=1}^{N_w}p'_j\cos\left(\vec{k}\cdot\vec{x} +
+ *                                     \psi_j-\omega_jt\right),
+ * \f]
+ * \f[
+ * \rho\vec{u}=(\rho_\infty+\rho')(\vec{U}_\infty+\vec{u}')=
+ * (\rho_\infty+\rho')\left(\vec{U}_\infty + \frac{(\pm1)}{\rho_\infty c_\infty}
+ * \sum_{j=0}^{N_w}\hat{k}_jp'_j\cos\left(\vec{k}\cdot\vec{x} +
+ *                                           \psi_j-\omega_jt\right)\right),
+ * \f]
+ * and
+ * \f[
+ * \rho E=\frac{p}{\gamma-1}+\frac{1}{2}\rho||\vec{u}||^2.
+ * \f]
+ * 
+ * **Assuming a fixed grid**, the following terms can be pre-computed to reduce
+ * FLOPs, as they do not depend on time:
+ * 
+ *    - \f$\vec{k}\cdot\vec{x} + \psi_j\f$
+ *    - 
+ * 
  */
 
 
