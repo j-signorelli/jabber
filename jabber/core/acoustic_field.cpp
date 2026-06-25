@@ -162,8 +162,8 @@ void AcousticField::Compute(double t)
             if (kernel_ == Kernel::GridPoint)
             {
                ComputeKernel<Dims, true>(NumPoints(), rho_infty_, p_infty_,
-                                         U_infty_.data(), gamma_, NumWaves(), t,
-                                         kernel_args_.rho_coeffs.data(),
+                                         U_infty_.data(), gamma_, NumWaves(),
+                                         t, kernel_args_.rho_coeffs.data(),
                                          kernel_args_.rhoV_coeffs.data(),
                                          kernel_args_.rhoE_coeffs.data(),
                                          kernel_args_.wave_omegas.data(),
@@ -174,8 +174,8 @@ void AcousticField::Compute(double t)
             else if (kernel_ == Kernel::Wave)
             {
                ComputeKernel<Dims, false>(NumPoints(), rho_infty_, p_infty_,
-                                          U_infty_.data(), gamma_, NumWaves(), t,
-                                          kernel_args_.rho_coeffs.data(),
+                                          U_infty_.data(), gamma_, NumWaves(),
+                                          t, kernel_args_.rho_coeffs.data(),
                                           kernel_args_.rhoV_coeffs.data(),
                                           kernel_args_.rhoE_coeffs.data(),
                                           kernel_args_.wave_omegas.data(),
