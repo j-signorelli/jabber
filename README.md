@@ -1,6 +1,8 @@
 # jabber
 jabber is a planar wave acoustic forcing library and app-suite to support the modeling of freestream disturbances in high-speed wind tunnels for fluid dynamics simulations.
 
+Please see the full documentation for more details.
+
 ## Building + Installing jabber
 jabber uses CMake as a build system. For a default build of jabber:
 ```
@@ -29,3 +31,18 @@ Additional options that may be specified using `cmake -D<Option>=<Value> ..`:
 | `JABBER_BUILD_OUT`        | Build `jabber_out` app. | ON |
 | `JABBER_BUILD_VIZ`        | Build `jabber_viz` app (requires MFEM). | OFF |
 | `JABBER_BUILD_PARTICIPANT`| Build `jabber_participant` app (requires preCICE). | OFF |
+
+## Using jabber
+The jabber library can either be incorporated directly into an existing code, or the provided apps can be used on their own. To use jabber in a project with CMake, ensure that the `CMAKE_PREFIX_PATH` environment variable is set to the install directory of jabber and simply use `find_package`. An example is provided below:
+```cmake
+...
+find_package(jabber 1.0.0 REQUIRED)
+add_executable(example main.cpp)
+target_link_libraries(example PRIVATE jabber)
+...
+```
+where the header of `main.cpp` may look like:
+```cpp
+#include <jabber/jabber.hpp>
+...
+```
