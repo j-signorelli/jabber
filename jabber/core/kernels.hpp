@@ -74,9 +74,9 @@ namespace jabber
    *                         This impacts vectorization.
    *
    * @param num_pts          Number of physical points to evaluate at.
-   * @param rho_bar          Base flow density.
-   * @param p_bar            Base flow pressure.
-   * @param U_bar            Base flow velocity.
+   * @param rho_infty        Base flow density.
+   * @param p_infty          Base flow pressure.
+   * @param U_infty          Base flow velocity.
    * @param gamma            Specific heat ratio.
    * @param num_waves        Number of acoustic waves to compute.
    * @param t                Time.
@@ -88,7 +88,7 @@ namespace jabber
    *                         \p num_waves.
    * @param wave_omegas      \copybrief AcousticField::wave_omegas Sized
    *                         \p num_waves.
-   * @param k_dot_x_p_phi    \copybrief AcousticField::k_dot_x_p_phi Sized
+   * @param k_dot_x_p_psi    \copybrief AcousticField::k_dot_x_p_psi Sized
    *                         \p num_waves x \p num_points with ordering
    *                         [wave][point] for \p TGridInnerLoop true or
    *                         [point][wave] for \p TGridInnerLoop false.
@@ -98,15 +98,15 @@ namespace jabber
    * @param rhoE             Output flow energy to compute, sized \p num_pts.
 */
 template<std::size_t TDim, bool TGridInnerLoop>
-void ComputeKernel(const std::size_t num_pts, const double rho_bar,
-                   const double p_bar, const double *U_bar,
+void ComputeKernel(const std::size_t num_pts, const double rho_infty,
+                   const double p_infty, const double *U_infty,
                    const double gamma, const int num_waves,
                    const double t,
                    const double *__restrict__ rho_coeffs,
                    const double *__restrict__ rhoV_coeffs,
                    const double *__restrict__ rhoE_coeffs,
                    const double *__restrict__ wave_omegas,
-                   const double *__restrict__ k_dot_x_p_phi,
+                   const double *__restrict__ k_dot_x_p_psi,
                    double *__restrict__ rho,
                    double *__restrict__ rhoV,
                    double *__restrict__ rhoE);

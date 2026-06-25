@@ -92,7 +92,7 @@ void AcousticField::Finalize()
    kernel_args_.rhoV_coeffs.resize(Dim()*NumWaves());
    kernel_args_.rhoE_coeffs.resize(NumWaves());
    kernel_args_.wave_omegas.resize(NumWaves());
-   kernel_args_.k_dot_x_p_phi.resize(NumWaves()*NumPoints());
+   kernel_args_.k_dot_x_p_psi.resize(NumWaves()*NumPoints());
 
    // Note that performance of below was not carefully considered
    for (int w = 0; w < NumWaves(); w++)
@@ -135,10 +135,10 @@ void AcousticField::Finalize()
             }
          }
          ();
-         kernel_args_.k_dot_x_p_phi[idx] = wave.phase;
+         kernel_args_.k_dot_x_p_psi[idx] = wave.phase;
          for (int d = 0; d < Dim(); d++)
          {
-            kernel_args_.k_dot_x_p_phi[idx] +=
+            kernel_args_.k_dot_x_p_psi[idx] +=
                wave.k_hat[d]*k*coords_[d][i];
          }
       }
@@ -167,7 +167,7 @@ void AcousticField::Compute(double t)
                                          kernel_args_.rhoV_coeffs.data(),
                                          kernel_args_.rhoE_coeffs.data(),
                                          kernel_args_.wave_omegas.data(),
-                                         kernel_args_.k_dot_x_p_phi.data(),
+                                         kernel_args_.k_dot_x_p_psi.data(),
                                          rho_.data(), rhoV_.data(),
                                          rhoE_.data());
             }
@@ -179,7 +179,7 @@ void AcousticField::Compute(double t)
                                           kernel_args_.rhoV_coeffs.data(),
                                           kernel_args_.rhoE_coeffs.data(),
                                           kernel_args_.wave_omegas.data(),
-                                          kernel_args_.k_dot_x_p_phi.data(),
+                                          kernel_args_.k_dot_x_p_psi.data(),
                                           rho_.data(), rhoV_.data(),
                                           rhoE_.data());
             }

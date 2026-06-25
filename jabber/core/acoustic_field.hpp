@@ -255,13 +255,13 @@ private:
       std::vector<double> wave_omegas;
 
       /**
-       * @brief \f$\vec{k}\cdot x+\phi\f$ term computed for all waves at all
+       * @brief \f$\vec{k}\cdot x+\psi\f$ term computed for all waves at all
        * points.
        *
        * @details Size is \ref NumWaves() x \ref NumPoints(). Ordering depends
        * on \ref kernel_.
        */
-      std::vector<double> k_dot_x_p_phi;
+      std::vector<double> k_dot_x_p_psi;
 
    } kernel_args_;
 
