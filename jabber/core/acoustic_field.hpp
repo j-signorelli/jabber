@@ -63,7 +63,7 @@ namespace jabber
  * \f[
  * \rho(\vec{x},t)=\rho_\infty + \rho'=
  * \rho_\infty+\frac{1}{c_\infty^2}
- *    \sum_{j=1}^{N_w}p'_j\cos\left(\vec{k}\cdot\vec{x} +
+ *    \sum_{j=1}^{N_w}p'_j\cos\left(\vec{k}_j\cdot\vec{x} +
  *                                     \psi_j-\omega_jt\right).
  * \f]
  *
@@ -78,7 +78,7 @@ namespace jabber
  * as for pressure,
  *
  * \f[
- * \vec{u}'(\vec{x},t)=\sum_{j=1}^{N_w}\vec{u}'_j\cos\left(\vec{k}\cdot\vec{x}
+ * \vec{u}'(\vec{x},t)=\sum_{j=1}^{N_w}\vec{u}'_j\cos\left(\vec{k}_j\cdot\vec{x}
  *                                              + \psi_j-\omega_jt\right).
  * \f]
  *
@@ -88,7 +88,7 @@ namespace jabber
  * \f[
  * \rho\vec{u}=(\rho_\infty+\rho')(\vec{U}_\infty+\vec{u}')=
  * (\rho_\infty+\rho')\left(\vec{U}_\infty + \frac{(\pm1)}{\rho_\infty c_\infty}
- * \sum_{j=0}^{N_w}\hat{k}_jp'_j\cos\left(\vec{k}\cdot\vec{x} +
+ * \sum_{j=0}^{N_w}\hat{k}_jp'_j\cos\left(\vec{k}\cdot\vec{x}_j +
  *                                           \psi_j-\omega_jt\right)\right),
  * \f]
  * where the \f$\pm\f$ again corresponds to either a fast or slow acoustic wave
