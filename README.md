@@ -1,7 +1,7 @@
 # jabber
 jabber is a planar wave acoustic forcing library and app-suite to support the modeling of freestream disturbances in high-speed wind tunnels for fluid dynamics simulations.
 
-Please see the full documentation for more details.
+Please see the <a href="https://j-signorelli.github.io/jabber/index.html">full documentation</a> for more details.
 
 ## Building + Installing jabber
 jabber uses CMake as a build system. For a default build of jabber:
