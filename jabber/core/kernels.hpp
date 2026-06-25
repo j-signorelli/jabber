@@ -15,7 +15,7 @@ namespace jabber
  *
  * @details In order to optimize the computation of an acoustically-perturbed
  * freestream with a "large" number of waves \f$N_w\f$ on a grid every
- * timestep, the kernels provided require that maximal evaluations that can 
+ * timestep, the kernels provided require that the maximal evaluations that can 
  * be pre-computed are to reduce repetitive inner-loop FLOPs. Consider the
  * conserved variable equations again derived in \ref env_group to evaluate:
  * \f[
@@ -36,43 +36,48 @@ namespace jabber
  * \rho E=\frac{p}{\gamma-1}+\frac{1}{2}\rho||\vec{u}||^2.
  * \f]
  * 
- * **Assuming a fixed grid**, the following terms can be pre-computed to reduce
+ * The following terms can be pre-computed to reduce
  * FLOPs, as they do not depend on time:
  * 
- *    - \f$\vec{k}\cdot\vec{x} + \psi_j\f$
- *    - 
+ *    - \f$\vec{k}_j\cdot\vec{x} + \psi_j\f$ (**assuming a fixed grid**),
+ *    - \f$\omega_j=2\pi f_j\f$,
+ *    - in \f$\rho\f$: \f$\frac{1}{c_\infty^2}p'_j\f$,
+ *    - in \f$\rho\vec{u}\f$: \f$\frac{\pm1}{\rho_\infty c_\infty}\hat{k}_j\f$, and
+ *    - in \f$\rho E\f$: \f$\frac{1}{\gamma-1}p'_j\f$.
  * 
  */
 
 
 /**
-   * @brief Kernel function for evaluating perturbed base flow, with series
-   * summation inner loop/vectorization over each gridpoint.
+   * @brief Kernel function for evaluating perturbed freestream.
    *
-   * @details This function was designed following Intel guidelines for
-   * auto-vectorizable code.  Because only inner-most loops are candidates for
-   * vectorization, this function is templated with \p TDim for "loop
-   * unrolling" on the momentum terms. Vectorization is across \p num_pts as
-   * that is expected to be the largest value, so data dimensioned by it must
-   * be stored in an SoA-format for contiguous memory accesses across hardware
-   * threads.
-   *
-   * All inner loops have been verified to be vectorized by Intel `icpx`
-   * 2025.3.1 using the flags `-O3 -xhost`. Proper vectorization by Intel
-   * compilers can be checked via:
-   *
-   * ```
-   * icpx -O3 -qopt-report=3 \
-   *          -qopt-report-file="report.yaml" \
-   *          -xhost \
-   *          -c kernels.cpp
-   * ```
-   *
+   * @details This function was written carefully for all (inner) loops to
+   * *hopefully* be auto-vectorized, but as it goes, 
+   * <a href="https://pharr.org/matt/blog/2018/04/18/ispc-origins">
+   * "auto-vectorization is not a programming model"</a>. If performance is
+   * important, please ensure that the appropriate vector compiler flags are 
+   * set when building and check to see if all loops were successfully 
+   * vectorized. All inner loops have been verified to be auto-vectorizable by
+   * the Intel 2025.3.1 C++ compiler using `-O3 -xhost`.
+   * 
+   * This function is templated with \p TDim for "loop unrolling" on the
+   * momentum terms, keeping loops over either the wave axis or the grid 
+   * point axis (for \p TGridInnerLoop false or true respectively) as inner 
+   * loops (candidates for auto-vectorization). Note that the storage pattern
+   * of \p k_dot_x_p_psi depends on \p TGridInnerLoop for ensuring
+   * contiguous memory accesses across hardware threads.
+   * 
+   * When compiled with `JABBER_ENABLE_OPENMP`, for \p TGridInnerLoop true,
+   * the outer loop of the series summation (wave axis) is parallelized across
+   * OpenMP threads, and for \p TGridInnerLoop false, the outer loop of the
+   * series summation (grid point axis) is parallelized across OpenMP threads.
+   * 
    *
    * @tparam TDim            Physical dimension.
    * @tparam TGridInnerLoop  If true, use grid point axis in series
    *                         summation inner loop. If false, use wave axis.
-   *                         This impacts vectorization.
+   *                         This impacts what axis is a candidate for
+   *                         auto-vectorized operations.
    *
    * @param num_pts          Number of physical points to evaluate at.
    * @param rho_infty        Base flow density.
