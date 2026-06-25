@@ -18,8 +18,8 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
     
-    - name: Get Doxygen + GraphViz
-      run: sudo apt install doxygen graphviz
+    - name: Get Doxygen + GraphViz + BibTeX
+      run: sudo apt install doxygen graphviz texlive-latex-base
 
 
     - name: Checkout w/ submodules
