@@ -18,8 +18,8 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
     
-    - name: Get Doxygen + GraphViz
-      run: sudo apt install doxygen graphviz
+    - name: Get Doxygen + GraphViz + BibTeX
+      run: sudo apt install doxygen graphviz texlive-latex-base
 
 
     - name: Checkout w/ submodules
@@ -37,7 +37,7 @@ jobs:
         -DCMAKE_BUILD_TYPE=Release
         -DJABBER_BUILD_PARTICIPANT=OFF
         -DJABBER_BUILD_VIZ=OFF
-        -DJABBER_BUILD_PROFILER=OFF
+        -DJABBER_BUILD_PROFILE=OFF
         -DJABBER_BUILD_OUT=OFF
         -DJABBER_BUILD_PLOT=OFF
         -DJABBER_BUILD_PSD=OFF

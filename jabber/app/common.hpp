@@ -24,7 +24,7 @@ void Normalize(std::span<const double> vec, std::span<double> norm_vec);
 /**
  * @defgroup pproc_group Parameter Processing
  * @{
- *
+ * @brief Visitors for processing different parameter structs.
  */
 
 /**
@@ -48,7 +48,7 @@ struct InputXYVisitor
 
 /**
  * @brief All visitor options for each FunctionType::Params, for initializing a
- * \ref Function or \ref BasePSD type.
+ * \ref Function or \ref BasePSD type at \ref T_ptr_ptr_var.
  *
  */
 struct FunctionTypeVisitor
@@ -65,7 +65,7 @@ struct FunctionTypeVisitor
 
 /**
  * @brief All visitor options for each DiscMethod::Params, for initializing
- * a discretized frequency range, \p freqs.
+ * a discretized frequency range, \ref freqs.
  *
  */
 struct DiscMethodVisitor
@@ -89,7 +89,7 @@ struct DiscMethodVisitor
 
 /**
  * @brief All visitor options for each Direction::Params, for initializing
- * wavenumber vector directions in \p k_hats.
+ * wavenumber vector directions in \ref k_hats.
  *
  */
 struct DirectionVisitor
@@ -131,7 +131,7 @@ struct TransferFunctionVisitor
 
 /**
  * @brief All visitor options for each Source::Params, for initializing
- * \ref Wave's for each type and appending to \p waves.
+ * \ref Wave's for each type and appending to \ref waves.
  *
  */
 struct SourceVisitor

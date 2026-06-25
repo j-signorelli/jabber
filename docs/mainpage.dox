@@ -1,21 +1,21 @@
 /** 
- * @mainpage Jabber
+ * @mainpage jabber
  * 
- * @details Jabber is a library and app-suite to support the modeling of 
+ * @details jabber is a library and app-suite to support the modeling of 
  * freestream disturbances in high-speed wind tunnels for fluid dynamics 
  * simulations. For more details, please refer to the following list of 
  * features:
  *
  * # Core Library
- * - @ref psd_group
- * - @ref tf_group
- * - @ref env_group
- * - @ref kernels_group
+ * - @ref psd_group : @copybrief psd_group
+ * - @ref tf_group : @copybrief tf_group
+ * - @ref env_group : @copybrief env_group
+ * - @ref kernels_group : @copybrief kernels_group
  * 
  * # App Library
- * - @ref params_group
- * - @ref config_group
- * - @ref pproc_group
+ * - @ref params_group : @copybrief params_group
+ * - @ref config_group : @copybrief config_group
+ * - @ref pproc_group : @copybrief pproc_group
  * 
  * # App Suite
  * - @link jabber_psd.cpp \c jabber_psd @endlink: @copybrief jabber_psd.cpp

@@ -6,35 +6,35 @@ namespace jabber
 {
 
 template<std::size_t TDim, bool TGridInnerLoop>
-void ComputeKernel(const std::size_t num_pts, const double rho_bar,
-                   const double p_bar, const double *U_bar,
+void ComputeKernel(const std::size_t num_pts, const double rho_infty,
+                   const double p_infty, const double *U_infty,
                    const double gamma, const int num_waves,
                    const double t,
                    const double *__restrict__ rho_coeffs,
                    const double *__restrict__ rhoV_coeffs,
                    const double *__restrict__ rhoE_coeffs,
                    const double *__restrict__ wave_omegas,
-                   const double *__restrict__ k_dot_x_p_phi,
+                   const double *__restrict__ k_dot_x_p_psi,
                    double *__restrict__ rho,
                    double *__restrict__ rhoV,
                    double *__restrict__ rhoE)
 {
-   const double rhoE_init = p_bar/(gamma-1.0);
+   const double rhoE_init = p_infty/(gamma-1.0);
 
    if constexpr (TGridInnerLoop)
    {
       for (std::size_t i = 0; i < num_pts; i++)
       {
-         rho[i] = rho_bar;
+         rho[i] = rho_infty;
 
-         rhoV[i] = U_bar[0];
+         rhoV[i] = U_infty[0];
          if constexpr(TDim > 1)
          {
-            rhoV[num_pts + i] = U_bar[1];
+            rhoV[num_pts + i] = U_infty[1];
          }
          if constexpr(TDim > 2)
          {
-            rhoV[2*num_pts + i] = U_bar[2];
+            rhoV[2*num_pts + i] = U_infty[2];
          }
          rhoE[i] = rhoE_init;
       }
@@ -60,7 +60,7 @@ void ComputeKernel(const std::size_t num_pts, const double rho_bar,
 
          for (std::size_t i = 0; i < num_pts; i++)
          {
-            const double cos_w = std::cos(k_dot_x_p_phi[w_offset + i] - omt);
+            const double cos_w = std::cos(k_dot_x_p_psi[w_offset + i] - omt);
 
             rho[i] += rho_coeff_w*cos_w;
             rhoV[i] += rhoV1_coeff_w*cos_w;
@@ -84,10 +84,10 @@ void ComputeKernel(const std::size_t num_pts, const double rho_bar,
 #endif // JABBER_WITH_OPENMP
       for (std::size_t i = 0; i < num_pts; i++)
       {
-         double rho_i = rho_bar;
-         double rhoV1_i = U_bar[0];
-         double rhoV2_i = TDim > 1 ? U_bar[1] : 0.0;
-         double rhoV3_i = TDim > 2 ? U_bar[2] : 0.0;
+         double rho_i = rho_infty;
+         double rhoV1_i = U_infty[0];
+         double rhoV2_i = TDim > 1 ? U_infty[1] : 0.0;
+         double rhoV3_i = TDim > 2 ? U_infty[2] : 0.0;
          double rhoE_i = rhoE_init;
 
          const std::size_t i_offset = i*num_waves;
@@ -95,7 +95,7 @@ void ComputeKernel(const std::size_t num_pts, const double rho_bar,
          for (int w = 0; w < num_waves; w++)
          {
             const double omt = wave_omegas[w]*t;
-            const double cos_w = std::cos(k_dot_x_p_phi[i_offset + w] - omt);
+            const double cos_w = std::cos(k_dot_x_p_psi[i_offset + w] - omt);
 
             rho_i += rho_coeffs[w]*cos_w;
             rhoV1_i += rhoV_coeffs[w]*cos_w;
