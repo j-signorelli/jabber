@@ -310,6 +310,10 @@ void SourceVisitor::operator()
    std::unique_ptr<BasePSD> psd;
    std::visit(FunctionTypeVisitor{&psd}, op.input_psd);
 
+   // Compute the normalized directions of each wave
+   std::vector<std::vector<double>> k_hats(op.num_waves);
+   std::visit(DirectionVisitor{k_hats}, op.dir_params);
+
    // Apply the discretization method for selecting center frequencies
    std::vector<double> freqs(op.num_waves);
    const double min_freq = op.min_disc_freq;
@@ -346,10 +350,6 @@ void SourceVisitor::operator()
    {
       phases[i] = phase_dist(phase_gen);
    }
-
-   // Compute the normalized directions of each wave
-   std::vector<std::vector<double>> k_hats(freqs.size());
-   std::visit(DirectionVisitor{k_hats}, op.dir_params);
 
    // Finally, assemble the individual Wave structs
    for (std::size_t i = 0; i < op.num_waves; i++)
