@@ -250,6 +250,18 @@ struct PrintDirectionVisitor
       });
       return PrintParams(params, tab_level);
    }
+   std::string operator()(const Direction::Params<RandomXZAngle> &op)
+   {
+      const std::vector<PV> params
+      (
+      {
+         {"Type", GetName<Direction>(RandomXZAngle)},
+         {"Min Angle", ToString(op.min_angle)},
+         {"Max Angle", ToString(op.max_angle)},
+         {"Seed", ToString(op.seed)},
+      });
+      return PrintParams(params, tab_level);
+   }
 };
 
 /// Print TransferFunction params visitor.
@@ -565,6 +577,14 @@ void TOMLConfigInput::ParseDirection
    else if (option == RandomXYAngle)
    {
       Direction::Params<RandomXYAngle> op;
+      op.min_angle = in_val.at("MinAngle").as_floating();
+      op.max_angle = in_val.at("MaxAngle").as_floating();
+      op.seed = in_val.at("Seed").as_integer();
+      opv = op;
+   }
+   else if (option == RandomXZAngle)
+   {
+      Direction::Params<RandomXZAngle> op;
       op.min_angle = in_val.at("MinAngle").as_floating();
       op.max_angle = in_val.at("MaxAngle").as_floating();
       op.seed = in_val.at("Seed").as_integer();
