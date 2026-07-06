@@ -197,6 +197,22 @@ void DirectionVisitor::operator()
    }
 }
 
+void DirectionVisitor::operator()
+(const Direction::Params<RandomXZAngle> &op)
+{
+   std::mt19937 dir_gen(op.seed);
+   std::uniform_real_distribution<double> dir_dist(
+      op.min_angle*M_PI/180.0,
+      op.max_angle*M_PI/180.0);
+   for (std::size_t i = 0; i < k_hats.size(); i++)
+   {
+      k_hats[i].resize(3, 0.0);
+      const double angle = dir_dist(dir_gen);
+      k_hats[i][0] =  std::cos(angle);
+      k_hats[i][2] = -std::sin(angle);
+   }
+}
+
 void TransferFunctionVisitor::operator()
 (const TransferFunction::Params<LowFrequencyLimit> &op)
 {

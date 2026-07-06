@@ -101,6 +101,7 @@ struct DirectionVisitor
 
    void operator() (const Direction::Params<Single> &op);
    void operator() (const Direction::Params<RandomXYAngle> &op);
+   void operator() (const Direction::Params<RandomXZAngle> &op);
 };
 
 /**
