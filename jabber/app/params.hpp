@@ -213,6 +213,12 @@ struct DiscMethod
       /// Random sampling with a uniform distribution on log10 scale.
       RandomLog,
 
+      /**
+       * @brief Random frequency selected on restricted subset that
+       * is periodic in z based on the direction.
+       */
+      RandomPeriodicOblique,
+
       /// Number of DiscMethod options
       Size
    };
@@ -227,6 +233,7 @@ struct DiscMethod
       "UniformLog",   // UniformLog
       "Random",       // Random
       "RandomLog",    // RandomLog
+      "RandomPeriodicOblique"
    };
 
 
@@ -250,8 +257,23 @@ struct DiscMethod
       int seed;
    };
 
+   template<>
+   struct Params<RandomPeriodicOblique>
+   {
+
+      /// Domain length in z.
+      double z_length;
+
+      /// Domain dz.
+      double dz;
+
+      /// Seed to use in randomization.
+      int seed;
+   };
+   
+
    using ParamsVariant = std::variant<Params<Uniform>,Params<UniformLog>,
-         Params<Random>,Params<RandomLog>>;
+         Params<Random>,Params<RandomLog>,Params<RandomPeriodicOblique>>;
 };
 
 // ----------------------------------------------------------------------------

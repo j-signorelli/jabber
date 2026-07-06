@@ -172,6 +172,49 @@ void DiscMethodVisitor::operator()
    }
 }
 
+void DiscMethodVisitor::operator()
+(const DiscMethod::Params<RandomPeriodicOblique> &op)
+{
+   std::mt19937 gen(op.seed);
+
+   const std::vector<double> &U_infty = base_flow_params.U;
+   const double &p_infty = base_flow_params.p;
+   const double &rho_infty = base_flow_params.rho;
+   const double &gamma = base_flow_params.gamma;
+   const double c_infty = std::sqrt(gamma*p_infty/rho_infty);
+
+   for (std::size_t i = 0; i < freqs.size(); i++)
+   {
+      const double &k_hat_z = k_hats[i][2];
+      const double U_dot_k_hat = 
+      [&]
+      {
+         double prod = 0.0;
+         for (int d = 0; d < U_infty.size(); d++)
+         {
+            prod += U_infty[d]*k_hats[i][d];
+         }
+         return prod;
+      }();
+
+      const double U_dot_k_hat_pm_c = 
+                  U_dot_k_hat + (speed == 'S' ? -1 : 1)*c_infty;
+
+      // Determine the max n:
+      const int max_n = 
+               std::floor(max_freq*(op.z_length + op.dz)*k_hat_z/
+                           (U_dot_k_hat_pm_c));
+
+      // Compute random n from [1,max_n]
+      // (Tested out locally + verified that this seeds differently)
+      std::uniform_int_distribution<int> int_dist(1, max_n);
+      const int n = int_dist(gen);
+
+      // Compute the frequency from it
+      freqs[i] = n*U_dot_k_hat_pm_c/((op.z_length+op.dz)*k_hat_z);
+   }
+}
+
 void DirectionVisitor::operator()
 (const Direction::Params<Single> &op)
 {
@@ -334,7 +377,8 @@ void SourceVisitor::operator()
    std::vector<double> freqs(op.num_waves);
    const double min_freq = op.min_disc_freq;
    const double max_freq = op.max_disc_freq;
-   std::visit(DiscMethodVisitor{min_freq,max_freq,freqs}, op.disc_params);
+   std::visit(DiscMethodVisitor{base_flow_params, k_hats, op.speed, 
+                                 min_freq,max_freq,freqs}, op.disc_params);
 
    // Sort the frequencies
    std::sort(freqs.begin(), freqs.end());

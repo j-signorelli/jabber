@@ -72,6 +72,15 @@ struct DiscMethodVisitor
 {
    using enum DiscMethod::Option;
 
+   /// Base flow parameters.
+   const BaseFlowParams &base_flow_params;
+
+   /// Direction vectors.
+   const std::vector<std::vector<double>> &k_hats;
+
+   /// Wave speed (for all).
+   const char &speed;
+
    /// Minimum frequency bound.
    const double &min_freq;
 
@@ -85,6 +94,7 @@ struct DiscMethodVisitor
    void operator() (const DiscMethod::Params<UniformLog> &op);
    void operator() (const DiscMethod::Params<Random> &op);
    void operator() (const DiscMethod::Params<RandomLog> &op);
+   void operator() (const DiscMethod::Params<RandomPeriodicOblique> &op);
 };
 
 /**
