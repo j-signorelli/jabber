@@ -380,8 +380,23 @@ void SourceVisitor::operator()
    std::visit(DiscMethodVisitor{base_flow_params, k_hats, op.speed, 
                                  min_freq,max_freq,freqs}, op.disc_params);
 
-   // Sort the frequencies
-   std::sort(freqs.begin(), freqs.end());
+   // Sort the frequencies in ascending order, + k_hats with them.
+   std::vector<int> index(freqs.size());
+   std::iota(index.begin(), index.end(), 0);
+   std::sort(index.begin(), index.end(), 
+            [&](const int &a, const int &b)
+            {
+               return freqs[a] < freqs[b];
+            });
+   
+   const std::vector<double> freqs_old = freqs;
+   const std::vector<std::vector<double>> k_hats_old = k_hats;
+
+   for (std::size_t i = 0; i < index.size(); i++)
+   {
+      freqs[i] = freqs_old[index[i]];
+      k_hats[i] = k_hats_old[index[i]];
+   }
 
    // Compute the powers of each wave
    std::vector<double> powers(freqs.size());
