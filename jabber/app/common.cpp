@@ -199,19 +199,29 @@ void DiscMethodVisitor::operator()
 
       const double U_dot_k_hat_pm_c = 
                   U_dot_k_hat + (speed == 'S' ? -1 : 1)*c_infty;
+      
+      // Determine the min + max n:
+      auto get_n =
+      [&](const double &f, bool floor) -> int
+      {
+         
+         double n_d = f*(op.z_length + op.dz)*std::abs(k_hat_z)/
+                        (U_dot_k_hat_pm_c);
+         int n = floor ? std::floor(n_d) : std::ceil(n_d);
+         // Ensure n != 0
+         return std::max(n,1);
+      };
 
-      // Determine the max n:
-      const int max_n = 
-               std::floor(max_freq*(op.z_length + op.dz)*k_hat_z/
-                           (U_dot_k_hat_pm_c));
+      const int min_n = get_n(min_freq, false);
+      const int max_n = get_n(max_freq, true);
 
-      // Compute random n from [1,max_n]
+      // Compute random n from [min_n,max_n]
       // (Tested out locally + verified that this seeds differently)
-      std::uniform_int_distribution<int> int_dist(1, max_n);
+      std::uniform_int_distribution<int> int_dist(min_n, max_n);
       const int n = int_dist(gen);
 
       // Compute the frequency from it
-      freqs[i] = n*U_dot_k_hat_pm_c/((op.z_length+op.dz)*k_hat_z);
+      freqs[i] = n*U_dot_k_hat_pm_c/((op.z_length+op.dz)*std::abs(k_hat_z));
    }
 }
 
@@ -389,6 +399,7 @@ void SourceVisitor::operator()
                return freqs[a] < freqs[b];
             });
    
+
    const std::vector<double> freqs_old = freqs;
    const std::vector<std::vector<double>> k_hats_old = k_hats;
 
@@ -398,9 +409,6 @@ void SourceVisitor::operator()
       k_hats[i] = k_hats_old[index[i]];
    }
    
-   freqs_old.clear(); freqs_old.shrink_to_fit();
-   k_hats_old.clear(); k_hats_old.shrink_to_fit();
-
    // Compute the powers of each wave
    std::vector<double> powers(freqs.size());
    psd->Discretize(freqs, op.int_method, powers);
