@@ -16,6 +16,9 @@ namespace app
  * @defgroup config_group Input Configuration & File Parsing
  * @{
  *
+ * @brief Complete acoustic environment configuration classes, for
+ * \ref jabber::app::InitializeAcousticField .
+ *
  * @details Presently, Jabber has either ConfigInput for a developer-facing
  * configuration or TOMLConfigInput for runtime-parsing of a TOML-style config
  * file, which is used for all apps in the app suite. See config_template.toml

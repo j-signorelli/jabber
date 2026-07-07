@@ -179,6 +179,59 @@ void DiscMethodVisitor::operator()
    }
 }
 
+void DiscMethodVisitor::operator()
+(const DiscMethod::Params<RandomPeriodicOblique> &op)
+{
+   std::mt19937 gen(op.seed);
+
+   const std::vector<double> &U_infty = base_flow_params.U;
+   const double &p_infty = base_flow_params.p;
+   const double &rho_infty = base_flow_params.rho;
+   const double &gamma = base_flow_params.gamma;
+   const double c_infty = std::sqrt(gamma*p_infty/rho_infty);
+
+   for (std::size_t i = 0; i < freqs.size(); i++)
+   {
+      const double &k_hat_z = k_hats[i][2];
+      const double U_dot_k_hat = 
+      [&]
+      {
+         double prod = 0.0;
+         for (int d = 0; d < U_infty.size(); d++)
+         {
+            prod += U_infty[d]*k_hats[i][d];
+         }
+         return prod;
+      }();
+
+      const double U_dot_k_hat_pm_c = 
+                  U_dot_k_hat + (speed == 'S' ? -1 : 1)*c_infty;
+      
+      // Determine the min + max n:
+      auto get_n =
+      [&](const double &f, bool floor) -> int
+      {
+         
+         double n_d = f*(op.z_length + op.dz)*std::abs(k_hat_z)/
+                        (U_dot_k_hat_pm_c);
+         int n = floor ? std::floor(n_d) : std::ceil(n_d);
+         // Ensure n != 0
+         return std::max(n,1);
+      };
+
+      const int min_n = get_n(min_freq, false);
+      const int max_n = get_n(max_freq, true);
+
+      // Compute random n from [min_n,max_n]
+      // (Tested out locally + verified that this seeds differently)
+      std::uniform_int_distribution<int> int_dist(min_n, max_n);
+      const int n = int_dist(gen);
+
+      // Compute the frequency from it
+      freqs[i] = n*U_dot_k_hat_pm_c/((op.z_length+op.dz)*std::abs(k_hat_z));
+   }
+}
+
 void DirectionVisitor::operator()
 (const Direction::Params<Single> &op)
 {
@@ -201,6 +254,22 @@ void DirectionVisitor::operator()
       const double angle = dir_dist(dir_gen);
       k_hats[i][0] = std::cos(angle);
       k_hats[i][1] = std::sin(angle);
+   }
+}
+
+void DirectionVisitor::operator()
+(const Direction::Params<RandomXZAngle> &op)
+{
+   std::mt19937 dir_gen(op.seed);
+   std::uniform_real_distribution<double> dir_dist(
+      op.min_angle*M_PI/180.0,
+      op.max_angle*M_PI/180.0);
+   for (std::size_t i = 0; i < k_hats.size(); i++)
+   {
+      k_hats[i].resize(3, 0.0);
+      const double angle = dir_dist(dir_gen);
+      k_hats[i][0] =  std::cos(angle);
+      k_hats[i][2] = -std::sin(angle);
    }
 }
 
@@ -318,15 +387,36 @@ void SourceVisitor::operator()
    std::unique_ptr<BasePSD> psd;
    std::visit(FunctionTypeVisitor{&psd}, op.input_psd);
 
+   // Compute the normalized directions of each wave
+   std::vector<std::vector<double>> k_hats(op.num_waves);
+   std::visit(DirectionVisitor{k_hats}, op.dir_params);
+
    // Apply the discretization method for selecting center frequencies
    std::vector<double> freqs(op.num_waves);
    const double min_freq = op.min_disc_freq;
    const double max_freq = op.max_disc_freq;
-   std::visit(DiscMethodVisitor{min_freq,max_freq,freqs}, op.disc_params);
+   std::visit(DiscMethodVisitor{base_flow_params, k_hats, op.speed, 
+                                 min_freq,max_freq,freqs}, op.disc_params);
 
-   // Sort the frequencies
-   std::sort(freqs.begin(), freqs.end());
+   // Sort the frequencies in ascending order, + k_hats with them.
+   std::vector<int> index(freqs.size());
+   std::iota(index.begin(), index.end(), 0);
+   std::sort(index.begin(), index.end(), 
+            [&](const int &a, const int &b)
+            {
+               return freqs[a] < freqs[b];
+            });
+   
 
+   const std::vector<double> freqs_old = freqs;
+   const std::vector<std::vector<double>> k_hats_old = k_hats;
+
+   for (std::size_t i = 0; i < index.size(); i++)
+   {
+      freqs[i] = freqs_old[index[i]];
+      k_hats[i] = k_hats_old[index[i]];
+   }
+   
    // Compute the powers of each wave
    std::vector<double> powers(freqs.size());
    psd->Discretize(freqs, op.int_method, powers);
@@ -354,10 +444,6 @@ void SourceVisitor::operator()
    {
       phases[i] = phase_dist(phase_gen);
    }
-
-   // Compute the normalized directions of each wave
-   std::vector<std::vector<double>> k_hats(freqs.size());
-   std::visit(DirectionVisitor{k_hats}, op.dir_params);
 
    // Finally, assemble the individual Wave structs
    for (std::size_t i = 0; i < op.num_waves; i++)

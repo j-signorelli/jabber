@@ -3,10 +3,14 @@
  * @brief preCICE participant for coupling acoustic forcing with flow
  * simulations.
  *
- * @details
- *
- * @todo EMPHASIZE IMPORTANCE OF THIS -- computing acoustic forcing every
- * timestep by fluid solver is super expensive
+ * @details Computing the acoustically-disturbed freestream at every
+ * grid point every timestep can be computationally expensive. With that,
+ * it can be load-balanced by splitting your MPI communicator such that some
+ * ranks are solely just computing the acoustic field constantly without
+ * blocking and sending the data to the ranks that need it for boundary
+ * conditions or forcing sponge regions. For projects with preCICE, this
+ * app can make load-balancing seamless by having jabber be a one-way coupled
+ * participant.
  */
 
 #include <jabber/jabber.hpp>

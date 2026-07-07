@@ -18,37 +18,36 @@ namespace jabber
  *
  * @details
  * ## Theory
- * The power within generic frequency range \f$[f_1, f_2]\f$ of a
- * continuous, one-sided PSD \f$S(f)\f$ is given by
+ * The power \f$V^2\f$ within generic frequency range \f$[f_1, f_2]\f$ of a
+ * continuous, one-sided freestream pressure PSD \f$S_{\infty}(f)\f$ with
+ * units \f$(p^\prime/\bar{p})^2/\text{Hz}\f$ is given by
  *
  * \f[
- * P_{f_1\text{-}f_2}=\int_{f_1}^{f_2}S(f)df.
+ * V^2_{f_1\text{-}f_2}=\int_{f_1}^{f_2}S(\hat{f})d\hat{f}.
  * \f]
  *
- * As outlined in Appendix B of Tam et al., 2010, "Continuation of the Near
- * Acoustic Field of a Jet to the Far Field. Part I: Theory", a broadband
+ * As outlined in Appendix B of \cite tam2010, a broadband
  * spectrum of acoustic waves can be formulated by discretizing the PSD
- * into a set of wave frequencies \f${f_k}\f$ and ensuring energy conservation
- * by setting their amplitudes according to the power within an interval
- * \f$\Delta f_k\f$. Note that for a PSD with units \f$V^2/\text{Hz}\f$, after
- * computing a discrete set of powers and applying any transfer function,
- * the cosine wave amplitude can then be computed by
+ * into a set of wave frequencies \f$\{f_j\}\f$ as shown below.
  *
+ * \image html jabber_psd_disc.png width=400px
+ *
+ * The cosine wave amplitude is then be computed for each frequency by
  *
  * \f[
- * V_k=\sqrt{2P_k}.
+ * \frac{1}{2}p^{\prime 2}_j=\int_{f^-_j}^{f^+_j}S_\infty(\hat{f})d\hat{f}.
  * \f]
  *
  * ## Continuous PSD Representation
- * For an arbitrary discretization of frequencies in Jabber, the input PSD must
+ * For an arbitrary discretization of frequencies in jabber, the input PSD must
  * be represented in a continuous form, in which case this integral may then be
  * exactly evaluated for each frequency bin. To support this, lightweight
  * classes are provided to formulate a continuous representation of a digitized
- * or discrete PSD.
+ * or discrete PSD in @ref cont_psd_group.
  *
  * ## Interval/Bin Determination
  * After defining a continuous form of a PSD and selecting center frequencies
- * \f${f_k}\f$, the bounds (or interval) for a given center frequency must be
+ * \f$\{f_j\}\f$, the bounds (or interval) for a given center frequency must be
  *  determined. See \ref Interval::Method for the options available.
  */
 
@@ -72,7 +71,7 @@ public:
        * adjacent frequencies.
        *
        * @details It is advised to use this if the discretization of
-       * frequencies are taken on a log scale.
+       * frequencies are sampled on a log scale.
        */
       MidpointLog10,
 
@@ -83,30 +82,29 @@ public:
     * @brief Compute Interval Δf for given discrete frequency at index \p i
     * in \p freqs using \p method.
     *
-    * @todo Update docs.
+    * @details Let \f$N=N_w-1\f$.
     *
-    * @details
     * For \ref Method::Midpoint :
     * \f[
-    * \Delta f_k =
+    * \left[f^-_j, f^+_j\right] =
     * \begin{cases}
-    * (f_{k+1}-f_{k-1})/2 & 0<k<N, \\
-    * (f_1+f_0)/2 & k=0, \\
-    * (f_N-f_{N-1})/2 &k=N.
+    * \left[f_{j-1}, f_{j+1}\right] & 0<j<N, \\
+    * \left[f_{0}, f_{0} + (f_{1}-f_{0})/2\right]& j=0, \\
+    * \left[f_{N-1} + (f_{N}-f_{N-1})/2, f_{N}\right] &j=N.
     * \end{cases}
     * \f]
     *
     * For \ref Method::MidpointLog10 :
     * \f[
-    * \Delta f_k =
+    * \left[f^-_j, f^+_j\right] =
     * \begin{cases}
-    * \sqrt{f_kf_{k+1}}-\sqrt{f_kf_{k-1}} & 0<k<N, \\
-    * \sqrt{f_0f_1}-f_0 & k=0, \\
-    * f_N-\sqrt{f_Nf_{N-1}} &k=N.
+    * \left[\sqrt{f_jf_{j-1}}, \sqrt{f_jf_{j+1}}\right] & 0<j<N, \\
+    * \left[f_0, \sqrt{f_0f_1}\right] & j=0, \\
+    * \left[\sqrt{f_{N-1}f_N} , f_N \right] & j=N.
     * \end{cases}
     * \f]
     *
-    * @param freqs        Span of all discrete frequencies, of size \f$N+1\f$.
+    * @param freqs        Span of all discrete frequencies, of size \f$N_w\f$.
     * @param i            Index of frequency to compute interval Δf for.
     * @param method       Method to use for interval computation.
     */
@@ -127,6 +125,10 @@ public:
    }
 };
 
+/**
+ * @defgroup cont_psd_group Continuous PSD Representations
+ * @{
+ */
 /// Base abstract class for a PSD.
 class BasePSD
 {
@@ -175,7 +177,7 @@ public:
    /**
     * @brief Construct a new PWLinearPSD object
     *
-    * @param freq     Set of discrete frequencies to fit lines in log space
+    * @param freq     Set of discrete frequencies to fit lines in log10 space
     *                 to. PSD bounds \ref Min() and \ref Max() are defined by
     *                 the minimum and maximum discrete frequencies provided.
     * @param psd      PSD associated with each frequency in \p freq.
@@ -233,6 +235,9 @@ public:
 
    using BasePSD::Discretize;
 };
+
+/// @}
+// end of cont_psd_group
 
 /// @}
 // end of psd_group

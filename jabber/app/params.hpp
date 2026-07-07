@@ -213,6 +213,12 @@ struct DiscMethod
       /// Random sampling with a uniform distribution on log10 scale.
       RandomLog,
 
+      /**
+       * @brief Random frequency selected on restricted subset that
+       * is periodic in z based on the direction.
+       */
+      RandomPeriodicOblique,
+
       /// Number of DiscMethod options
       Size
    };
@@ -227,6 +233,7 @@ struct DiscMethod
       "UniformLog",   // UniformLog
       "Random",       // Random
       "RandomLog",    // RandomLog
+      "RandomPeriodicOblique"
    };
 
 
@@ -250,8 +257,23 @@ struct DiscMethod
       int seed;
    };
 
+   template<>
+   struct Params<RandomPeriodicOblique>
+   {
+
+      /// Domain length in z.
+      double z_length;
+
+      /// Domain dz.
+      double dz;
+
+      /// Seed to use in randomization.
+      int seed;
+   };
+   
+
    using ParamsVariant = std::variant<Params<Uniform>,Params<UniformLog>,
-         Params<Random>,Params<RandomLog>>;
+         Params<Random>,Params<RandomLog>,Params<RandomPeriodicOblique>>;
 };
 
 // ----------------------------------------------------------------------------
@@ -270,6 +292,9 @@ struct Direction
       /// Random angle in XY-plane from x-axis for each wave.
       RandomXYAngle,
 
+      /// Random angle in the XZ-plane from x-axis for each wave.
+      RandomXZAngle,
+
       /// Number of Direction options.
       Size
    };
@@ -282,6 +307,7 @@ struct Direction
    {
       "Single",           // Single
       "RandomXYAngle",    // RandomXYAngle
+      "RandomXZAngle",    // RandomXZAngle
    };
 
    template<Option V>
@@ -313,7 +339,26 @@ struct Direction
       int seed;
    };
 
-   using ParamsVariant = std::variant<Params<Single>, Params<RandomXYAngle>>;
+
+   template<>
+   struct Params<RandomXZAngle>
+   {
+      /**
+       * @brief Min angle of wavenumber vector from x-axis, in XZ-plane.
+       */
+      double min_angle;
+
+      /**
+       * @brief Max angle of wavenumber vector from x-axis, in XZ-plane.
+       */
+      double max_angle;
+
+      /// Seed to use in randomization.
+      int seed;
+   };
+
+   using ParamsVariant = std::variant<Params<Single>, Params<RandomXYAngle>,
+                                       Params<RandomXZAngle>>;
 
 };
 
