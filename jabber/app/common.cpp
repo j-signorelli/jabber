@@ -397,6 +397,9 @@ void SourceVisitor::operator()
       freqs[i] = freqs_old[index[i]];
       k_hats[i] = k_hats_old[index[i]];
    }
+   
+   freqs_old.clear(); freqs_old.shrink_to_fit();
+   k_hats_old.clear(); k_hats_old.shrink_to_fit();
 
    // Compute the powers of each wave
    std::vector<double> powers(freqs.size());
