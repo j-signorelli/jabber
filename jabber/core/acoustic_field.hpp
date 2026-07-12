@@ -235,7 +235,7 @@ private:
 
       /**
        * @brief Momentum series coefficients,
-       * \f$\frac{1}{\rho_\infty c_\infty}(\pm 1)\hat{k_j}\f$.
+       * \f$\frac{1}{\rho_\infty c_\infty}(\pm 1)\hat{k_j}p'_j\f$.
        *
        * @details Size is \ref Dim() x \ref NumWaves(). Ordered as [dim][wave].
        */
