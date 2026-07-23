@@ -156,6 +156,12 @@ void WriteWaves(std::span<const Wave> waves, std::ostream &out);
  */
 void ReadWaves(std::istream &in, std::vector<Wave> &waves);
 
+
+/**
+ * @brief Print Wave \p wave  data to \p ostream.
+ */
+void PrintWave(const Wave &wave, std::ostream &out);
+
 /**
  * @brief Class for specifying and computing a broadband-spectrum acoustic
  * field onto a provided grid and base flow.

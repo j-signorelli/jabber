@@ -116,6 +116,15 @@ void AcousticField::Finalize()
       // Compute magnitude of wavelength vector k
       const double k = kernel_args_.wave_omegas[w]/denom;
 
+      if (k <= 0.0)
+      {
+
+         std::stringstream err_ss;
+         err_ss << "Invalid orientation for wave " << w << ":" << std::endl;
+         err_ss << std::format("\tf = {}\n", wave.frequency);
+         throw std::invalid_argument()
+      }
+
       // Compute + set k·x+φ
       for (std::size_t i = 0; i < NumPoints(); i++)
       {
