@@ -168,7 +168,7 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves);
  *
  * @param U_infty     Freestream velocity vector.
  * @param c_infty     Freestream speed-of-sound,
- *                    $c_\infty=\sqrt{\gamma p_\infty/\rho}
+ *                    \f$c_\infty=\sqrt{\gamma p_\infty/\rho}
  *                              =\sqrt{\gamma R T_\infty}\f$.
  * @param wave_freq   Wave frequency.
  * @param wave_k_hat  Wave wavenumber orientation. **Note that
