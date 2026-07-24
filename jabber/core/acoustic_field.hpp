@@ -146,7 +146,7 @@ struct Wave
  * @brief Write span of \ref Wave structs to \p out as a CSV, with columns
  * [Amplitude, Frequency, Phase, Speed, k_hat].
  */
-void WriteWaves(std::span<const Wave> waves, std::ostream &out);
+void WriteWaves(const std::span<const Wave> &waves, std::ostream &out);
 
 /**
  * @brief Read in Wave structs from CSV file, as outputted by
@@ -175,10 +175,10 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves);
  *                   `wave_k_hat.size() == U_infty.size()`**.
  * @param wave_speed  Wave speed. 'S' for slow, 'F' for fast.
  */
-double ComputeWavenumber(const std::vector<double> &U_infty,
+double ComputeWavenumber(const std::span<const double> &U_infty,
                          const double &c_infty,
                          const double &wave_freq,
-                         const std::vector<double> &wave_k_hat,
+                         const std::span<const double> &wave_k_hat,
                          const char &wave_speed);
 
 /**
@@ -187,7 +187,7 @@ double ComputeWavenumber(const std::vector<double> &U_infty,
  *
  * @details **Note that `wave.k_hat.size() == U_infty.size()`**.
  */
-inline double ComputeWavenumber(const std::vector<double> &U_infty,
+inline double ComputeWavenumber(std::span<const double> U_infty,
                                 const double &c_infty,
                                 const Wave &wave)
 {
@@ -340,9 +340,9 @@ public:
     * @param gamma      Base flow specific heat ratio, γ.
     * @param kernel     Kernel type to use.
     */
-   AcousticField(int dim, std::span<const double> coords,
+   AcousticField(int dim, const std::span<const double> &coords,
                  double p_infty, double rho_infty,
-                 const std::vector<double> U_infty, double gamma,
+                 const std::span<const double> &U_infty, double gamma,
                  Kernel kernel=Kernel::GridPoint);
 
    /// Get the spatial dimension.

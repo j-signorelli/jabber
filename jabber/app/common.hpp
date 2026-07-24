@@ -19,7 +19,8 @@ constexpr static std::string_view LINE =
 void PrintBanner(std::ostream &out);
 
 /// Normalize the provided vector data
-void Normalize(std::span<const double> vec, std::span<double> norm_vec);
+void Normalize(const std::span<const double> &vec,
+               std::span<double> norm_vec);
 
 /**
  * @defgroup pproc_group Parameter Processing
