@@ -187,9 +187,9 @@ double ComputeWavenumber(const std::vector<double> &U_infty,
  *
  * @details **Note that `wave.k_hat.size() == U_infty.size()`**.
  */
-double ComputeWavenumber(const std::vector<double> &U_infty,
-                         const double &c_infty,
-                         const Wave &wave)
+inline double ComputeWavenumber(const std::vector<double> &U_infty,
+                                const double &c_infty,
+                                const Wave &wave)
 {
    return ComputeWavenumber(U_infty, c_infty, wave.frequency, wave.k_hat,
                             wave.speed);
