@@ -124,18 +124,16 @@ void AcousticField::Finalize()
       kernel_args_.rhoE_coeffs[w] = wave.amplitude/(gamma_ - 1.0);
       kernel_args_.wave_omegas[w] = 2*M_PI*wave.frequency;
 
-      // Compute denom = U·k_hat±c and set rhoV_coeffs
-      double denom = (wave.speed == 'S' ? -c_infty_ : c_infty_);
+      // Compute rhoV_coeffs
       const int speed_encoder = (wave.speed == 'S' ? -1 : 1);
       for (int d = 0; d < Dim(); d++)
       {
-         denom += U_infty_[d]*wave.k_hat[d];
          kernel_args_.rhoV_coeffs[d*NumWaves() + w] =
             speed_encoder*wave.k_hat[d]*wave.amplitude/(rho_infty_*c_infty_);
       }
 
       // Compute magnitude of wavelength vector k
-      const double k = kernel_args_.wave_omegas[w]/denom;
+      const double k = ComputeWavenumber(U_infty_, c_infty_, wave);
 
       // Compute + set k·x+φ
       for (std::size_t i = 0; i < NumPoints(); i++)
