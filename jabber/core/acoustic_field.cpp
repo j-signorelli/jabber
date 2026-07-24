@@ -61,13 +61,15 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves)
 
 double ComputeWavenumber(const std::vector<double> &U_infty,
                          const double &c_infty,
-                         const Wave &wave)
+                         const double &wave_freq,
+                         const std::vector<double> &wave_k_hat,
+                         const char &wave_speed)
 {
    // Compute denom = U·k_hat±c
-   double denom = (wave.speed == 'S' ? -c_infty : c_infty);
+   double denom = (wave_speed == 'S' ? -c_infty : c_infty);
    for (int d = 0; d < U_infty.size(); d++)
    {
-      denom += U_infty[d]*wave.k_hat[d];
+      denom += U_infty[d]*wave_k_hat[d];
    }
 
    if (denom <= 0.0)
@@ -76,7 +78,7 @@ double ComputeWavenumber(const std::vector<double> &U_infty,
          "Invalid wave orientation for given freestream.");
    }
 
-   return 2*M_PI*wave.frequency/denom;
+   return 2*M_PI*wave_freq/denom;
 }
 
 
