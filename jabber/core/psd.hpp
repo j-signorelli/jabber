@@ -108,7 +108,7 @@ public:
     * @param i            Index of frequency to compute interval Δf for.
     * @param method       Method to use for interval computation.
     */
-   static Interval ComputeInterval(std::span<const double> freqs,
+   static Interval ComputeInterval(const std::span<const double> &freqs,
                                    std::size_t i, Interval::Method method);
 
 
@@ -160,7 +160,8 @@ public:
     * @param method        Interval::Method enumerator.
     * @param powers        Output powers.
     */
-   void Discretize(std::span<const double> freqs, Interval::Method method,
+   void Discretize(const std::span<const double> &freqs,
+                   Interval::Method method,
                    std::span<double> powers) const;
 
    virtual ~BasePSD() = default;
@@ -182,7 +183,8 @@ public:
     *                 the minimum and maximum discrete frequencies provided.
     * @param psd      PSD associated with each frequency in \p freq.
     */
-   PWLinearPSD(std::span<const double> freq, std::span<const double> psd)
+   PWLinearPSD(const std::span<const double> &freq,
+               std::span<const double> psd)
       : PWLinear(freq, psd) {}
 
    double Min() const override
@@ -218,7 +220,8 @@ public:
     *                 the minimum and maximum discrete frequencies provided.
     * @param psd      PSD associated with each frequency in \p freq.
     */
-   PWLogLogPSD(std::span<const double> freq, std::span<const double> psd)
+   PWLogLogPSD(const std::span<const double> &freq,
+               std::span<const double> psd)
       : PWLogLog(freq, psd) {}
 
    double Min() const override

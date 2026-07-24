@@ -40,7 +40,8 @@ void PrintBanner(std::ostream &out)
    out << banner << std::endl << std::endl;
 }
 
-void Normalize(std::span<const double> vec, std::span<double> norm_vec)
+void Normalize(const std::span<const double> &vec,
+               std::span<double> norm_vec)
 {
    double sum_sq = 0.0;
    for (std::size_t i = 0; i < vec.size(); i++)
