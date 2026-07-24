@@ -65,9 +65,9 @@ double ComputeWavenumber(const std::vector<double> &U_infty,
 {
    // Compute denom = U·k_hat±c
    double denom = (wave.speed == 'S' ? -c_infty : c_infty);
-   for (int d = 0; d < Dim(); d++)
+   for (int d = 0; d < U_infty.size(); d++)
    {
-      denom += U_infty_[d]*wave.k_hat[d];
+      denom += U_infty[d]*wave.k_hat[d];
    }
 
    return 2*M_PI*wave.frequency/denom;
