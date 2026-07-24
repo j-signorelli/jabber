@@ -46,7 +46,7 @@ protected:
 
 public:
    /// Construct piecewise linear interpolant through ( \p x_k , \p y_k ).
-   PWLinear(const std::span<const double> &x_k, 
+   PWLinear(const std::span<const double> &x_k,
             const std::span<const double> &y_k);
 
    double operator() (const double &x) const override;

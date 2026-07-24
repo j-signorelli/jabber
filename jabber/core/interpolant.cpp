@@ -6,7 +6,7 @@ namespace jabber
 {
 
 
-PWLinear::PWLinear(const std::span<const double> &x_k, 
+PWLinear::PWLinear(const std::span<const double> &x_k,
                    const std::span<const double> &y_k)
 {
    for (std::size_t i = 1; i < x_k.size(); i++)

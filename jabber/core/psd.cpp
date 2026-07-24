@@ -7,7 +7,7 @@ namespace jabber
 {
 
 
-Interval Interval::ComputeInterval(std::span<const double> freqs,
+Interval Interval::ComputeInterval(const std::span<const double> &freqs,
                                    std::size_t i,
                                    Interval::Method method)
 {
@@ -66,7 +66,7 @@ Interval Interval::ComputeInterval(std::span<const double> freqs,
    }
 }
 
-void BasePSD::Discretize(std::span<const double> freqs,
+void BasePSD::Discretize(const std::span<const double> &freqs,
                          Interval::Method method,
                          std::span<double> powers) const
 {

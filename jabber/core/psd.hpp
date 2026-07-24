@@ -160,7 +160,7 @@ public:
     * @param method        Interval::Method enumerator.
     * @param powers        Output powers.
     */
-   void Discretize(const std::span<const double> &freqs, 
+   void Discretize(const std::span<const double> &freqs,
                    Interval::Method method,
                    std::span<double> powers) const;
 
@@ -183,7 +183,7 @@ public:
     *                 the minimum and maximum discrete frequencies provided.
     * @param psd      PSD associated with each frequency in \p freq.
     */
-   PWLinearPSD(const std::span<const double> &freq, 
+   PWLinearPSD(const std::span<const double> &freq,
                std::span<const double> psd)
       : PWLinear(freq, psd) {}
 
