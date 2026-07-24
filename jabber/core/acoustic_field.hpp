@@ -157,6 +157,20 @@ void WriteWaves(std::span<const Wave> waves, std::ostream &out);
 void ReadWaves(std::istream &in, std::vector<Wave> &waves);
 
 /**
+ * @brief Compute the wavenumber vector magnitude for a given
+ * \ref Wave.
+ * 
+ * @details Evaluates the dispersion relation
+ * 
+ * \f[
+ *    ||\vec{k}||=\frac{2\pi f}{\hat{k}\cdot\vec{U}_\infty \pm c_\infty}.
+ * \f]
+ */
+double ComputeWavenumber(const std::vector<double> &U_infty,
+                           const double &c_infty,
+                           const Wave &wave);
+
+/**
  * @brief Class for specifying and computing a broadband-spectrum acoustic
  * field onto a provided grid and base flow.
  *
