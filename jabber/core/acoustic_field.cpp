@@ -70,6 +70,12 @@ double ComputeWavenumber(const std::vector<double> &U_infty,
       denom += U_infty[d]*wave.k_hat[d];
    }
 
+   if (denom <= 0.0)
+   {
+      throw std::invalid_argument(
+               "Invalid wave orientation for given freestream.");
+   }
+
    return 2*M_PI*wave.frequency/denom;
 }
 

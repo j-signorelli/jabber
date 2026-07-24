@@ -76,6 +76,18 @@ TEST_CASE("Compute wavenumber k", "[Wave][AcousticField]")
       REQUIRE_THAT(ComputeWavenumber(U_infty, c_infty, test_wave), 
                      WithinULP(1.0/4.0, 5));
    }
+
+   SECTION("Invalid wavenumber orientation")
+   {
+      test_wave.speed = 'S';
+      std::for_each(test_wave.k_hat.begin(), test_wave.k_hat.end(),
+      [](double &k_i)
+      {
+         k_i *= -1.0;
+      });
+
+      REQUIRE_THROWS(ComputeWavenumber(U_infty, c_infty, test_wave));
+   }
 }
 
 } // jabber_test
