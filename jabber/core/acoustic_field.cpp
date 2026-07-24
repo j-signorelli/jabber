@@ -59,10 +59,10 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves)
    }
 }
 
-double ComputeWavenumber(const std::vector<double> &U_infty,
+double ComputeWavenumber(std::span<const double> U_infty,
                          const double &c_infty,
                          const double &wave_freq,
-                         const std::vector<double> &wave_k_hat,
+                         std::span<const double> wave_k_hat,
                          const char &wave_speed)
 {
    // Compute denom = U·k_hat±c
@@ -84,14 +84,14 @@ double ComputeWavenumber(const std::vector<double> &U_infty,
 
 AcousticField::AcousticField(int dim, std::span<const double> coords,
                              double p_infty, double rho_infty,
-                             const std::vector<double> U_infty, double gamma,
+                             std::span<const double> U_infty, double gamma,
                              Kernel kernel)
    : kernel_(kernel),
      dim_(dim),
      num_pts_(coords.size()/dim_),
      p_infty_(p_infty),
      rho_infty_(rho_infty),
-     U_infty_(U_infty),
+     U_infty_(U_infty.begin(), U_infty.end()),
      gamma_(gamma),
      c_infty_(std::sqrt(gamma_*p_infty_/rho_infty_)),
      coords_(dim_)

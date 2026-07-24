@@ -175,10 +175,10 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves);
  *                   `wave_k_hat.size() == U_infty.size()`**.
  * @param wave_speed  Wave speed. 'S' for slow, 'F' for fast.
  */
-double ComputeWavenumber(const std::vector<double> &U_infty,
+double ComputeWavenumber(std::span<const double> U_infty,
                          const double &c_infty,
                          const double &wave_freq,
-                         const std::vector<double> &wave_k_hat,
+                         std::span<const double> wave_k_hat,
                          const char &wave_speed);
 
 /**
@@ -187,7 +187,7 @@ double ComputeWavenumber(const std::vector<double> &U_infty,
  *
  * @details **Note that `wave.k_hat.size() == U_infty.size()`**.
  */
-inline double ComputeWavenumber(const std::vector<double> &U_infty,
+inline double ComputeWavenumber(std::span<const double> U_infty,
                                 const double &c_infty,
                                 const Wave &wave)
 {
@@ -342,7 +342,7 @@ public:
     */
    AcousticField(int dim, std::span<const double> coords,
                  double p_infty, double rho_infty,
-                 const std::vector<double> U_infty, double gamma,
+                 std::span<const double> U_infty, double gamma,
                  Kernel kernel=Kernel::GridPoint);
 
    /// Get the spatial dimension.
