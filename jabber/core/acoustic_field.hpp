@@ -157,6 +157,45 @@ void WriteWaves(std::span<const Wave> waves, std::ostream &out);
 void ReadWaves(std::istream &in, std::vector<Wave> &waves);
 
 /**
+ * @brief Compute the wavenumber vector magnitude for given freestream and
+ * wave properties.
+ *
+ * @details Evaluates the dispersion relation
+ *
+ * \f[
+ *    ||\vec{k}||=\frac{2\pi f}{\hat{k}\cdot\vec{U}_\infty \pm c_\infty}.
+ * \f]
+ *
+ * @param U_infty     Freestream velocity vector.
+ * @param c_infty     Freestream speed-of-sound,
+ *                    \f$c_\infty=\sqrt{\gamma p_\infty/\rho}
+ *                              =\sqrt{\gamma R T_\infty}\f$.
+ * @param wave_freq   Wave frequency.
+ * @param wave_k_hat  Wave wavenumber orientation. **Note that
+ *                   `wave_k_hat.size() == U_infty.size()`**.
+ * @param wave_speed  Wave speed. 'S' for slow, 'F' for fast.
+ */
+double ComputeWavenumber(const std::vector<double> &U_infty,
+                         const double &c_infty,
+                         const double &wave_freq,
+                         const std::vector<double> &wave_k_hat,
+                         const char &wave_speed);
+
+/**
+ * @brief Compute the wavenumber vector magnitude for a given
+ * \ref Wave. See \ref ComputeWavenumber().
+ *
+ * @details **Note that `wave.k_hat.size() == U_infty.size()`**.
+ */
+inline double ComputeWavenumber(const std::vector<double> &U_infty,
+                                const double &c_infty,
+                                const Wave &wave)
+{
+   return ComputeWavenumber(U_infty, c_infty, wave.frequency, wave.k_hat,
+                            wave.speed);
+}
+
+/**
  * @brief Class for specifying and computing a broadband-spectrum acoustic
  * field onto a provided grid and base flow.
  *
@@ -235,7 +274,7 @@ private:
 
       /**
        * @brief Momentum series coefficients,
-       * \f$\frac{1}{\rho_\infty c_\infty}(\pm 1)\hat{k_j}\f$.
+       * \f$\frac{1}{\rho_\infty c_\infty}(\pm 1)\hat{k_j}p'_j\f$.
        *
        * @details Size is \ref Dim() x \ref NumWaves(). Ordered as [dim][wave].
        */
