@@ -165,6 +165,13 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves);
  * \f[
  *    ||\vec{k}||=\frac{2\pi f}{\hat{k}\cdot\vec{U}_\infty \pm c_\infty}.
  * \f]
+ * 
+ * @param U_infty    Freestream velocity vector.
+ * @param c_infty    Freestream speed-of-sound,
+ *                   $c_\infty=\sqrt{\gamma p_\infty/\rho}
+ *                            =\sqrt{\gamma R T_\infty}\f$.
+ * @param wave       Wave struct to compute wavenumber for. **Note that
+ *                   `wave.k_hat.size() == U_infty.size()`**.
  */
 double ComputeWavenumber(const std::vector<double> &U_infty,
                            const double &c_infty,
