@@ -245,7 +245,7 @@ struct DiscMethod
    };
 
    using ParamsVariant = std::variant<Params<Uniform>,Params<UniformLog>,
-         Params<Random>,Params<RandomLog>>;
+         Params<Random>,Params<RandomLog>, Params<RandomPeriodicOblique>>;
 };
 
 template<>
@@ -261,6 +261,22 @@ struct DiscMethod::Params<DiscMethod::Option::RandomLog>
    /// Seed to use in randomization.
    int seed;
 };
+
+template<>
+struct DiscMethod::Params<DiscMethod::Option::RandomPeriodicOblique>
+{
+
+   /// Domain length in z.
+   double z_length;
+
+   /// Domain dz.
+   double dz;
+
+   /// Seed to use in randomization.
+   int seed;
+};
+
+
 
 // ----------------------------------------------------------------------------
 /**
