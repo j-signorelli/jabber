@@ -6,7 +6,8 @@ namespace jabber
 {
 
 
-PWLinear::PWLinear(std::span<const double> x_k, std::span<const double> y_k)
+PWLinear::PWLinear(const std::span<const double> &x_k, 
+                   const std::span<const double> &y_k)
 {
    for (std::size_t i = 1; i < x_k.size(); i++)
    {
@@ -41,7 +42,8 @@ double PWLinear::operator() (const double &x) const
    return m*(x-x_1) + y_1;
 }
 
-PWLogLog::PWLogLog(std::span<const double> x_k, std::span<const double> y_k)
+PWLogLog::PWLogLog(const std::span<const double> &x_k,
+                   const std::span<const double> &y_k)
 {
    for (std::size_t i = 1; i < x_k.size(); i++)
    {

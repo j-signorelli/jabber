@@ -11,7 +11,7 @@
 namespace jabber
 {
 
-void WriteWaves(std::span<const Wave> waves, std::ostream &out)
+void WriteWaves(const std::span<const Wave> &waves, std::ostream &out)
 {
    for (std::size_t i = 0; i < waves.size(); i++)
    {
@@ -59,10 +59,10 @@ void ReadWaves(std::istream &in, std::vector<Wave> &waves)
    }
 }
 
-double ComputeWavenumber(std::span<const double> U_infty,
+double ComputeWavenumber(const std::span<const double> &U_infty,
                          const double &c_infty,
                          const double &wave_freq,
-                         std::span<const double> wave_k_hat,
+                         const std::span<const double> &wave_k_hat,
                          const char &wave_speed)
 {
    // Compute denom = U·k_hat±c
@@ -82,10 +82,10 @@ double ComputeWavenumber(std::span<const double> U_infty,
 }
 
 
-AcousticField::AcousticField(int dim, std::span<const double> coords,
+AcousticField::AcousticField(int dim, const std::span<const double> &coords,
                              double p_infty, double rho_infty,
-                             std::span<const double> U_infty, double gamma,
-                             Kernel kernel)
+                             const std::span<const double> &U_infty,
+                             double gamma, Kernel kernel)
    : kernel_(kernel),
      dim_(dim),
      num_pts_(coords.size()/dim_),

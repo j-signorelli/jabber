@@ -46,7 +46,8 @@ protected:
 
 public:
    /// Construct piecewise linear interpolant through ( \p x_k , \p y_k ).
-   PWLinear(std::span<const double> x_k, std::span<const double> y_k);
+   PWLinear(const std::span<const double> &x_k, 
+            const std::span<const double> &y_k);
 
    double operator() (const double &x) const override;
 };
@@ -79,7 +80,8 @@ public:
     * @brief Construct piecewise log-log (linear in log10 space) interpolant
     * through ( \p x_k , \p y_k ).
     */
-   PWLogLog(std::span<const double> x_k, std::span<const double> y_k);
+   PWLogLog(const std::span<const double> &x_k,
+            const std::span<const double> &y_k);
 
    double operator() (const double &x) const override;
 };
