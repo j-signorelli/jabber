@@ -23,7 +23,7 @@ BaseFlow::BaseFlow(const double &gamma_, const double &p_, const double &rho_,
   rho(rho_),
   u(u_.begin(), u_.end()),
   c(std::sqrt(gamma*p/rho)),
-  M(ComputeNorm(u))
+  M(ComputeNorm(u)/c)
 {
 
 }
