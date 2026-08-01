@@ -18,12 +18,12 @@ double ComputeNorm(const std::span<const double> &vec)
 
 BaseFlow::BaseFlow(const double &gamma_, const double &p_, const double &rho_,
                    const std::span<const double> &u_)
-: gamma(gamma_),
-  p(p_),
-  rho(rho_),
-  u(u_.begin(), u_.end()),
-  c(std::sqrt(gamma*p/rho)),
-  M(ComputeNorm(u)/c)
+   : gamma(gamma_),
+     p(p_),
+     rho(rho_),
+     u(u_.begin(), u_.end()),
+     c(std::sqrt(gamma*p/rho)),
+     M(ComputeNorm(u)/c)
 {
 
 }

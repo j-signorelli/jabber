@@ -321,7 +321,7 @@ public:
 
    /**
     * @brief Construct a new Acoustic Field object.
-    * 
+    *
     * @param dim        @copybrief dim_
     * @param coords     Mesh coordinates to compute acoustic forcing on, in
     *                   XYZ XYZ ordering.
@@ -329,7 +329,7 @@ public:
     * @param kernel     @copybrief kernel_
     */
    AcousticField(int dim, const std::span<const double> &coords,
-                  const BaseFlow &base_flow, Kernel kernel=Kernel::GridPoint);
+                 const BaseFlow &base_flow, Kernel kernel=Kernel::GridPoint);
    /**
     * @brief Construct a new AcousticField object.
     *
@@ -346,8 +346,8 @@ public:
                  double p_infty, double rho_infty,
                  const std::span<const double> &u_infty, double gamma,
                  Kernel kernel=Kernel::GridPoint)
-   : AcousticField(dim, coords, BaseFlow(gamma, p_infty, rho_infty, u_infty),
-                     kernel)
+      : AcousticField(dim, coords, BaseFlow(gamma, p_infty, rho_infty, u_infty),
+                      kernel)
    {}
 
    /// Get the spatial dimension.
@@ -363,7 +363,7 @@ public:
    }
 
    /// Get the base flow struct.
-   const BaseFlow& GetBaseFlow() const
+   const BaseFlow &GetBaseFlow() const
    {
       return base_flow_;
    }
@@ -404,7 +404,7 @@ public:
    }
 
    /// Get const reference to Wave vector.
-   const std::vector<Wave>& Waves() const
+   const std::vector<Wave> &Waves() const
    {
       return waves_;
    }

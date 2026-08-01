@@ -125,7 +125,8 @@ void AcousticField::Finalize()
       for (int d = 0; d < Dim(); d++)
       {
          kernel_args_.rhoV_coeffs[d*NumWaves() + w] =
-            speed_encoder*wave.k_hat[d]*wave.amplitude/(base_flow_.rho*base_flow_.c);
+            speed_encoder*wave.k_hat[d]*wave.amplitude
+            /(base_flow_.rho*base_flow_.c);
       }
 
       // Compute magnitude of wavelength vector k
@@ -176,8 +177,10 @@ void AcousticField::Compute(double t)
          {
             if (kernel_ == Kernel::GridPoint)
             {
-               ComputeKernel<Dims, true>(NumPoints(), base_flow_.rho, base_flow_.p,
-                                         base_flow_.u.data(), base_flow_.gamma, NumWaves(),
+               ComputeKernel<Dims, true>(NumPoints(), base_flow_.rho,
+                                         base_flow_.p,
+                                         base_flow_.u.data(), base_flow_.gamma,
+                                         NumWaves(),
                                          t, kernel_args_.rho_coeffs.data(),
                                          kernel_args_.rhoV_coeffs.data(),
                                          kernel_args_.rhoE_coeffs.data(),
@@ -188,8 +191,10 @@ void AcousticField::Compute(double t)
             }
             else if (kernel_ == Kernel::Wave)
             {
-               ComputeKernel<Dims, false>(NumPoints(), base_flow_.rho, base_flow_.p,
-                                          base_flow_.u.data(), base_flow_.gamma, NumWaves(),
+               ComputeKernel<Dims, false>(NumPoints(), base_flow_.rho,
+                                          base_flow_.p,
+                                          base_flow_.u.data(), base_flow_.gamma,
+                                          NumWaves(),
                                           t, kernel_args_.rho_coeffs.data(),
                                           kernel_args_.rhoV_coeffs.data(),
                                           kernel_args_.rhoE_coeffs.data(),

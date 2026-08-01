@@ -28,7 +28,7 @@ struct BaseFlow
 
    /**
     * @brief Construct a new BaseFlow object.
-    * 
+    *
     * @param gamma_     @copybrief gamma
     * @param p_         @copybrief p
     * @param rho_       @copybrief rho

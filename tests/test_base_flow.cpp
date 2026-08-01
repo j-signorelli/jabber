@@ -8,8 +8,8 @@ using namespace Catch::Matchers;
 
 TEST_CASE("BaseFlow initialization", "[BaseFlow]")
 {
-   BaseFlow flow(1.4, 1.0/1.4, 4.0, 
-                  std::array<double,3>({1.0, 2.0, 2.0}));
+   BaseFlow flow(1.4, 1.0/1.4, 4.0,
+                 std::array<double,3>({1.0, 2.0, 2.0}));
 
    CHECK_THAT(flow.c, WithinULP(0.5, 0));
    CHECK_THAT(flow.M, WithinULP(6.0, 0));
