@@ -56,6 +56,24 @@ namespace jabber
 double LowFrequencyLimitTF(double mach_bar, double gamma, char speed);
 
 /**
+ * @brief Compute the standoff frequency,
+ * 
+ * \f[
+ *    f_s=\frac{c_0}{2\Delta}
+ * \f]
+ * 
+ * from \cite chaudhry2017.
+ * 
+ * @param c0      Stagnation condition speed-of-sound, \f$c_0\f$.
+ * @param delta   The shock standoff distance, \f$\Delta\f$, from
+ *                the pitot probe.
+ */
+inline double ComputeStandoffFreq(double c0, double delta)
+{
+   return c0/2*(delta);
+}
+
+/**
  * @brief Compute the transfer function \f$\chi\f$ obtained via
  * re-dimensionalization of a fit of the curve in Figure 14b of
  * \cite chaudhry2017, the collapsed flow-normal disturbance

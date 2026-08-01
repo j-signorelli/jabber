@@ -40,24 +40,6 @@ void PrintBanner(std::ostream &out)
    out << banner << std::endl << std::endl;
 }
 
-void Normalize(const std::span<const double> &vec,
-               std::span<double> norm_vec)
-{
-   double sum_sq = 0.0;
-   for (std::size_t i = 0; i < vec.size(); i++)
-   {
-      const double val = vec[i];
-      sum_sq += val*val;
-   }
-
-   const double mag = std::sqrt(sum_sq);
-   for (std::size_t i = 0; i < vec.size(); i++)
-   {
-      norm_vec[i] = vec[i]/mag;
-   }
-}
-
-
 void InputXYVisitor::operator()
 (const InputXY::Params<Here> &op)
 {
@@ -281,6 +263,24 @@ void TransferFunctionVisitor::operator()
    for (std::size_t i = 0; i < freqs.size(); i++)
    {
       powers[i] /= FlowNormalFitTF(chi_star, f_s, freqs[i]);
+   }
+}
+
+// Implementation detail only, used below.
+void Normalize(const std::span<const double> &vec,
+               const std::span<double> &norm_vec)
+{
+   double sum_sq = 0.0;
+   for (std::size_t i = 0; i < vec.size(); i++)
+   {
+      const double val = vec[i];
+      sum_sq += val*val;
+   }
+
+   const double mag = std::sqrt(sum_sq);
+   for (std::size_t i = 0; i < vec.size(); i++)
+   {
+      norm_vec[i] = vec[i]/mag;
    }
 }
 
