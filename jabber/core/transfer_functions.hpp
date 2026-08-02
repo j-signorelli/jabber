@@ -93,11 +93,8 @@ double ComputeStandoffFreq(const BaseFlow &base_flow, double delta);
  *
  * @param chi_star        Low frequency limit transfer function,
  *                        \f$\chi^*\f$. See \ref LowFrequencyLimitTF().
- * @param f_s             Shock stand-off frequency,
- *                        \f$f_s=\frac{c_0}{2\Delta}\f$, where \f$c_0\f$ is
- *                        the speed of sound at stagnation conditions and
- *                        \f$\Delta\f$ is the shock standoff distance from
- *                        the pitot probe.
+ * @param f_s             Shock standoff frequency, see
+ *                        \ref ComputeStandoffFreq().
  * @param freq            Frequency to evaluate transfer function at.
  *
  * @return \f$\chi(f)\f$
