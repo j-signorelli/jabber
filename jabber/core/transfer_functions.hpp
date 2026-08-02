@@ -35,8 +35,10 @@ namespace jabber
 
 /**
  * @brief Compute the transfer function \f$\chi^*\f$, the analytical
- * low-frequency limit for flow-parallel disturbances given in
- * Equation 15 \cite chaudhry2017,
+ * low-frequency limit for flow-parallel disturbances.
+ * 
+ * 
+ * @details Compute \f$\chi^*\f$ given by Equation 15 in \cite chaudhry2017,
  *
  * \f[
  *
@@ -56,13 +58,15 @@ namespace jabber
 double LowFrequencyLimitTF(double mach_bar, double gamma, char speed);
 
 /**
- * @brief Compute the transfer function \f$\chi\f$ obtained via
- * re-dimensionalization of a fit of the curve in Figure 14b of
- * \cite chaudhry2017, the collapsed flow-normal disturbance
- * transfer function.
+
+/**
+ * @brief Compute approximate \f$\chi(f)\f$ for flow-normal
+ * disturbances from a re-dimensionalization of the collapsed transfer 
+ * function in \cite chaudhry2017.
  *
- * @details This function uses a Bezier curve fit of the collapsed
- * transfer function, which requires Newton's method to determine
+ * @details Specifically, this function uses a Bezier curve fit of 
+ * Figure 14b of \cite chaudhry2017, the collapsed flow-normal disturbance
+ * transfer function. This requires Newton's method to determine
  * the curve's parameter t associated with the input frequency
  *  \p freq, which is then used to determine \f$\chi\f$.
  *
