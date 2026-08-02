@@ -25,7 +25,7 @@ TEST_CASE("Low-frequency limit", "[TransferFunctions]")
 
 TEST_CASE("Standoff frequency", "[TransferFunctions]")
 {
-   BaseFlow flow(1.44, 2, 0.5, std::vector<double>({12.0,0.0,0.0}));
+   const BaseFlow flow(1.44, 2, 0.5, std::vector<double>({12.0,0.0,0.0}));
 
    // u = 1
    // c = 2.4
