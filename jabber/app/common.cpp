@@ -59,7 +59,7 @@ void Normalize(const std::span<const double> &vec,
 
 BaseFlow CreateBaseFlow(const BaseFlowParams &bf_params)
 {
-   return BaseFlow(bf_params.gamma, bf_params.p, bf_params.rho, bf_params.U); 
+   return BaseFlow(bf_params.gamma, bf_params.p, bf_params.rho, bf_params.U);
 }
 
 void InputXYVisitor::operator()
