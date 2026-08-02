@@ -57,7 +57,10 @@ namespace jabber
  */
 double LowFrequencyLimitTF(double mach_bar, double gamma, char speed);
 
-/**
+inline double LowFrequencyLimitTF(const BaseFlow &base_flow, char speed)
+{
+   return LowFrequencyLimitTF(base_flow.M, base_flow.gamma, speed);
+}
 
 /**
  * @brief Compute approximate \f$\chi(f)\f$ for flow-normal
