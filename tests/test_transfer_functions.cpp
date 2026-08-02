@@ -23,6 +23,20 @@ TEST_CASE("Low-frequency limit", "[TransferFunctions]")
    }
 }
 
+TEST_CASE("Standoff frequency", "[TransferFunctions]")
+{
+   BaseFlow flow(1.44, 2, 0.5, std::vector<double>({12.0,0.0,0.0}));
+
+   // u = 1
+   // c = 2.4
+   // M = 5
+   // RT = 4
+   // RT_0=RT*(1+(0.44/2)*5*5)=RT*6.5=26
+   // c_0 = sqrt(1.44*26)
+   REQUIRE_THAT(ComputeStandoffFreq(flow, 0.5),
+                WithinAbs(std::sqrt(1.44*26),1e-14));
+}
+
 TEST_CASE("Flow-normal fit", "[TransferFunctions]")
 {
    const double mach = GENERATE(take(3,random(1.0, 10.0)));
