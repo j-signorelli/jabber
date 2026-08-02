@@ -1,6 +1,8 @@
 #ifndef JABBER_TRANSFER_FUNCTIONS
 #define JABBER_TRANSFER_FUNCTIONS
 
+#include "base_flow.hpp"
+
 #include <span>
 
 namespace jabber
