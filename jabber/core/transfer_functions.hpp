@@ -103,6 +103,14 @@ double ComputeStandoffFreq(const BaseFlow &base_flow, double delta);
  */
 double FlowNormalFitTF(double chi_star, double f_s, double freq);
 
+inline double FlowNormalFitTF(const BaseFlow &base_flow, char speed,
+                              double delta, double freq)
+{
+   return FlowNormalFitTF(LowFrequencyLimitTF(base_flow, speed),
+                          ComputeStandoffFreq(base_flow, delta),
+                          freq);
+}
+
 /// @}
 // end of tf_group
 
