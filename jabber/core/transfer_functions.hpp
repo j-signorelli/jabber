@@ -63,6 +63,24 @@ inline double LowFrequencyLimitTF(const BaseFlow &base_flow, char speed)
 }
 
 /**
+ * @brief Compute the standoff frequency, \f$f_s\f$, from \cite chaudhry2017.
+ * 
+ * @details Compute the standoff frequency
+ * 
+ * \f[
+ *    f_s=\frac{c_0}{2\Delta},
+ * \f]
+ * 
+ * where \f$c_0\f$ is the speed-of-sound at stagnation conditions, and 
+ * \f$\Delta\f$ is the shock standoff distance, from \cite chaudhry2017.
+ * 
+ * @param base_flow  Base flow.
+ * @param delta      The shock standoff distance, \f$\Delta\f$, from
+ *                   the pitot probe.
+ */
+double ComputeStandoffFreq(const BaseFlow &base_flow, double delta);
+
+/**
  * @brief Compute approximate \f$\chi(f)\f$ for flow-normal
  * disturbances from a re-dimensionalization of the collapsed transfer 
  * function in \cite chaudhry2017.
