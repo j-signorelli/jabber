@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
    std::vector<Wave> waves;
    for (const Source::ParamsVariant &spv : conf.Sources())
    {
-      std::visit(SourceVisitor{conf.BaseFlow(), waves}, spv);
+      std::visit(SourceVisitor{CreateBaseFlow(conf.BaseFlow()), waves}, spv);
    }
 
    // Write the Wave data
