@@ -59,6 +59,7 @@ namespace jabber
  */
 double LowFrequencyLimitTF(double mach_bar, double gamma, char speed);
 
+/// See \ref LowFrequencyLimitTF().
 inline double LowFrequencyLimitTF(const BaseFlow &base_flow, char speed)
 {
    return LowFrequencyLimitTF(base_flow.M, base_flow.gamma, speed);
@@ -103,6 +104,7 @@ double ComputeStandoffFreq(const BaseFlow &base_flow, double delta);
  */
 double FlowNormalFitTF(double chi_star, double f_s, double freq);
 
+/// See \ref FlowNormalFitTF().
 inline double FlowNormalFitTF(const BaseFlow &base_flow, char speed,
                               double delta, double freq)
 {
