@@ -199,8 +199,6 @@ int main(int argc, char *argv[])
    AcousticField field = InitializeAcousticField(conf, coords, dim);
    ROOT std::cout << "Done!" << std::endl;
 
-   double time = conf.comp_params.t0;
-   double dt;
    // Get the time and timestep from PC2
    std::vector<double> time_data(dim);
    std::vector<int> time_data_vertex_ids(1);
