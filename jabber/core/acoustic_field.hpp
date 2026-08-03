@@ -1,6 +1,8 @@
 #ifndef JABBER_ACOUSTIC_FIELD
 #define JABBER_ACOUSTIC_FIELD
 
+#include "base_flow.hpp"
+
 #include <vector>
 #include <span>
 #include <iostream>
@@ -146,7 +148,7 @@ struct Wave
  * @brief Write span of \ref Wave structs to \p out as a CSV, with columns
  * [Amplitude, Frequency, Phase, Speed, k_hat].
  */
-void WriteWaves(std::span<const Wave> waves, std::ostream &out);
+void WriteWaves(const std::span<const Wave> &waves, std::ostream &out);
 
 /**
  * @brief Read in Wave structs from CSV file, as outputted by
@@ -155,6 +157,45 @@ void WriteWaves(std::span<const Wave> waves, std::ostream &out);
  * @details Parsed waves are appended to \p waves.
  */
 void ReadWaves(std::istream &in, std::vector<Wave> &waves);
+
+/**
+ * @brief Compute the wavenumber vector magnitude for given freestream and
+ * wave properties.
+ *
+ * @details Evaluates the dispersion relation
+ *
+ * \f[
+ *    ||\vec{k}||=\frac{2\pi f}{\hat{k}\cdot\vec{U}_\infty \pm c_\infty}.
+ * \f]
+ *
+ * @param U_infty     Freestream velocity vector.
+ * @param c_infty     Freestream speed-of-sound,
+ *                    \f$c_\infty=\sqrt{\gamma p_\infty/\rho}
+ *                              =\sqrt{\gamma R T_\infty}\f$.
+ * @param wave_freq   Wave frequency.
+ * @param wave_k_hat  Wave wavenumber orientation. **Note that
+ *                   `wave_k_hat.size() == U_infty.size()`**.
+ * @param wave_speed  Wave speed. 'S' for slow, 'F' for fast.
+ */
+double ComputeWavenumber(const std::span<const double> &U_infty,
+                         const double &c_infty,
+                         const double &wave_freq,
+                         const std::span<const double> &wave_k_hat,
+                         const char &wave_speed);
+
+/**
+ * @brief Compute the wavenumber vector magnitude for a given
+ * \ref Wave. See \ref ComputeWavenumber().
+ *
+ * @details **Note that `wave.k_hat.size() == U_infty.size()`**.
+ */
+inline double ComputeWavenumber(std::span<const double> U_infty,
+                                const double &c_infty,
+                                const Wave &wave)
+{
+   return ComputeWavenumber(U_infty, c_infty, wave.frequency, wave.k_hat,
+                            wave.speed);
+}
 
 /**
  * @brief Class for specifying and computing a broadband-spectrum acoustic
@@ -194,20 +235,8 @@ private:
    /// Number of points/coordinates of field.
    const std::size_t num_pts_;
 
-   /// Base flow pressure.
-   const double p_infty_;
-
-   /// Base flow density.
-   const double rho_infty_;
-
-   /// Base flow velocity vector, of size \ref Dim().
-   const std::vector<double> U_infty_;
-
-   /// Base flow specific heat ratio, γ.
-   const double gamma_;
-
-   /// Base flow speed of sound
-   const double c_infty_;
+   /// Base flow properties.
+   const BaseFlow base_flow_;
 
    /// Kernel type to use.
    const Kernel kernel_;
@@ -235,7 +264,7 @@ private:
 
       /**
        * @brief Momentum series coefficients,
-       * \f$\frac{1}{\rho_\infty c_\infty}(\pm 1)\hat{k_j}\f$.
+       * \f$\frac{1}{\rho_\infty c_\infty}(\pm 1)\hat{k_j}p'_j\f$.
        *
        * @details Size is \ref Dim() x \ref NumWaves(). Ordered as [dim][wave].
        */
@@ -289,22 +318,37 @@ private:
    std::vector<double> rhoE_;
 
 public:
+
+   /**
+    * @brief Construct a new Acoustic Field object.
+    *
+    * @param dim        @copybrief dim_
+    * @param coords     Mesh coordinates to compute acoustic forcing on, in
+    *                   XYZ XYZ ordering.
+    * @param base_flow  @copybrief base_flow_
+    * @param kernel     @copybrief kernel_
+    */
+   AcousticField(int dim, const std::span<const double> &coords,
+                 const BaseFlow &base_flow, Kernel kernel=Kernel::GridPoint);
    /**
     * @brief Construct a new AcousticField object.
     *
-    * @param dim        Spatial dimension of mesh.
+    * @param dim        @copybrief dim_
     * @param coords     Mesh coordinates to compute acoustic forcing on, in
     *                   XYZ XYZ ordering.
-    * @param p_infty    Base flow pressure.
-    * @param rho_infty  Base flow density.
-    * @param U_infty    Base flow velocity vector, of size \p dim.
-    * @param gamma      Base flow specific heat ratio, γ.
-    * @param kernel     Kernel type to use.
+    * @param p_infty    @copybrief BaseFlow::p
+    * @param rho_infty  @copybrief BaseFlow::rho
+    * @param U_infty    @copybrief BaseFlow::U
+    * @param gamma      @copybrief BaseFlow::gamma
+    * @param kernel     @copybrief kernel_
     */
-   AcousticField(int dim, std::span<const double> coords,
+   AcousticField(int dim, const std::span<const double> &coords,
                  double p_infty, double rho_infty,
-                 const std::vector<double> U_infty, double gamma,
-                 Kernel kernel=Kernel::GridPoint);
+                 const std::span<const double> &U_infty, double gamma,
+                 Kernel kernel=Kernel::GridPoint)
+      : AcousticField(dim, coords, BaseFlow(gamma, p_infty, rho_infty, U_infty),
+                      kernel)
+   {}
 
    /// Get the spatial dimension.
    int Dim() const
@@ -318,28 +362,10 @@ public:
       return num_pts_;
    }
 
-   /// Get the base flow velocity vector.
-   const std::vector<double> &BaseVelocity() const
+   /// Get the base flow struct.
+   const BaseFlow &GetBaseFlow() const
    {
-      return U_infty_;
-   }
-
-   /// Get the base flow pressure
-   double BasePressure() const
-   {
-      return p_infty_;
-   }
-
-   /// Get the base flow density
-   double BaseDensity() const
-   {
-      return rho_infty_;
-   }
-
-   /// Get the base flow specific heat ratio, γ.
-   double Gamma() const
-   {
-      return gamma_;
+      return base_flow_;
    }
 
    /// Get the number of waves.

@@ -19,7 +19,11 @@ constexpr static std::string_view LINE =
 void PrintBanner(std::ostream &out);
 
 /// Normalize the provided vector data
-void Normalize(std::span<const double> vec, std::span<double> norm_vec);
+void Normalize(const std::span<const double> &vec,
+               std::span<double> norm_vec);
+
+/// Get a \ref jabber::BaseFlow from \ref jabber::app::BaseFlowParams.
+BaseFlow CreateBaseFlow(const BaseFlowParams &bf_params);
 
 /**
  * @defgroup pproc_group Parameter Processing
@@ -112,8 +116,8 @@ struct TransferFunctionVisitor
 {
    using enum TransferFunction::Option;
 
-   /// Base flow parameters.
-   const BaseFlowParams &base_flow_params;
+   /// Base flow properties.
+   const BaseFlow &base_flow;
 
    /// Array of frequencies to evaluate for.
    const std::vector<double> &freqs;
@@ -138,7 +142,7 @@ struct SourceVisitor
 {
    using enum Source::Option;
 
-   const BaseFlowParams &base_flow_params;
+   const BaseFlow &base_flow;
 
    /// Reference of wave vector to append Wave structs to.
    std::vector<Wave> &waves;

@@ -337,7 +337,7 @@ TEST_CASE("2D flowfield computation via app library", "[2D][Compute][App]")
       ConfigInput config;
 
       // Set base flow in config
-      BaseFlowParams &base_flow = config.BaseFlow();
+      BaseFlowParams &base_flow = config.base_flow_params;
       base_flow.rho = kRhoBar;
       base_flow.p = kPBar;
       base_flow.U = kUBar;
@@ -354,11 +354,11 @@ TEST_CASE("2D flowfield computation via app library", "[2D][Compute][App]")
          wave.speed = kSpeeds[w];
 
          // Add wave to Config sources
-         config.Sources().push_back(wave);
+         config.sources_params.push_back(wave);
       }
 
       // Set kernel
-      config.Comp().kernel = GENERATE(options<AcousticField::Kernel>());
+      config.comp_params.kernel = GENERATE(options<AcousticField::Kernel>());
 
       // Initialize AcousticField
       AcousticField field = InitializeAcousticField(config, kCoords, 2);

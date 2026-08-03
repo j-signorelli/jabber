@@ -51,4 +51,43 @@ TEST_CASE("Read + write Waves", "[Wave]")
    }
 }
 
+TEST_CASE("Compute wavenumber k", "[Wave][AcousticField]")
+{
+   const std::vector<double> U_infty({2*std::sqrt(2), std::sqrt(2)});
+   constexpr double c_infty = 1.0;
+
+   Wave test_wave;
+   test_wave.amplitude = 0.0;
+   test_wave.frequency = 1.0/(2*M_PI);
+   test_wave.phase = 0.0;
+   test_wave.k_hat = std::vector<double>({std::cos(M_PI_4),
+                                          std::sin(M_PI_4)});
+
+   SECTION("Slow")
+   {
+      test_wave.speed = 'S';
+      REQUIRE_THAT(ComputeWavenumber(U_infty, c_infty, test_wave),
+                   WithinULP(1.0/2.0, 5));
+   }
+
+   SECTION("Fast")
+   {
+      test_wave.speed = 'F';
+      REQUIRE_THAT(ComputeWavenumber(U_infty, c_infty, test_wave),
+                   WithinULP(1.0/4.0, 5));
+   }
+
+   SECTION("Invalid wavenumber orientation")
+   {
+      test_wave.speed = 'S';
+      std::for_each(test_wave.k_hat.begin(), test_wave.k_hat.end(),
+                    [](double &k_i)
+      {
+         k_i *= -1.0;
+      });
+
+      REQUIRE_THROWS(ComputeWavenumber(U_infty, c_infty, test_wave));
+   }
+}
+
 } // jabber_test

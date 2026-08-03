@@ -115,10 +115,10 @@ void ConfigInput::PrintBaseFlowParams(std::ostream &out) const
    const std::vector<PV> params
    (
    {
-      {"rho",     ToString(base_flow_.rho)},
-      {"p",       ToString(base_flow_.p)},
-      {"U",       ToString(base_flow_.U)},
-      {"gamma",   ToString(base_flow_.gamma)}
+      {"rho",     ToString(base_flow_params.rho)},
+      {"p",       ToString(base_flow_params.p)},
+      {"U",       ToString(base_flow_params.U)},
+      {"gamma",   ToString(base_flow_params.gamma)}
    });
 
 
@@ -397,7 +397,7 @@ void ConfigInput::PrintSourceParams(std::ostream &out) const
    using enum Source::Option;
 
    out << "Sources" << std::endl;
-   for (const Source::ParamsVariant &source : sources_)
+   for (const Source::ParamsVariant &source : sources_params)
    {
       out << std::visit(PrintSourceVisitor{}, source) << std::endl;
    }
@@ -410,8 +410,8 @@ void ConfigInput::PrintCompParams(std::ostream &out) const
    const std::vector<PV> params
    (
    {
-      {"t0",      ToString(comp_.t0)},
-      {"Kernel",  GetName<KernelType>(comp_.kernel)}
+      {"t0",      ToString(comp_params.t0)},
+      {"Kernel",  GetName<KernelType>(comp_params.kernel)}
    });
 
    out << PrintParams(params) << std::endl;
@@ -419,16 +419,16 @@ void ConfigInput::PrintCompParams(std::ostream &out) const
 
 void ConfigInput::PrintPreciceParams(std::ostream &out) const
 {
-   if (precice_.has_value())
+   if (precice_params.has_value())
    {
       out << "preCICE" << std::endl;
 
       const std::vector<PV> params
       (
       {
-         {"Participant Name",   precice_->participant_name},
-         {"Config File",        precice_->config_file},
-         {"Fluid Mesh Name",    precice_->fluid_mesh_name}
+         {"Participant Name",   precice_params->participant_name},
+         {"Config File",        precice_params->config_file},
+         {"Fluid Mesh Name",    precice_params->fluid_mesh_name}
       });
 
       out << PrintParams(params) << std::endl;
@@ -715,7 +715,7 @@ TOMLConfigInput::TOMLConfigInput(std::string config_file, std::ostream *out)
 
    // Parse base flow parameters
    toml::value in_base_flow = file.at("BaseFlow");
-   ParseBaseFlow(toml::format(in_base_flow), base_flow_);
+   ParseBaseFlow(toml::format(in_base_flow), base_flow_params);
    if (out)
    {
       PrintBaseFlowParams(*out);
@@ -725,7 +725,7 @@ TOMLConfigInput::TOMLConfigInput(std::string config_file, std::ostream *out)
    toml::array in_sources = file.at("Sources").as_array();
    for (const toml::value &in_source : in_sources)
    {
-      ParseSource(toml::format(in_source), sources_.emplace_back());
+      ParseSource(toml::format(in_source), sources_params.emplace_back());
    }
    if (out)
    {
@@ -734,7 +734,7 @@ TOMLConfigInput::TOMLConfigInput(std::string config_file, std::ostream *out)
 
    // Parse compute fields of run
    toml::value in_comp = file.at("Computation");
-   ParseComputation(toml::format(in_comp), comp_);
+   ParseComputation(toml::format(in_comp), comp_params);
    if (out)
    {
       PrintCompParams(*out);
@@ -744,8 +744,8 @@ TOMLConfigInput::TOMLConfigInput(std::string config_file, std::ostream *out)
    if (file.contains("preCICE"))
    {
       toml::value in_precice = file.at("preCICE");
-      precice_ = PreciceParams{};
-      ParsePrecice(toml::format(in_precice), *precice_);
+      precice_params = PreciceParams{};
+      ParsePrecice(toml::format(in_precice), *precice_params);
       if (out)
       {
          PrintPreciceParams(*out);
