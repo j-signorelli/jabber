@@ -330,9 +330,9 @@ AcousticField InitializeAcousticField(const ConfigInput &conf,
                                       int dim)
 {
    // Get relevant input metadata
-   const BaseFlowParams &base_conf = conf.BaseFlow();
-   const CompParams &comp_conf = conf.Comp();
-   const std::vector<Source::ParamsVariant> &sources_conf = conf.Sources();
+   const BaseFlowParams &base_conf = conf.base_flow_params;
+   const CompParams &comp_conf = conf.comp_params;
+   const std::vector<Source::ParamsVariant> &sources_conf = conf.sources_params;
 
    const BaseFlow flow = CreateBaseFlow(base_conf);
 
