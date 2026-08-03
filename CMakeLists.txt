@@ -56,7 +56,6 @@ endif()
 
 # Create the jabber library
 add_library(jabber)
-set_property(GLOBAL APPEND PROPERTY JABBER_TARGETS_PROPERTY jabber)
 target_compile_features(jabber PUBLIC cxx_std_20)
 add_subdirectory(jabber)
 target_sources(jabber
