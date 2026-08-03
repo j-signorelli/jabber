@@ -1,6 +1,8 @@
 #ifndef JABBER_TRANSFER_FUNCTIONS
 #define JABBER_TRANSFER_FUNCTIONS
 
+#include "base_flow.hpp"
+
 #include <span>
 
 namespace jabber
@@ -35,8 +37,10 @@ namespace jabber
 
 /**
  * @brief Compute the transfer function \f$\chi^*\f$, the analytical
- * low-frequency limit for flow-parallel disturbances given in
- * Equation 15 \cite chaudhry2017,
+ * low-frequency limit for flow-parallel disturbances.
+ *
+ *
+ * @details Compute \f$\chi^*\f$ given by Equation 15 in \cite chaudhry2017,
  *
  * \f[
  *
@@ -55,29 +59,59 @@ namespace jabber
  */
 double LowFrequencyLimitTF(double mach_bar, double gamma, char speed);
 
+/// See \ref LowFrequencyLimitTF().
+inline double LowFrequencyLimitTF(const BaseFlow &base_flow, char speed)
+{
+   return LowFrequencyLimitTF(base_flow.M, base_flow.gamma, speed);
+}
+
 /**
- * @brief Compute the transfer function \f$\chi\f$ obtained via
- * re-dimensionalization of a fit of the curve in Figure 14b of
- * \cite chaudhry2017, the collapsed flow-normal disturbance
- * transfer function.
+ * @brief Compute the standoff frequency, \f$f_s\f$, from \cite chaudhry2017.
  *
- * @details This function uses a Bezier curve fit of the collapsed
- * transfer function, which requires Newton's method to determine
+ * @details Compute the standoff frequency
+ *
+ * \f[
+ *    f_s=\frac{c_0}{2\Delta},
+ * \f]
+ *
+ * where \f$c_0\f$ is the speed-of-sound at stagnation conditions, and
+ * \f$\Delta\f$ is the shock standoff distance, from \cite chaudhry2017.
+ *
+ * @param base_flow  Base flow.
+ * @param delta      The shock standoff distance, \f$\Delta\f$, from
+ *                   the pitot probe.
+ */
+double ComputeStandoffFreq(const BaseFlow &base_flow, double delta);
+
+/**
+ * @brief Compute approximate \f$\chi(f)\f$ for flow-normal
+ * disturbances from a re-dimensionalization of the collapsed transfer
+ * function in \cite chaudhry2017.
+ *
+ * @details Specifically, this function uses a Bezier curve fit of
+ * Figure 14b of \cite chaudhry2017, the collapsed flow-normal disturbance
+ * transfer function. This requires Newton's method to determine
  * the curve's parameter t associated with the input frequency
  *  \p freq, which is then used to determine \f$\chi\f$.
  *
  * @param chi_star        Low frequency limit transfer function,
  *                        \f$\chi^*\f$. See \ref LowFrequencyLimitTF().
- * @param f_s             Shock stand-off frequency,
- *                        \f$f_s=\frac{c_0}{2\Delta}\f$, where \f$c_0\f$ is
- *                        the speed of sound at stagnation conditions and
- *                        \f$\Delta\f$ is the shock standoff distance from
- *                        the pitot probe.
+ * @param f_s             Shock standoff frequency, see
+ *                        \ref ComputeStandoffFreq().
  * @param freq            Frequency to evaluate transfer function at.
  *
  * @return \f$\chi(f)\f$
  */
 double FlowNormalFitTF(double chi_star, double f_s, double freq);
+
+/// See \ref FlowNormalFitTF().
+inline double FlowNormalFitTF(const BaseFlow &base_flow, char speed,
+                              double delta, double freq)
+{
+   return FlowNormalFitTF(LowFrequencyLimitTF(base_flow, speed),
+                          ComputeStandoffFreq(base_flow, delta),
+                          freq);
+}
 
 /// @}
 // end of tf_group

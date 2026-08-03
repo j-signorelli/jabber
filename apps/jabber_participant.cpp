@@ -82,10 +82,10 @@ int main(int argc, char *argv[])
    ROOT std::cout << LINE << std::endl;
 
    // Get the preCICE input
-   const PreciceParams &precice_conf = *(conf.Precice());
+   const PreciceParams &precice_conf = *(conf.precice_params);
 
    // Use the dim based on the base flow freestream velocity
-   const int dim = conf.BaseFlow().U.size();
+   const int dim = conf.base_flow_params.U.size();
 
    // Initialize preCICE participant
    precice::Participant participant(precice_conf.participant_name,
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
    AcousticField field = InitializeAcousticField(conf, coords, dim);
    ROOT std::cout << "Done!" << std::endl;
 
-   double time = conf.Comp().t0;
+   double time = conf.comp_params.t0;
    double dt;
 
    // Compute acoustic forcing

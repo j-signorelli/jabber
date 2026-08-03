@@ -1,6 +1,8 @@
 #ifndef JABBER_ACOUSTIC_FIELD
 #define JABBER_ACOUSTIC_FIELD
 
+#include "base_flow.hpp"
+
 #include <vector>
 #include <span>
 #include <iostream>
@@ -233,20 +235,8 @@ private:
    /// Number of points/coordinates of field.
    const std::size_t num_pts_;
 
-   /// Base flow pressure.
-   const double p_infty_;
-
-   /// Base flow density.
-   const double rho_infty_;
-
-   /// Base flow velocity vector, of size \ref Dim().
-   const std::vector<double> U_infty_;
-
-   /// Base flow specific heat ratio, γ.
-   const double gamma_;
-
-   /// Base flow speed of sound
-   const double c_infty_;
+   /// Base flow properties.
+   const BaseFlow base_flow_;
 
    /// Kernel type to use.
    const Kernel kernel_;
@@ -328,22 +318,37 @@ private:
    std::vector<double> rhoE_;
 
 public:
+
+   /**
+    * @brief Construct a new Acoustic Field object.
+    *
+    * @param dim        @copybrief dim_
+    * @param coords     Mesh coordinates to compute acoustic forcing on, in
+    *                   XYZ XYZ ordering.
+    * @param base_flow  @copybrief base_flow_
+    * @param kernel     @copybrief kernel_
+    */
+   AcousticField(int dim, const std::span<const double> &coords,
+                 const BaseFlow &base_flow, Kernel kernel=Kernel::GridPoint);
    /**
     * @brief Construct a new AcousticField object.
     *
-    * @param dim        Spatial dimension of mesh.
+    * @param dim        @copybrief dim_
     * @param coords     Mesh coordinates to compute acoustic forcing on, in
     *                   XYZ XYZ ordering.
-    * @param p_infty    Base flow pressure.
-    * @param rho_infty  Base flow density.
-    * @param U_infty    Base flow velocity vector, of size \p dim.
-    * @param gamma      Base flow specific heat ratio, γ.
-    * @param kernel     Kernel type to use.
+    * @param p_infty    @copybrief BaseFlow::p
+    * @param rho_infty  @copybrief BaseFlow::rho
+    * @param U_infty    @copybrief BaseFlow::U
+    * @param gamma      @copybrief BaseFlow::gamma
+    * @param kernel     @copybrief kernel_
     */
    AcousticField(int dim, const std::span<const double> &coords,
                  double p_infty, double rho_infty,
                  const std::span<const double> &U_infty, double gamma,
-                 Kernel kernel=Kernel::GridPoint);
+                 Kernel kernel=Kernel::GridPoint)
+      : AcousticField(dim, coords, BaseFlow(gamma, p_infty, rho_infty, U_infty),
+                      kernel)
+   {}
 
    /// Get the spatial dimension.
    int Dim() const
@@ -357,28 +362,10 @@ public:
       return num_pts_;
    }
 
-   /// Get the base flow velocity vector.
-   const std::vector<double> &BaseVelocity() const
+   /// Get the base flow struct.
+   const BaseFlow &GetBaseFlow() const
    {
-      return U_infty_;
-   }
-
-   /// Get the base flow pressure
-   double BasePressure() const
-   {
-      return p_infty_;
-   }
-
-   /// Get the base flow density
-   double BaseDensity() const
-   {
-      return rho_infty_;
-   }
-
-   /// Get the base flow specific heat ratio, γ.
-   double Gamma() const
-   {
-      return gamma_;
+      return base_flow_;
    }
 
    /// Get the number of waves.
