@@ -338,15 +338,15 @@ public:
     *                   XYZ XYZ ordering.
     * @param p_infty    @copybrief BaseFlow::p
     * @param rho_infty  @copybrief BaseFlow::rho
-    * @param u_infty    @copybrief BaseFlow::u
+    * @param U_infty    @copybrief BaseFlow::U
     * @param gamma      @copybrief BaseFlow::gamma
     * @param kernel     @copybrief kernel_
     */
    AcousticField(int dim, const std::span<const double> &coords,
                  double p_infty, double rho_infty,
-                 const std::span<const double> &u_infty, double gamma,
+                 const std::span<const double> &U_infty, double gamma,
                  Kernel kernel=Kernel::GridPoint)
-      : AcousticField(dim, coords, BaseFlow(gamma, p_infty, rho_infty, u_infty),
+      : AcousticField(dim, coords, BaseFlow(gamma, p_infty, rho_infty, U_infty),
                       kernel)
    {}
 

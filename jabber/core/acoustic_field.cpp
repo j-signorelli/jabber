@@ -130,7 +130,7 @@ void AcousticField::Finalize()
       }
 
       // Compute magnitude of wavelength vector k
-      const double k = ComputeWavenumber(base_flow_.u, base_flow_.c, wave);
+      const double k = ComputeWavenumber(base_flow_.U, base_flow_.c, wave);
 
       // Compute + set k·x+φ
       for (std::size_t i = 0; i < NumPoints(); i++)
@@ -179,7 +179,7 @@ void AcousticField::Compute(double t)
             {
                ComputeKernel<Dims, true>(NumPoints(), base_flow_.rho,
                                          base_flow_.p,
-                                         base_flow_.u.data(), base_flow_.gamma,
+                                         base_flow_.U.data(), base_flow_.gamma,
                                          NumWaves(),
                                          t, kernel_args_.rho_coeffs.data(),
                                          kernel_args_.rhoV_coeffs.data(),
@@ -193,7 +193,7 @@ void AcousticField::Compute(double t)
             {
                ComputeKernel<Dims, false>(NumPoints(), base_flow_.rho,
                                           base_flow_.p,
-                                          base_flow_.u.data(), base_flow_.gamma,
+                                          base_flow_.U.data(), base_flow_.gamma,
                                           NumWaves(),
                                           t, kernel_args_.rho_coeffs.data(),
                                           kernel_args_.rhoV_coeffs.data(),

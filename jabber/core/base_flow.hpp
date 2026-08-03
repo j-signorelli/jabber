@@ -18,7 +18,7 @@ struct BaseFlow
    const double rho;
 
    /// Freestream velocity vector.
-   const std::vector<double> u;
+   const std::vector<double> U;
 
    /// Freestream speed-of-sound.
    const double c;
@@ -32,10 +32,10 @@ struct BaseFlow
     * @param gamma_     @copybrief gamma
     * @param p_         @copybrief p
     * @param rho_       @copybrief rho
-    * @param u_         @copybrief u
+    * @param U_         @copybrief U
     */
    BaseFlow(const double &gamma_, const double &p_, const double &rho_,
-            const std::span<const double> &u_);
+            const std::span<const double> &U_);
 };
 
 }
