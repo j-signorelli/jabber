@@ -92,24 +92,24 @@ struct InputXY
    template<Option V>
    struct Params;
 
-   template<>
-   struct Params<Here>
-   {
-      /// Input x's.
-      std::vector<double> x;
-
-      /// Input y's.
-      std::vector<double> y;
-   };
-
-   template<>
-   struct Params<FromCSV>
-   {
-      /// CSV file address. First column are x's, second are y's. No header.
-      std::string file;
-   };
-
    using ParamsVariant = std::variant<Params<Here>,Params<FromCSV>>;
+};
+
+template<>
+struct InputXY::Params<InputXY::Option::Here>
+{
+   /// Input x's.
+   std::vector<double> x;
+
+   /// Input y's.
+   std::vector<double> y;
+};
+
+template<>
+struct InputXY::Params<InputXY::Option::FromCSV>
+{
+   /// CSV file address. First column are x's, second are y's. No header.
+   std::string file;
 };
 
 // ----------------------------------------------------------------------------
@@ -145,24 +145,25 @@ struct FunctionType
    template<Option V>
    struct Params;
 
-   template<>
-   struct Params<PiecewiseLinear>
-   {
-      /// Input x,y data params.
-      InputXY::ParamsVariant input_xy;
-   };
-
-   template<>
-   struct Params<PiecewiseLogLog>
-   {
-      /// Input x,y data params.
-      InputXY::ParamsVariant input_xy;
-   };
-
    using ParamsVariant = std::variant<Params<PiecewiseLinear>,
          Params<PiecewiseLogLog>>;
 
 };
+
+template<>
+struct FunctionType::Params<FunctionType::Option::PiecewiseLinear>
+{
+   /// Input x,y data params.
+   InputXY::ParamsVariant input_xy;
+};
+
+template<>
+struct FunctionType::Params<FunctionType::Option::PiecewiseLogLog>
+{
+   /// Input x,y data params.
+   InputXY::ParamsVariant input_xy;
+};
+
 // ----------------------------------------------------------------------------
 /**
  * @brief All options associated with interval/frequency bin
@@ -243,38 +244,39 @@ struct DiscMethod
       // Default struct has zero params.
    };
 
-   template<>
-   struct Params<Random>
-   {
-      /// Seed to use in randomization.
-      int seed;
-   };
-
-   template<>
-   struct Params<RandomLog>
-   {
-      /// Seed to use in randomization.
-      int seed;
-   };
-
-   template<>
-   struct Params<RandomPeriodicOblique>
-   {
-
-      /// Domain length in z.
-      double z_length;
-
-      /// Domain dz.
-      double dz;
-
-      /// Seed to use in randomization.
-      int seed;
-   };
-   
-
    using ParamsVariant = std::variant<Params<Uniform>,Params<UniformLog>,
-         Params<Random>,Params<RandomLog>,Params<RandomPeriodicOblique>>;
+         Params<Random>,Params<RandomLog>, Params<RandomPeriodicOblique>>;
 };
+
+template<>
+struct DiscMethod::Params<DiscMethod::Option::Random>
+{
+   /// Seed to use in randomization.
+   int seed;
+};
+
+template<>
+struct DiscMethod::Params<DiscMethod::Option::RandomLog>
+{
+   /// Seed to use in randomization.
+   int seed;
+};
+
+template<>
+struct DiscMethod::Params<DiscMethod::Option::RandomPeriodicOblique>
+{
+
+   /// Domain length in z.
+   double z_length;
+
+   /// Domain dz.
+   double dz;
+
+   /// Seed to use in randomization.
+   int seed;
+};
+
+
 
 // ----------------------------------------------------------------------------
 /**
@@ -313,53 +315,53 @@ struct Direction
    template<Option V>
    struct Params;
 
-   template<>
-   struct Params<Single>
-   {
-      /// Wavenumber vector direction, can be non-normalized.
-      std::vector<double> direction;
-   };
-
-   template<>
-   struct Params<RandomXYAngle>
-   {
-      /**
-       * @brief Min angle of wavenumber vector from x-axis, in XY-plane
-       * (CCW+, CW-) (in degrees).
-       */
-      double min_angle;
-
-      /**
-       * @brief Max angle of wavenumber vector from x-axis, in XY-plane
-       * (CCW+, CW-) (in degrees).
-       */
-      double max_angle;
-
-      /// Seed to use in randomization.
-      int seed;
-   };
-
-
-   template<>
-   struct Params<RandomXZAngle>
-   {
-      /**
-       * @brief Min angle of wavenumber vector from x-axis, in XZ-plane.
-       */
-      double min_angle;
-
-      /**
-       * @brief Max angle of wavenumber vector from x-axis, in XZ-plane.
-       */
-      double max_angle;
-
-      /// Seed to use in randomization.
-      int seed;
-   };
-
-   using ParamsVariant = std::variant<Params<Single>, Params<RandomXYAngle>,
+   using ParamsVariant = std::variant<Params<Single>, Params<RandomXYAngle>, 
                                        Params<RandomXZAngle>>;
 
+};
+
+template<>
+struct Direction::Params<Direction::Option::Single>
+{
+   /// Wavenumber vector direction, can be non-normalized.
+   std::vector<double> direction;
+};
+
+template<>
+struct Direction::Params<Direction::Option::RandomXYAngle>
+{
+   /**
+    * @brief Min angle of wavenumber vector from x-axis, in XY-plane
+    * (CCW+, CW-) (in degrees).
+    */
+   double min_angle;
+
+   /**
+    * @brief Max angle of wavenumber vector from x-axis, in XY-plane
+    * (CCW+, CW-) (in degrees).
+    */
+   double max_angle;
+
+   /// Seed to use in randomization.
+   int seed;
+};
+
+
+template<>
+struct Direction::Params<Direction::Option::RandomXZAngle>
+{
+   /**
+    * @brief Min angle of wavenumber vector from x-axis, in XZ-plane.
+    */
+   double min_angle;
+
+   /**
+    * @brief Max angle of wavenumber vector from x-axis, in XZ-plane.
+    */
+   double max_angle;
+
+   /// Seed to use in randomization.
+   int seed;
 };
 
 // ----------------------------------------------------------------------------
@@ -409,22 +411,22 @@ struct TransferFunction
       // Default struct has zero params
    };
 
-   template<>
-   struct Params<Input>
-   {
-      /// Transfer function representation, (f, V^2).
-      FunctionType::ParamsVariant input_tf;
-   };
-
-   template<>
-   struct Params<FlowNormalFit>
-   {
-      /// Shock standoff distance from pitot probe.
-      double shock_standoff_dist;
-   };
-
    using ParamsVariant = std::variant<Params<LowFrequencyLimit>, Params<Input>,
          Params<FlowNormalFit>>;
+};
+
+template<>
+struct TransferFunction::Params<TransferFunction::Option::Input>
+{
+   /// Transfer function representation, (f, V^2).
+   FunctionType::ParamsVariant input_tf;
+};
+
+template<>
+struct TransferFunction::Params<TransferFunction::Option::FlowNormalFit>
+{
+   /// Shock standoff distance from pitot probe.
+   double shock_standoff_dist;
 };
 
 // ----------------------------------------------------------------------------
@@ -467,93 +469,92 @@ struct Source
    template<Option V>
    struct Params;
 
-   template<>
-   struct Params<SingleWave>
-   {
-      /// Wave amplitude.
-      double amp;
-
-      /// Wave frequency (not angular).
-      double freq;
-
-      /// Phase, in deg.
-      double phase;
-
-      /// Wavenumber vector direction, can be non-normalized.
-      std::vector<double> direction;
-
-      /// Wave speed ('S' or 'F').
-      char speed;
-   };
-
-   template<>
-   struct Params<WaveSpectrum>
-   {
-      /// Wave amplitudes.
-      std::vector<double> amps;
-
-      /// Wave frequencies (not angular).
-      std::vector<double> freqs;
-
-      /// Phases, in deg.
-      std::vector<double> phases;
-
-      /// Wavenumber vector directions, can be non-normalized.
-      std::vector<std::vector<double>> directions;
-
-      /// Wave speeds ('S' or 'F').
-      std::vector<char> speeds;
-   };
-
-   template<>
-   struct Params<PSD>
-   {
-
-      /// PSD function representation (f, PSD).
-      FunctionType::ParamsVariant input_psd;
-
-      /// (For PSD unit V^2/Hz) Scaling factor to multiply power V^2 by.
-      std::optional<double> scale_fac;
-
-      /// Minimum wave frequency in discrete frequency selection range.
-      double min_disc_freq;
-
-      /// Maximum wave frequency in discrete frequency selection range.
-      double max_disc_freq;
-
-      /// Number of waves to discretize PSD to.
-      std::size_t num_waves;
-
-      /// Interval method to use for frequency bins.
-      Interval::Method int_method;
-
-      /// Frequency discretization method parameters.
-      DiscMethod::ParamsVariant disc_params;
-
-      /// Wavenumber direction parameters.
-      Direction::ParamsVariant dir_params;
-
-      /// Seed to use for wave phase randomization.
-      int phase_seed;
-
-      /// Wave speeds to use.
-      char speed;
-
-      /// Transfer function parameters. None if not set.
-      std::optional<TransferFunction::ParamsVariant> tf_params;
-   };
-
-   template<>
-   struct Params<WaveCSV>
-   {
-      /// Wave CSV file (output from \ref WriteWaves()).
-      std::string file;
-   };
-
    using ParamsVariant = std::variant<Params<SingleWave>,Params<WaveSpectrum>,
          Params<PSD>,Params<WaveCSV>>;
 };
 
+template<>
+struct Source::Params<Source::Option::SingleWave>
+{
+   /// Wave amplitude.
+   double amp;
+
+   /// Wave frequency (not angular).
+   double freq;
+
+   /// Phase, in deg.
+   double phase;
+
+   /// Wavenumber vector direction, can be non-normalized.
+   std::vector<double> direction;
+
+   /// Wave speed ('S' or 'F').
+   char speed;
+};
+
+template<>
+struct Source::Params<Source::Option::WaveSpectrum>
+{
+   /// Wave amplitudes.
+   std::vector<double> amps;
+
+   /// Wave frequencies (not angular).
+   std::vector<double> freqs;
+
+   /// Phases, in deg.
+   std::vector<double> phases;
+
+   /// Wavenumber vector directions, can be non-normalized.
+   std::vector<std::vector<double>> directions;
+
+   /// Wave speeds ('S' or 'F').
+   std::vector<char> speeds;
+};
+
+template<>
+struct Source::Params<Source::Option::PSD>
+{
+
+   /// PSD function representation (f, PSD).
+   FunctionType::ParamsVariant input_psd;
+
+   /// (For PSD unit V^2/Hz) Scaling factor to multiply power V^2 by.
+   std::optional<double> scale_fac;
+
+   /// Minimum wave frequency in discrete frequency selection range.
+   double min_disc_freq;
+
+   /// Maximum wave frequency in discrete frequency selection range.
+   double max_disc_freq;
+
+   /// Number of waves to discretize PSD to.
+   std::size_t num_waves;
+
+   /// Interval method to use for frequency bins.
+   Interval::Method int_method;
+
+   /// Frequency discretization method parameters.
+   DiscMethod::ParamsVariant disc_params;
+
+   /// Wavenumber direction parameters.
+   Direction::ParamsVariant dir_params;
+
+   /// Seed to use for wave phase randomization.
+   int phase_seed;
+
+   /// Wave speeds to use.
+   char speed;
+
+   /// Transfer function parameters. None if not set.
+   std::optional<TransferFunction::ParamsVariant> tf_params;
+};
+
+template<>
+struct Source::Params<Source::Option::WaveCSV>
+{
+   /// Wave CSV file (output from \ref WriteWaves()).
+   std::string file;
+};
 
 // ----------------------------------------------------------------------------
 /**

@@ -63,16 +63,17 @@ int main(int argc, char *argv[])
    std::cout << LINE << std::endl;
 
    std::vector<Wave> waves;
-   for (const Source::ParamsVariant &spv : conf.Sources())
+   for (const Source::ParamsVariant &spv : conf.sources_params)
    {
-      std::visit(SourceVisitor{conf.BaseFlow(), waves}, spv);
+      std::visit(SourceVisitor{CreateBaseFlow(conf.base_flow_params), waves},
+                 spv);
    }
 
    std::vector<double> freqs(waves.size()), amps(waves.size());
    for (std::size_t i = 0; i < waves.size(); i++)
    {
       freqs[i] = waves[i].frequency;
-      amps[i] = waves[i].amplitude / (nd ? conf.BaseFlow().p : 1.0);
+      amps[i] = waves[i].amplitude / (nd ? conf.base_flow_params.p : 1.0);
    }
 
    std::FILE *gnuplot = popen("gnuplot", "w");

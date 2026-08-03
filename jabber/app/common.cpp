@@ -47,7 +47,8 @@ void PrintBanner(std::ostream &out)
    out << banner << std::endl << std::endl;
 }
 
-void Normalize(std::span<const double> vec, std::span<double> norm_vec)
+void Normalize(const std::span<const double> &vec,
+               std::span<double> norm_vec)
 {
    double sum_sq = 0.0;
    for (std::size_t i = 0; i < vec.size(); i++)
@@ -63,6 +64,10 @@ void Normalize(std::span<const double> vec, std::span<double> norm_vec)
    }
 }
 
+BaseFlow CreateBaseFlow(const BaseFlowParams &bf_params)
+{
+   return BaseFlow(bf_params.gamma, bf_params.p, bf_params.rho, bf_params.U);
+}
 
 void InputXYVisitor::operator()
 (const InputXY::Params<Here> &op)
@@ -184,11 +189,11 @@ void DiscMethodVisitor::operator()
 {
    std::mt19937 gen(op.seed);
 
-   const std::vector<double> &U_infty = base_flow_params.U;
-   const double &p_infty = base_flow_params.p;
-   const double &rho_infty = base_flow_params.rho;
-   const double &gamma = base_flow_params.gamma;
-   const double c_infty = std::sqrt(gamma*p_infty/rho_infty);
+   const std::vector<double> &U_infty = base_flow.U;
+   const double &p_infty = base_flow.p;
+   const double &rho_infty = base_flow.rho;
+   const double &gamma = base_flow.gamma;
+   const double &c_infty = base_flow.c;
 
    for (std::size_t i = 0; i < freqs.size(); i++)
    {
@@ -276,27 +281,7 @@ void DirectionVisitor::operator()
 void TransferFunctionVisitor::operator()
 (const TransferFunction::Params<LowFrequencyLimit> &op)
 {
-   const double &p_bar = base_flow_params.p;
-   const double &rho_bar = base_flow_params.rho;
-   const double &gamma = base_flow_params.gamma;
-   const double c_bar = std::sqrt(gamma*p_bar/rho_bar);
-
-   const double vel_bar =
-      [&]()
-   {
-      double mag_sq = 0.0;
-      for (int d = 0; d < base_flow_params.U.size(); d++)
-      {
-         const double &v = base_flow_params.U[d];
-         mag_sq += v*v;
-      }
-      return std::sqrt(mag_sq);
-   }
-   ();
-
-   const double mach_bar = vel_bar/c_bar;
-
-   const double chi_star = LowFrequencyLimitTF(mach_bar, gamma, speed);
+   const double chi_star = LowFrequencyLimitTF(base_flow, speed);
 
    for (std::size_t i = 0; i < freqs.size(); i++)
    {
@@ -319,39 +304,9 @@ void TransferFunctionVisitor::operator()
 void TransferFunctionVisitor::operator()
 (const TransferFunction::Params<FlowNormalFit> &op)
 {
-   const double &p_bar = base_flow_params.p;
-   const double &rho_bar = base_flow_params.rho;
-   const double &gamma = base_flow_params.gamma;
-   const double c_bar = std::sqrt(gamma*p_bar/rho_bar);
 
-   const double vel_bar =
-      [&]()
-   {
-      double mag_sq = 0.0;
-      for (int d = 0; d < base_flow_params.U.size(); d++)
-      {
-         const double &v = base_flow_params.U[d];
-         mag_sq += v*v;
-      }
-      return std::sqrt(mag_sq);
-   }
-   ();
-
-   const double mach_bar = vel_bar/c_bar;
-
-   const double chi_star = LowFrequencyLimitTF(mach_bar, gamma, speed);
-
-   const double f_s =
-      [&]()
-   {
-      const double RT = p_bar/rho_bar;
-      const double RT_0 = RT*(1 + ((gamma-1.0)/2)*mach_bar*mach_bar);
-
-      const double c_0 = std::sqrt(gamma*RT_0);
-
-      return c_0/(2*op.shock_standoff_dist);
-   }
-   ();
+   const double chi_star = LowFrequencyLimitTF(base_flow, speed);
+   const double f_s = ComputeStandoffFreq(base_flow, op.shock_standoff_dist);
 
    for (std::size_t i = 0; i < freqs.size(); i++)
    {
@@ -395,7 +350,7 @@ void SourceVisitor::operator()
    std::vector<double> freqs(op.num_waves);
    const double min_freq = op.min_disc_freq;
    const double max_freq = op.max_disc_freq;
-   std::visit(DiscMethodVisitor{base_flow_params, k_hats, op.speed, 
+   std::visit(DiscMethodVisitor{base_flow, k_hats, op.speed, 
                                  min_freq,max_freq,freqs}, op.disc_params);
 
    // Sort the frequencies in ascending order, + k_hats with them.
@@ -424,7 +379,7 @@ void SourceVisitor::operator()
    // Apply transfer function to the powers
    if (op.tf_params.has_value())
    {
-      std::visit(TransferFunctionVisitor{base_flow_params, freqs, op.speed,
+      std::visit(TransferFunctionVisitor{base_flow, freqs, op.speed,
                                          powers},
                  *op.tf_params);
    }
@@ -433,7 +388,7 @@ void SourceVisitor::operator()
    for (std::size_t i = 0; i < amps.size(); i++)
    {
       amps[i] = std::sqrt(2*powers[i]*op.scale_fac.value_or(1.0))
-                *base_flow_params.p;
+                *base_flow.p;
    }
 
    // Compute the phases of each wave
@@ -469,18 +424,19 @@ AcousticField InitializeAcousticField(const ConfigInput &conf,
                                       int dim)
 {
    // Get relevant input metadata
-   const BaseFlowParams &base_conf = conf.BaseFlow();
-   const CompParams &comp_conf = conf.Comp();
-   const std::vector<Source::ParamsVariant> &sources_conf = conf.Sources();
+   const BaseFlowParams &base_conf = conf.base_flow_params;
+   const CompParams &comp_conf = conf.comp_params;
+   const std::vector<Source::ParamsVariant> &sources_conf = conf.sources_params;
+
+   const BaseFlow flow = CreateBaseFlow(base_conf);
 
    // Initialize acoustic field
-   AcousticField field(dim, coords, base_conf.p, base_conf.rho,
-                       base_conf.U, base_conf.gamma, comp_conf.kernel);
+   AcousticField field(dim, coords, flow, comp_conf.kernel);
 
    // Assemble vector of wave structs based on input source
    for (const Source::ParamsVariant &source : sources_conf)
    {
-      std::visit(SourceVisitor{base_conf, field.Waves()}, source);
+      std::visit(SourceVisitor{flow, field.Waves()}, source);
    }
 
    // Finalize the acoustic field initialization

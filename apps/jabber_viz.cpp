@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
    socketstream rhoE_sock;
 
 
-   double t = conf.Comp().t0;
+   double t = conf.comp_params.t0;
    for (int i = 0; i < num_timesteps; i++)
    {
 

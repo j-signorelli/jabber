@@ -28,69 +28,19 @@ namespace app
 /// Complete input configuration.
 class ConfigInput
 {
-protected:
-
-   /// Input base flow parameters.
-   BaseFlowParams base_flow_;
-
-   /// Input source parameters.
-   std::vector<Source::ParamsVariant> sources_;
-
-   /// Input computation parameters.
-   CompParams comp_;
-
-   /// Input preCICE parameters.
-   std::optional<PreciceParams> precice_;
-
 public:
 
-   /// Get reference to base flow parameters.
-   BaseFlowParams &BaseFlow()
-   {
-      return base_flow_;
-   }
+   /// Input base flow parameters.
+   BaseFlowParams base_flow_params;
 
-   /// Get const reference to base flow parameters.
-   const BaseFlowParams &BaseFlow() const
-   {
-      return base_flow_;
-   }
+   /// Input source parameters.
+   std::vector<Source::ParamsVariant> sources_params;
 
-   /// Get reference to source parameters.
-   std::vector<Source::ParamsVariant> &Sources()
-   {
-      return sources_;
-   }
+   /// Input computation parameters.
+   CompParams comp_params;
 
-   /// Get const reference to source parameters.
-   const std::vector<Source::ParamsVariant> &Sources() const
-   {
-      return sources_;
-   }
-
-   /// Get reference to computation parameters.
-   CompParams &Comp()
-   {
-      return comp_;
-   }
-
-   /// Get const reference to computation parameters.
-   const CompParams &Comp() const
-   {
-      return comp_;
-   }
-
-   /// Get reference to preCICE parameters.
-   std::optional<PreciceParams> &Precice()
-   {
-      return precice_;
-   }
-
-   /// Get const reference to preCICE parameters.
-   const std::optional<PreciceParams> &Precice() const
-   {
-      return precice_;
-   }
+   /// Input preCICE parameters.
+   std::optional<PreciceParams> precice_params;
 
    /// Print the configured base flow parameters.
    void PrintBaseFlowParams(std::ostream &out) const;

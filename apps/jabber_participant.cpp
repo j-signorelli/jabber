@@ -84,10 +84,10 @@ int main(int argc, char *argv[])
    ROOT std::cout << LINE << std::endl;
 
    // Get the preCICE input
-   const PreciceParams &precice_conf = *(conf.Precice());
+   const PreciceParams &precice_conf = *(conf.precice_params);
 
    // Use the dim based on the base flow freestream velocity
-   const int dim = conf.BaseFlow().U.size();
+   const int dim = conf.base_flow_params.U.size();
 
    // Initialize preCICE participant
    precice::Participant participant(precice_conf.participant_name,
@@ -124,6 +124,64 @@ int main(int argc, char *argv[])
    participant.getMeshVertexIDsAndCoordinates(precice_conf.fluid_mesh_name,
                                               vertex_ids, coords);
 
+   // Set L_z and dz in the oblique wave configs!!!
+   // Get all unique zs
+   const double tol = 1e-9;
+   std::vector<double> zs(vertex_size);
+   for (int i = 0; i < vertex_size; i++)
+   {
+      if (std::find_if(zs.begin(), zs.end(),
+         [&](const double &z)
+         {
+            return std::abs(z-coords[i+2]) <= tol;
+         }) == zs.end())
+      {
+         zs.push_back(coords[i+2]);
+      }
+   }
+   std::sort(zs.begin(), zs.end());
+
+   // Get the length
+   const double l_z = zs.back();
+   const double dz = zs[1]-zs[0];
+
+   ROOT
+   {
+      std::cout << "Domain z-length: " << l_z << std::endl;
+      std::cout << "dz: " << dz << std::endl;
+      std::cout << "Periodic length: " << l_z + dz << std::endl;
+      std::cout << LINE << std::endl;
+   }
+
+   // Loop through the sources.
+   // If source is a RandomPeriodicOblique, set the
+   for (Source::ParamsVariant &source : conf.sources_params)
+   {
+      Source::Params<Source::Option::PSD> *sp = 
+         std::get_if<Source::Params<Source::Option::PSD>>(&source);
+      if (sp)
+      {
+         std::visit(
+         [&]<DiscMethod::Option O>(DiscMethod::Params<O> &dp)
+         {
+            if constexpr (O == DiscMethod::Option::RandomPeriodicOblique)
+            {
+               dp.z_length = l_z;
+               dp.dz = dz;
+            }
+         }
+         , sp->disc_params);
+      }
+   }
+
+   ROOT
+   {
+      std::cout << "Updated Sources: " << std::endl;
+      conf.PrintSourceParams(*os);
+      std::cout << std::endl;
+   }
+
+
 #ifdef JABBER_WITH_MPI
    std::span<const double> rank_coords;
    std::span<const int> rank_vertex_ids;
@@ -141,6 +199,8 @@ int main(int argc, char *argv[])
    AcousticField field = InitializeAcousticField(conf, coords, dim);
    ROOT std::cout << "Done!" << std::endl;
 
+   double time = conf.comp_params.t0;
+   double dt;
    // Get the time and timestep from PC2
    std::vector<double> time_data(dim);
    std::vector<int> time_data_vertex_ids(1);
