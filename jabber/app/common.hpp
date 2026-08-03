@@ -77,7 +77,7 @@ struct DiscMethodVisitor
    using enum DiscMethod::Option;
 
    /// Base flow parameters.
-   const BaseFlowParams &base_flow_params;
+   const BaseFlow &base_flow;
 
    /// Direction vectors.
    const std::vector<std::vector<double>> &k_hats;

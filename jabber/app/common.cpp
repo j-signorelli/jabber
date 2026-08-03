@@ -182,11 +182,11 @@ void DiscMethodVisitor::operator()
 {
    std::mt19937 gen(op.seed);
 
-   const std::vector<double> &U_infty = base_flow_params.U;
-   const double &p_infty = base_flow_params.p;
-   const double &rho_infty = base_flow_params.rho;
-   const double &gamma = base_flow_params.gamma;
-   const double c_infty = std::sqrt(gamma*p_infty/rho_infty);
+   const std::vector<double> &U_infty = base_flow.U;
+   const double &p_infty = base_flow.p;
+   const double &rho_infty = base_flow.rho;
+   const double &gamma = base_flow.gamma;
+   const double &c_infty = base_flow.c;
 
    for (std::size_t i = 0; i < freqs.size(); i++)
    {
@@ -342,7 +342,7 @@ void SourceVisitor::operator()
    std::vector<double> freqs(op.num_waves);
    const double min_freq = op.min_disc_freq;
    const double max_freq = op.max_disc_freq;
-   std::visit(DiscMethodVisitor{base_flow_params, k_hats, op.speed, 
+   std::visit(DiscMethodVisitor{base_flow, k_hats, op.speed, 
                                  min_freq,max_freq,freqs}, op.disc_params);
 
    // Sort the frequencies in ascending order, + k_hats with them.
