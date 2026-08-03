@@ -1,4 +1,5 @@
 set(JABBER_CORE_SOURCES
+      base_flow.cpp
       interpolant.cpp
       acoustic_field.cpp
       transfer_functions.cpp
@@ -6,6 +7,7 @@ set(JABBER_CORE_SOURCES
       psd.cpp)
 
 set(JABBER_CORE_HEADERS
+      base_flow.hpp
       interpolant.hpp
       acoustic_field.hpp
       transfer_functions.hpp

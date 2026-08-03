@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
    AcousticField field = InitializeAcousticField(conf, coords, 3);
 
    double time = 0.0;
-   const double c_sq = conf.BaseFlow().gamma*
-                       conf.BaseFlow().p/conf.BaseFlow().rho;
+   const double c_sq = conf.base_flow_params.gamma*
+                       conf.base_flow_params.p/conf.base_flow_params.rho;
 
    // Initialize vector of all pressures.
    std::vector<double> p_prime(nt, 0.0);
@@ -109,10 +109,10 @@ int main(int argc, char *argv[])
    {
       field.Compute(time);
       time += dt;
-      p_prime[i] = c_sq*(field.Density()[0] - conf.BaseFlow().rho);
+      p_prime[i] = c_sq*(field.Density()[0] - conf.base_flow_params.rho);
       if (nd)
       {
-         p_prime[i] /= conf.BaseFlow().p;
+         p_prime[i] /= conf.base_flow_params.p;
       }
    }
 

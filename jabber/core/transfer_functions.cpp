@@ -16,6 +16,17 @@ double LowFrequencyLimitTF(double mach_bar, double gamma, char speed)
    return frac*frac;
 }
 
+double ComputeStandoffFreq(const BaseFlow &base_flow, double delta)
+{
+   const double RT = base_flow.p/base_flow.rho;
+   const double RT_0 = RT*(1 + ((base_flow.gamma-1.0)/2.0)
+                           *base_flow.M*base_flow.M);
+
+   const double c_0 = std::sqrt(base_flow.gamma*RT_0);
+
+   return c_0/(2*delta);
+}
+
 struct FlowNormalBezierFit
 {
    static constexpr int kN = 9;
