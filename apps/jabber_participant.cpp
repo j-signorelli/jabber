@@ -127,16 +127,16 @@ int main(int argc, char *argv[])
    // Set L_z and dz in the oblique wave configs!!!
    // Get all unique zs
    const double tol = 1e-9;
-   std::vector<double> zs(vertex_size);
+   std::vector<double> zs;
    for (int i = 0; i < vertex_size; i++)
    {
       if (std::find_if(zs.begin(), zs.end(),
          [&](const double &z)
          {
-            return std::abs(z-coords[i+2]) <= tol;
+            return std::abs(z-coords[i*dim+2]) <= tol;
          }) == zs.end())
       {
-         zs.push_back(coords[i+2]);
+         zs.push_back(coords[i*dim+2]);
       }
    }
    std::sort(zs.begin(), zs.end());
