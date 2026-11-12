@@ -54,7 +54,7 @@ TEST_CASE("Read + write Waves", "[Wave]")
 TEST_CASE("Compute wavenumber k", "[Wave][AcousticField]")
 {
    const std::vector<double> U_infty({2*std::sqrt(2), std::sqrt(2)});
-   constexpr double c_infty = 1.0;
+   BaseFlow bf(1.0, 1.0, 1.0, U_infty);
 
    Wave test_wave;
    test_wave.amplitude = 0.0;
@@ -66,14 +66,14 @@ TEST_CASE("Compute wavenumber k", "[Wave][AcousticField]")
    SECTION("Slow")
    {
       test_wave.speed = 'S';
-      REQUIRE_THAT(ComputeWavenumber(U_infty, c_infty, test_wave),
+      REQUIRE_THAT(ComputeWavenumber(bf, test_wave),
                    WithinULP(1.0/2.0, 5));
    }
 
    SECTION("Fast")
    {
       test_wave.speed = 'F';
-      REQUIRE_THAT(ComputeWavenumber(U_infty, c_infty, test_wave),
+      REQUIRE_THAT(ComputeWavenumber(bf, test_wave),
                    WithinULP(1.0/4.0, 5));
    }
 
@@ -86,7 +86,7 @@ TEST_CASE("Compute wavenumber k", "[Wave][AcousticField]")
          k_i *= -1.0;
       });
 
-      REQUIRE_THROWS(ComputeWavenumber(U_infty, c_infty, test_wave));
+      REQUIRE_THROWS(ComputeWavenumber(bf, test_wave));
    }
 }
 
