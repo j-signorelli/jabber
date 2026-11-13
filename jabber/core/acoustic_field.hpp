@@ -197,6 +197,12 @@ inline double ComputeWavenumber(std::span<const double> U_infty,
                             wave.speed);
 }
 
+/// Compute the wavenumber given a \ref BaseFlow.
+inline double ComputeWavenumber(const BaseFlow &bf, const Wave &wave)
+{
+   return ComputeWavenumber(bf.U, bf.c, wave);
+}
+
 /**
  * @brief Class for specifying and computing a broadband-spectrum acoustic
  * field onto a provided grid and base flow.
