@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
         build_type: [Release]
         cpp_compiler: [g++, clang++]
         omp: [on, off]
@@ -29,7 +29,7 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Get OpenMP
-      if: matrix.os == 'ubuntu-latest' && matrix.cpp_compiler == 'clang++'
+      if: startsWith(matrix.os, 'ubuntu') && matrix.cpp_compiler == 'clang++'
       run: sudo apt install libomp-dev
 
     - name: Checkout w/ submodules
